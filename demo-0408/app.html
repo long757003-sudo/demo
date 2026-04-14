@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>信息化项目全生命周期管理系统</title>
+  <link rel="stylesheet" href="shared/style.css">
+  <script src="shared/data.js"></script>
+  <script src="shared/core.js"></script>
+  <script src="shared/nav.js"></script>
+  <script src="shared/views/dashboard.js"></script>
+  <script src="shared/views/demand.js"></script>
+  <script src="shared/views/approval.js"></script>
+  <script src="shared/views/expert.js"></script>
+  <script src="shared/views/review.js"></script>
+  <script src="shared/views/project.js"></script>
+  <script src="shared/views/notification.js"></script>
+  <script src="shared/views/acceptance.js"></script>
+  <script src="shared/views/finance.js"></script>
+  <script src="shared/views/logs.js"></script>
+  <script src="shared/views/system.js"></script>
+</head>
+<body>
+<div class="layout">
+  <header class="layout-header">
+    <div class="logo">信息化项目全生命周期管理系统</div>
+    <div class="header-right">
+      <span style="font-size:12px;color:#94a3b8;font-weight:500;letter-spacing:0.5px">当前角色</span>
+      <select class="role-select" id="role-switcher" onchange="switchRole(this.value)"></select>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#e2e8f0;" onclick="window.location.href='index.html'" onmouseover="this.style.background='rgba(255,255,255,.2)'" onmouseout="this.style.background='rgba(255,255,255,.1)'">退出</button>
+    </div>
+  </header>
+  <div class="layout-body">
+    <nav class="layout-sidebar" id="sidebar"></nav>
+    <main class="layout-content" id="main-content">
+      <div class="empty-state"><p>正在加载...</p></div>
+    </main>
+  </div>
+</div>
+<script>
+  function initRoleSwitcher() {
+    const sel = document.getElementById('role-switcher');
+    const cur = getCurrentRole();
+    DATA.roles.forEach(r => {
+      const o = document.createElement('option');
+      o.value = r.id;
+      o.textContent = r.short;
+      if (r.id === cur) o.selected = true;
+      sel.appendChild(o);
+    });
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!localStorage.getItem('currentRole')) { window.location.href = 'index.html'; return; }
+    initRoleSwitcher();
+    renderNav();
+    renderView(getCurrentView());
+  });
+</script>
+</body>
+</html>

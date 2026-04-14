@@ -1,6 +1,126 @@
 // shared/views/notification.js  —  V2.1
 
 /* ============================================================
+   MODULE-LEVEL: 从模板导入 — notification-create 辅助函数
+   定义在顶层确保 onclick 可直接调用（innerHTML 不执行 <script>）
+   ============================================================ */
+var _notifImportTmplData = [
+  { module:'需求征集', nodeKey:'1-1', nodeLabel:'信息办发布征集通知',    seq:1,   notifKind:'待阅', title:'【征集通知】{{批次名称}} 信息化项目需求征集开始',                                        body:'征集时间：{{开始日期}} 至 {{截止日期}}，请登录系统填报需求申请表。' },
+  { module:'需求征集', nodeKey:'1-2', nodeLabel:'指派项目负责人',         seq:3,   notifKind:'待办', title:'【待办】您被指派为「{{项目名称}}」项目负责人，请填报需求申请表',                         body:'截止日期：{{征集截止日期}}，请尽快完成需求填报并提交单位负责人审核。' },
+  { module:'需求征集', nodeKey:'1-3', nodeLabel:'需求申请表提交单位审批', seq:4,   notifKind:'待办', title:'【待审批】「{{项目名称}}」需求申请表待您审批',                                         body:'申报人：{{经办人姓名}}，预估预算：{{预算金额}}，请审核后决定是否通过。' },
+  { module:'需求征集', nodeKey:'1-3', nodeLabel:'需求申请表提交单位审批', seq:6,   notifKind:'待办', title:'【已驳回】「{{项目名称}}」需求申请被驳回，请修改后重新提交',                            body:'驳回原因：{{驳回原因}}，请修改后重新提交。' },
+  { module:'需求征集', nodeKey:'1-4', nodeLabel:'单位内项目排序',         seq:7,   notifKind:'待办', title:'【待办】请对本单位 {{N}} 个需求申请完成优先级排序后提交',                               body:'排序截止：{{截止日期}}，请登录系统完成排序并提交信息办。' },
+  { module:'需求征集', nodeKey:'1-5', nodeLabel:'自动初筛 & 人工复核',    seq:10,  notifKind:'待阅', title:'【未通过】「{{项目名称}}」未通过需求初筛',                                            body:'原因：{{初筛原因}}。如有疑问请联系信息化建设办公室。' },
+  { module:'需求征集', nodeKey:'1-5', nodeLabel:'自动初筛 & 人工复核',    seq:11,  notifKind:'待阅', title:'【通过初筛】「{{项目名称}}」已通过需求初筛，进入立项论证阶段',                          body:'请关注后续立项论证安排通知。' },
+  { module:'立项论证', nodeKey:'2-1', nodeLabel:'填报立项申报书',          seq:13,  notifKind:'待办', title:'【待办】请完成「{{项目名称}}」立项申报书及建设方案填报',                               body:'截止日期：{{申报截止日期}}，请及时提交信息办审核。' },
+  { module:'立项论证', nodeKey:'2-2', nodeLabel:'信息办审核申报材料',      seq:17,  notifKind:'待办', title:'【材料退回】「{{项目名称}}」申报材料需补充修改',                                      body:'退回意见：{{退回意见}}，请在 {{截止日期}} 前重新提交。' },
+  { module:'立项论证', nodeKey:'2-3', nodeLabel:'论证专家选取与邀请',      seq:21,  notifKind:'待办', title:'【论证邀请】邀请您参与「{{项目名称}}」立项论证，请确认是否接受',                        body:'论证时间：{{时间}}，地点/方式：{{地点/线上}}，请在 {{响应截止}} 前确认。' },
+  { module:'立项论证', nodeKey:'2-4', nodeLabel:'专家论证与评审',          seq:29,  notifKind:'待办', title:'【催办】请在 {{截止时间}} 前完成「{{项目名称}}」论证评审意见提交',                      body:'您尚未提交评审意见，逾期将影响论证结果，请尽快操作。' },
+  { module:'立项论证', nodeKey:'2-5', nodeLabel:'论证意见审核与公示',      seq:32,  notifKind:'待阅', title:'【论证结果】「{{项目名称}}」专家论证意见已可查看',                                    body:'论证结论：{{通过/修改后通过/不通过}}，请登录系统查看详细意见。' },
+  { module:'立项论证', nodeKey:'2-6', nodeLabel:'领导小组审定与立项下达',  seq:36,  notifKind:'待阅', title:'【立项通知】「{{项目名称}}」已正式立项，立项通知书已下达',                            body:'采购截止：{{采购截止日期}}，合同截止：{{合同截止日期}}，请及时启动采购流程。' },
+  { module:'立项论证', nodeKey:'2-7', nodeLabel:'立项有效期预警',          seq:40,  notifKind:'待办', title:'【紧急预警】「{{项目名称}}」采购截止日还剩 30 天，请尽快启动采购',                      body:'采购截止：{{日期}}，超期立项自动失效。' },
+  { module:'招采管理', nodeKey:'3-1', nodeLabel:'采购文件编制 & 技术审核', seq:47,  notifKind:'待办', title:'【待审核】「{{项目名称}}」采购文件待技术审核',                                       body:'请审核技术规范与建设方案一致性、接口标准、安全防护等内容。' },
+  { module:'招采管理', nodeKey:'3-2', nodeLabel:'供应商调研校验',          seq:51,  notifKind:'待办', title:'【提交失败】「{{项目名称}}」调研供应商不足 3 家，无法提交',                           body:'当前调研供应商：{{N}} 家，非单一来源采购须至少调研 3 家供应商方可提交。' },
+  { module:'招采管理', nodeKey:'3-3', nodeLabel:'合同审核与签订',          seq:52,  notifKind:'待办', title:'【待审核】「{{项目名称}}」合同草稿待审核',                                          body:'合同金额：{{金额}}，请审核关键条款：建设内容、周期、数据治理、付款方式、维保年限。' },
+  { module:'招采管理', nodeKey:'3-3', nodeLabel:'合同审核与签订',          seq:58,  notifKind:'待阅', title:'【合同已签订】「{{项目名称}}」合同签订完成，项目正式进入实施阶段',                     body:'合同金额：{{金额}}，建设周期：{{起止日期}}。' },
+  { module:'项目实施', nodeKey:'4-1', nodeLabel:'组建工作小组',            seq:61,  notifKind:'待阅', title:'【工作小组成立】「{{项目名称}}」工作小组已成立，您是其中成员',                        body:'您的角色：{{角色}}，项目周期：{{起止日期}}，请关注后续实施安排。' },
+  { module:'项目实施', nodeKey:'4-2', nodeLabel:'定期进度汇报',            seq:63,  notifKind:'待办', title:'【催办】「{{项目名称}}」进度汇报逾期未提交，请立即提交',                            body:'已逾期 {{N}} 天，请尽快补交，连续未报将通知单位领导。' },
+  { module:'项目实施', nodeKey:'4-3', nodeLabel:'变更申请',                seq:70,  notifKind:'待阅', title:'【变更批准】「{{项目名称}}」变更申请已批准',                                        body:'变更内容：{{摘要}}，生效日期：{{日期}}。' },
+  { module:'项目实施', nodeKey:'4-4', nodeLabel:'延期申请',                seq:73,  notifKind:'待办', title:'【延期预警】「{{项目名称}}」距建设截止还剩 30 个工作日，如需延期请立即申请',           body:'延期申请须提前 30 个工作日提交，请尽快评估。' },
+  { module:'项目终止', nodeKey:'4-5', nodeLabel:'终止申请',                seq:82,  notifKind:'待阅', title:'【项目终止】「{{项目名称}}」已获批终止',                                            body:'终止通知书已生成，请配合完成善后工作（资金退回/资产清查等）。' },
+  { module:'项目验收', nodeKey:'5-2', nodeLabel:'内部初验',                seq:88,  notifKind:'待办', title:'【待初验】「{{项目名称}}」内部初验已开始，请按检查项逐一确认并填写结果',               body:'检查维度：功能、性能、数据、培训、文档，完成后提交初验结论。' },
+  { module:'项目验收', nodeKey:'5-3', nodeLabel:'试运行监控',              seq:92,  notifKind:'待办', title:'【待办】「{{项目名称}}」试运行期满，可提交正式验收申请',                            body:'请整理验收材料并提交验收申请。' },
+  { module:'项目验收', nodeKey:'5-4', nodeLabel:'信息办组织正式验收',      seq:95,  notifKind:'待办', title:'【验收邀请】邀请您参与「{{项目名称}}」项目验收，请确认出席',                         body:'验收时间：{{时间}}，地点/方式：{{地点/链接}}，请在 {{截止日期}} 前确认。' },
+  { module:'项目验收', nodeKey:'5-5', nodeLabel:'验收评审结果',            seq:98,  notifKind:'待阅', title:'【验收通过】「{{项目名称}}」正式验收通过！请完成文档归档与资产移交',                  body:'验收日期：{{日期}}，请在 {{截止日期}} 前完成资产移交和文档归档。' },
+  { module:'项目验收', nodeKey:'5-6', nodeLabel:'资产移交与归档',          seq:107, notifKind:'待办', title:'【待确认】「{{项目名称}}」资产移交清单待确认',                                      body:'请核对移交资产清单并签字确认。' },
+  { module:'运维管理', nodeKey:'6-1', nodeLabel:'运维团队组建',            seq:110, notifKind:'待阅', title:'【运维接管】「{{项目名称}}」已移交运维，您是运维团队成员',                           body:'维保起始：{{日期}}，维保截止：{{日期}}，请熟悉运维规范。' },
+  { module:'运维管理', nodeKey:'6-2', nodeLabel:'定期巡检',                seq:115, notifKind:'待办', title:'【巡检异常待处理】「{{项目名称}}」巡检发现异常，已创建故障工单，请及时处理',           body:'工单号：{{工单号}}，异常项：{{摘要}}。' },
+  { module:'运维管理', nodeKey:'6-3', nodeLabel:'故障上报',                seq:116, notifKind:'待办', title:'【重大故障】「{{项目名称}}」发生重大故障，请立即处理',                               body:'故障描述：{{描述}}，发现时间：{{时间}}，影响范围：{{范围}}，请2小时内提交处置方案。' },
+  { module:'运维管理', nodeKey:'6-4', nodeLabel:'合同到期提醒',            seq:117, notifKind:'待阅', title:'【合同到期】「{{项目名称}}」维保合同将于 {{日期}} 到期，请及时处理续签',               body:'合同号：{{contractId}}，到期日：{{expireDate}}，请提前评估是否续签或重新采购。' },
+];
+
+window._toggleImportCard = function() {
+  var b = document.getElementById('notif-import-body');
+  var i = document.getElementById('notif-import-ico');
+  var l = document.getElementById('notif-import-lbl');
+  var open = b && b.style.display !== 'none';
+  if (b) b.style.display = open ? 'none' : 'block';
+  if (i) i.textContent = open ? '▶' : '▼';
+  if (l) l.textContent = open ? '展开' : '收起';
+  if (!open) window._filterImport();
+};
+
+window._updateImportNodes = function() {
+  var mod = (document.getElementById('notif-im-mod') || {}).value || '';
+  var nd = document.getElementById('notif-im-node');
+  if (!nd) return;
+  var seen = {};
+  var opts = '<option value="">全部节点</option>';
+  _notifImportTmplData.forEach(function(t) {
+    if ((!mod || t.module === mod) && !seen[t.nodeLabel]) {
+      seen[t.nodeLabel] = 1;
+      opts += '<option>' + t.nodeLabel + '</option>';
+    }
+  });
+  nd.innerHTML = opts;
+  window._filterImport();
+};
+
+window._filterImport = function() {
+  var mod  = (document.getElementById('notif-im-mod')  || {}).value || '';
+  var node = (document.getElementById('notif-im-node') || {}).value || '';
+  var filtered = _notifImportTmplData.filter(function(t) {
+    if (mod  && t.module    !== mod)  return false;
+    if (node && t.nodeLabel !== node) return false;
+    return true;
+  });
+  var el = document.getElementById('notif-im-result');
+  if (!el) return;
+  if (!filtered.length) {
+    el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-secondary)">暂无匹配模板</div>';
+    return;
+  }
+  var html = '<div class="table-wrap"><table class="data-table"><thead><tr>' +
+    '<th style="width:160px">节点</th><th style="width:50px">类型</th><th>通知标题</th><th style="width:55px">操作</th>' +
+    '</tr></thead><tbody>';
+  var shown = filtered.length > 8 ? filtered.slice(0, 8) : filtered;
+  shown.forEach(function(t) {
+    var kc  = t.notifKind === '待办' ? 'orange' : 'blue';
+    var kt  = '<span class="tag tag-' + kc + '" style="font-size:11px">' + t.notifKind + '</span>';
+    var nc  = '<span style="font-size:11px;color:var(--text-muted)">' + t.nodeKey + '</span> ' + t.nodeLabel;
+    var btn = '<button class="btn btn-sm btn-primary" onclick="_doImport(' + t.seq + ')" style="font-size:11px;padding:2px 8px">导入</button>';
+    html += '<tr><td style="font-size:12px">' + nc + '</td><td>' + kt + '</td><td style="font-size:12px">' + t.title + '</td><td>' + btn + '</td></tr>';
+  });
+  html += '</tbody></table></div>';
+  if (filtered.length > 8) {
+    html += '<div style="text-align:center;font-size:12px;color:var(--text-secondary);padding:4px 0">显示前 8 条，共 ' + filtered.length + ' 条，请缩小筛选范围</div>';
+  }
+  el.innerHTML = html;
+};
+
+window._resetImport = function() {
+  var m = document.getElementById('notif-im-mod');
+  var n = document.getElementById('notif-im-node');
+  if (m) m.value = '';
+  if (n) n.innerHTML = '<option value="">全部节点</option>';
+  var el = document.getElementById('notif-im-result');
+  if (el) el.innerHTML = '<div style="text-align:center;padding:8px;font-size:12px;color:var(--text-secondary)">请选择模块和节点后查询</div>';
+};
+
+window._doImport = function(seq) {
+  var t = _notifImportTmplData.find(function(x) { return x.seq === seq; });
+  if (!t) return;
+  var te = document.getElementById('notif-title');
+  var ce = document.getElementById('notif-content');
+  if (te) te.value = t.title;
+  if (ce) ce.value = t.body || '';
+  toast('已导入模板：' + t.title.slice(0, 20) + (t.title.length > 20 ? '…' : ''), 'success');
+  var fc = document.getElementById('notif-form-card');
+  if (fc) fc.scrollIntoView({ behavior: 'smooth' });
+};
+
+
+/* ============================================================
    HELPERS (local, module-scoped via IIFE closure at bottom)
    ============================================================ */
 
@@ -69,19 +189,29 @@ registerView('notification-list', function() {
 
   /* table rows */
   const rows = sorted.map(n => {
+    const isDraft   = n.status === 'draft';
     const readCount = Object.values(n.readStatus || {}).filter(Boolean).length;
     const total     = Object.keys(n.readStatus || {}).length;
     const typeName  = typeNameMap[n.type] || n.type;
+    const sendTimeCell = isDraft ? '<span class="tag tag-gray">草稿</span>' : (n.sendTime || '—');
+    const readRateCell = isDraft ? '<span style="color:var(--text-secondary)">—</span>' : _readRateBar(readCount, total);
+    const deliveryCell = isDraft ? '<span style="color:var(--text-secondary)">—</span>' : _overallDeliveryTag(n);
+    const titleCell    = isDraft
+      ? '<span style="color:var(--text-secondary)">' + n.title + '</span>'
+      : '<a onclick="navigate(\'notification-detail\',{id:\'' + n.id + '\'})" style="color:var(--primary);cursor:pointer">' + n.title + '</a>';
+    const opBtn = isDraft && canCreate
+      ? '<button class="btn btn-sm btn-primary" style="font-size:11px" onclick="navigate(\'notification-create\',{id:\'' + n.id + '\'})">编辑草稿</button>'
+      : '<button class="btn btn-sm" onclick="navigate(\'notification-detail\',{id:\'' + n.id + '\'})">查看详情</button>';
     return '<tr>' +
       '<td>' + notifLevelTag(n.level) + '</td>' +
-      '<td><a onclick="navigate(\'notification-detail\',{id:\'' + n.id + '\'})" style="color:var(--primary);cursor:pointer">' + n.title + '</a></td>' +
+      '<td>' + titleCell + '</td>' +
       '<td><span class="tag tag-blue" style="font-size:11px">' + typeName + '</span></td>' +
       '<td>' + _channelBadges(n.channel) + '</td>' +
-      '<td>' + n.sender + '</td>' +
-      '<td>' + n.sendTime + '</td>' +
-      '<td>' + _readRateBar(readCount, total) + '</td>' +
-      '<td>' + _overallDeliveryTag(n) + '</td>' +
-      '<td><button class="btn btn-sm" onclick="navigate(\'notification-detail\',{id:\'' + n.id + '\'})">查看详情</button></td>' +
+      '<td>' + (n.sender || '—') + '</td>' +
+      '<td>' + sendTimeCell + '</td>' +
+      '<td>' + readRateCell + '</td>' +
+      '<td>' + deliveryCell + '</td>' +
+      '<td>' + opBtn + '</td>' +
     '</tr>';
   }).join('');
 
@@ -109,6 +239,7 @@ registerView('notification-list', function() {
           '<option value="">全部状态</option>' +
           '<option value="sent">已发送</option>' +
           '<option value="partial">部分失败</option>' +
+          '<option value="draft">草稿</option>' +
         '</select>' +
         '<button class="btn btn-primary btn-sm" onclick="_notifListFilter()">查询</button>' +
         '<button class="btn btn-sm" onclick="_notifListReset()">重置</button>' +
@@ -140,7 +271,7 @@ registerView('notification-list', function() {
     '(function() {' +
     '  var _allRows = ' + JSON.stringify(sorted.map(n => ({
         id: n.id, title: n.title, type: n.type, level: n.level,
-        delivery: Object.values(n.deliveryStatus || {}).every(v => v === 'delivered') ? 'sent' : 'partial'
+        delivery: n.status === 'draft' ? 'draft' : (Object.values(n.deliveryStatus || {}).every(v => v === 'delivered') ? 'sent' : 'partial')
       }))) + ';' +
     '  window._notifListFilter = function() {' +
     '    var kw = (document.getElementById("nf-keyword")||{}).value || "";' +
@@ -186,56 +317,35 @@ registerView('notification-list', function() {
 /* ============================================================
    VIEW 2: notification-create  新建通知
    ============================================================ */
-registerView('notification-create', function() {
+registerView('notification-create', function(params) {
+  params = params || {};
   const role = getCurrentRole();
 
-  /* ---- Type definitions with groups, templates, level ---- */
-  const typeGroups = [
-    {
-      label: '需求征集阶段',
-      types: [
-        { key: 'collection-notice',   name: '需求征集通知',   level: 'info',    title: '{{year}}年度信息化项目需求征集通知', content: '各单位：\n\n根据学校信息化建设工作安排，现启动{{year}}年度信息化项目需求征集工作，请各单位于{{deadline}}前登录系统提交项目需求申请，逾期将不予受理。\n\n请各单位负责人认真组织，填报内容务必真实、准确。\n\n信息化管理办公室\n{{date}}' },
-        { key: 'collection-returned', name: '征集方案退回',   level: 'warning', title: '征集方案退回通知', content: '您好：\n\n您提交的{{year}}年度征集方案存在以下问题需要修改：\n\n【退回原因】{{reason}}\n\n请于3个工作日内登录系统修改并重新提交。如有疑问请联系信息办。\n\n信息化管理办公室\n{{date}}' },
-        { key: 'demand-returned',     name: '需求退回',       level: 'warning', title: '需求申请退回通知 — {{project}}', content: '您好：\n\n您提交的「{{project}}」需求申请未能通过初审，已退回，具体原因如下：\n\n【退回原因】{{reason}}\n\n请登录系统查看退回意见并修改后重新提交。\n\n信息化管理办公室\n{{date}}' },
-      ]
-    },
-    {
-      label: '立项论证阶段',
-      types: [
-        { key: 'approval-invite',       name: '立项申报通知',   level: 'info',    title: '立项申报通知书 — {{project}}', content: '您好，{{user}}：\n\n您申报的「{{project}}」项目需求已通过遴选，请于{{deadline}}前登录系统完整填写《信息化项目建设申报书》，并上传相关附件。\n\n逾期未提交将影响本年度立项进程，请予以重视。\n\n信息化管理办公室\n{{date}}' },
-        { key: 'proposal-return',       name: '申报书退回',     level: 'warning', title: '申报书退回通知 — {{project}}', content: '您好：\n\n您提交的「{{project}}」建设申报书已被退回，请查看退回意见并修改后重新提交。\n\n【退回原因】{{reason}}\n\n信息化管理办公室\n{{date}}' },
-        { key: 'expert-invite',         name: '专家评审邀请',   level: 'info',    title: '专家评审邀请 — {{project}}立项论证', content: '尊敬的{{expert}}专家：\n\n诚邀您参加「{{project}}」立项论证评审会议。\n\n会议时间：{{meetingTime}}\n会议地点：{{meetingPlace}}\n\n请于收到本通知48小时内在系统中确认是否参会。如不能参会，请说明原因，以便我们及时调整安排。\n\n信息化管理办公室\n{{date}}' },
-        { key: 'review-result',         name: '评审结果通知',   level: 'info',    title: '评审结果通知 — {{project}}', content: '您好：\n\n「{{project}}」立项论证评审已完成，评审结论如下：\n\n【评审结论】{{conclusion}}\n\n如有疑问请联系信息办。\n\n信息化管理办公室\n{{date}}' },
-        { key: 'frozen-notice',         name: '项目冻结通知',   level: 'urgent',  title: '项目冻结通知 — {{project}}', content: '您好：\n\n「{{project}}」因{{reason}}，已依规冻结，冻结期至{{frozenUntil}}。\n\n冻结期间不得开展任何采购及建设活动。如需解冻，请向信息办提出申请。\n\n信息化管理办公室\n{{date}}' },
-        { key: 'approval-notice',       name: '立项通知书',     level: 'info',    title: '立项通知书 — {{project}}', content: '您好：\n\n「{{project}}」项目已正式获批立项，具体信息如下：\n\n项目编号：{{projectId}}\n批复金额：{{budget}}万元\n计划周期：{{planStart}} 至 {{planEnd}}\n\n请严格按照批复方案推进实施，尽快启动采购程序。如有变更需求，须提前申报。\n\n信息化管理办公室\n{{date}}' },
-        { key: 'approval-result-reject',name: '立项不通过通知', level: 'warning', title: '立项不通过通知 — {{project}}', content: '您好：\n\n「{{project}}」未能通过本次立项审定，具体原因如下：\n\n【未通过原因】{{reason}}\n\n您可在整改完善后，于下一年度重新申报。如有疑问，请联系信息办。\n\n信息化管理办公室\n{{date}}' },
-      ]
-    },
-    {
-      label: '采购/实施阶段',
-      types: [
-        { key: 'change-result',   name: '延期/变更/终止审批结果', level: 'info',   title: '审批结果通知 — {{project}}变更申请', content: '您好：\n\n您提交的「{{project}}」变更申请已完成审批，结果如下：\n\n【审批结论】{{conclusion}}\n\n请按批复结果推进后续工作。\n\n信息化管理办公室\n{{date}}' },
-        { key: 'overdue-warning', name: '汇报逾期预警',           level: 'urgent', title: '汇报逾期预警 — {{project}}', content: '您好：\n\n系统检测到「{{project}}」已超过规定汇报周期（每半月）未提交进展报告，请于24小时内登录系统提交。\n\n如持续逾期，将影响项目正常推进并计入考核。\n\n信息化管理办公室\n{{date}}' },
-      ]
-    },
-    {
-      label: '验收/运维阶段',
-      types: [
-        { key: 'acceptance-invite', name: '验收评审邀请',   level: 'info',    title: '验收评审邀请 — {{project}}', content: '尊敬的{{expert}}专家：\n\n诚邀您参加「{{project}}」正式验收评审会议。\n\n会议时间：{{meetingTime}}\n会议地点：{{meetingPlace}}\n\n请于收到本通知48小时内在系统中确认是否参会。\n\n信息化管理办公室\n{{date}}' },
-        { key: 'acceptance-result', name: '验收结果通知',   level: 'info',    title: '验收结果通知 — {{project}}', content: '您好：\n\n「{{project}}」验收评审已完成，评审结论如下：\n\n【验收结论】{{conclusion}}\n\n请按验收结论推进后续工作（如尾款支付、运维移交等）。\n\n信息化管理办公室\n{{date}}' },
-        { key: 'major-fault',       name: '重大故障上报',   level: 'urgent',  title: '重大故障上报 — {{project}}', content: '【紧急通知】\n\n「{{project}}」系统发生重大故障，概况如下：\n\n故障描述：{{faultDesc}}\n发现时间：{{faultTime}}\n影响范围：{{faultScope}}\n\n请相关负责人立即处理，并在2小时内提交应急处置方案。\n\n信息化管理办公室\n{{date}}' },
-        { key: 'contract-expiry',   name: '合同到期提醒',   level: 'warning', title: '合同到期提醒 — {{project}}', content: '您好：\n\n「{{project}}」相关合同（合同号：{{contractId}}）将于{{expireDate}}到期，届时服务/维保即告终止。\n\n请提前评估是否续签或重新采购，以避免服务中断。\n\n信息化管理办公室\n{{date}}' },
-      ]
-    },
+  /* draft edit mode */
+  const _draftNotif = params.id
+    ? (DATA.notifications || []).find(n => n.id === params.id && n.status === 'draft') || null
+    : null;
+  const _isEdit = !!_draftNotif;
+
+  /* flat type list for typeKey prefill (from template library navigation) */
+  const allTypes = [
+    { key: 'collection-notice',    level: 'info',    title: '{{year}}年度信息化项目需求征集通知', content: '各单位：\n\n根据学校信息化建设工作安排，现启动{{year}}年度信息化项目需求征集工作，请各单位于{{deadline}}前登录系统提交项目需求申请，逾期将不予受理。\n\n请各单位负责人认真组织，填报内容务必真实、准确。\n\n信息化管理办公室\n{{date}}' },
+    { key: 'collection-returned',  level: 'warning', title: '征集方案退回通知', content: '您好：\n\n您提交的{{year}}年度征集方案存在以下问题需要修改：\n\n【退回原因】{{reason}}\n\n请于3个工作日内登录系统修改并重新提交。如有疑问请联系信息办。\n\n信息化管理办公室\n{{date}}' },
+    { key: 'demand-returned',      level: 'warning', title: '需求申请退回通知 — {{project}}', content: '您好：\n\n您提交的「{{project}}」需求申请未能通过初审，已退回，具体原因如下：\n\n【退回原因】{{reason}}\n\n请登录系统查看退回意见并修改后重新提交。\n\n信息化管理办公室\n{{date}}' },
+    { key: 'approval-invite',      level: 'info',    title: '立项申报通知书 — {{project}}', content: '您好，{{user}}：\n\n您申报的「{{project}}」项目需求已通过遴选，请于{{deadline}}前登录系统完整填写《信息化项目建设申报书》，并上传相关附件。\n\n逾期未提交将影响本年度立项进程，请予以重视。\n\n信息化管理办公室\n{{date}}' },
+    { key: 'proposal-return',      level: 'warning', title: '申报书退回通知 — {{project}}', content: '您好：\n\n您提交的「{{project}}」建设申报书已被退回，请查看退回意见并修改后重新提交。\n\n【退回原因】{{reason}}\n\n信息化管理办公室\n{{date}}' },
+    { key: 'expert-invite',        level: 'info',    title: '专家评审邀请 — {{project}}立项论证', content: '尊敬的{{expert}}专家：\n\n诚邀您参加「{{project}}」立项论证评审会议。\n\n会议时间：{{meetingTime}}\n会议地点：{{meetingPlace}}\n\n请于收到本通知48小时内在系统中确认是否参会。如不能参会，请说明原因，以便我们及时调整安排。\n\n信息化管理办公室\n{{date}}' },
+    { key: 'review-result',        level: 'info',    title: '评审结果通知 — {{project}}', content: '您好：\n\n「{{project}}」立项论证评审已完成，评审结论如下：\n\n【评审结论】{{conclusion}}\n\n如有疑问请联系信息办。\n\n信息化管理办公室\n{{date}}' },
+    { key: 'frozen-notice',        level: 'urgent',  title: '项目冻结通知 — {{project}}', content: '您好：\n\n「{{project}}」因{{reason}}，已依规冻结，冻结期至{{frozenUntil}}。\n\n冻结期间不得开展任何采购及建设活动。如需解冻，请向信息办提出申请。\n\n信息化管理办公室\n{{date}}' },
+    { key: 'approval-notice',      level: 'info',    title: '立项通知书 — {{project}}', content: '您好：\n\n「{{project}}」项目已正式获批立项，具体信息如下：\n\n项目编号：{{projectId}}\n批复金额：{{budget}}万元\n计划周期：{{planStart}} 至 {{planEnd}}\n\n请严格按照批复方案推进实施，尽快启动采购程序。如有变更需求，须提前申报。\n\n信息化管理办公室\n{{date}}' },
+    { key: 'approval-result-reject', level: 'warning', title: '立项不通过通知 — {{project}}', content: '您好：\n\n「{{project}}」未能通过本次立项审定，具体原因如下：\n\n【未通过原因】{{reason}}\n\n您可在整改完善后，于下一年度重新申报。如有疑问，请联系信息办。\n\n信息化管理办公室\n{{date}}' },
+    { key: 'change-result',        level: 'info',    title: '审批结果通知 — {{project}}变更申请', content: '您好：\n\n您提交的「{{project}}」变更申请已完成审批，结果如下：\n\n【审批结论】{{conclusion}}\n\n请按批复结果推进后续工作。\n\n信息化管理办公室\n{{date}}' },
+    { key: 'overdue-warning',      level: 'urgent',  title: '汇报逾期预警 — {{project}}', content: '您好：\n\n系统检测到「{{project}}」已超过规定汇报周期（每半月）未提交进展报告，请于24小时内登录系统提交。\n\n如持续逾期，将影响项目正常推进并计入考核。\n\n信息化管理办公室\n{{date}}' },
+    { key: 'acceptance-invite',    level: 'info',    title: '验收评审邀请 — {{project}}', content: '尊敬的{{expert}}专家：\n\n诚邀您参加「{{project}}」正式验收评审会议。\n\n会议时间：{{meetingTime}}\n会议地点：{{meetingPlace}}\n\n请于收到本通知48小时内在系统中确认是否参会。\n\n信息化管理办公室\n{{date}}' },
+    { key: 'acceptance-result',    level: 'info',    title: '验收结果通知 — {{project}}', content: '您好：\n\n「{{project}}」验收评审已完成，评审结论如下：\n\n【验收结论】{{conclusion}}\n\n请按验收结论推进后续工作（如尾款支付、运维移交等）。\n\n信息化管理办公室\n{{date}}' },
+    { key: 'major-fault',          level: 'urgent',  title: '重大故障上报 — {{project}}', content: '【紧急通知】\n\n「{{project}}」系统发生重大故障，概况如下：\n\n故障描述：{{faultDesc}}\n发现时间：{{faultTime}}\n影响范围：{{faultScope}}\n\n请相关负责人立即处理，并在2小时内提交应急处置方案。\n\n信息化管理办公室\n{{date}}' },
+    { key: 'contract-expiry',      level: 'warning', title: '合同到期提醒 — {{project}}', content: '您好：\n\n「{{project}}」相关合同（合同号：{{contractId}}）将于{{expireDate}}到期，届时服务/维保即告终止。\n\n请提前评估是否续签或重新采购，以避免服务中断。\n\n信息化管理办公室\n{{date}}' },
   ];
-
-  /* flat list for JS */
-  const allTypes = [];
-  typeGroups.forEach(g => g.types.forEach(t => allTypes.push(t)));
-
-  /* level auto-set map */
-  const levelByKey = {};
-  allTypes.forEach(t => { levelByKey[t.key] = t.level; });
 
   /* today */
   const todayStr = new Date().toISOString().slice(0,10);
@@ -258,48 +368,41 @@ registerView('notification-create', function() {
     '<input type="checkbox" class="notif-unit-cb" value="' + u + '"> ' + u + '</label>'
   ).join('');
 
-  /* build type card groups html */
-  const groupsHtml = typeGroups.map((g, gi) =>
-    '<div style="margin-bottom:14px">' +
-      '<div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:8px;letter-spacing:0.5px">' + g.label + '</div>' +
-      '<div style="display:flex;flex-wrap:wrap;gap:8px">' +
-        g.types.map((t, ti) => {
-          const isFirst = gi === 0 && ti === 0;
-          const levelColors = { urgent: '#ff4d4f', warning: '#fa8c16', info: '#18181b' };
-          const lc = levelColors[t.level] || '#18181b';
-          return '<label id="tcard-' + t.key + '" onclick="_selectNotifType(\'' + t.key + '\')" style="' +
-            'display:flex;align-items:center;gap:6px;padding:7px 13px;border:2px solid ' + (isFirst ? 'var(--primary)' : '#d9d9d9') + ';' +
-            'border-radius:6px;cursor:pointer;background:' + (isFirst ? 'rgba(0,0,0,.06)' : '#fafafa') + ';' +
-            'transition:all 0.2s;user-select:none">' +
-            '<input type="radio" name="notif-type-radio" value="' + t.key + '"' + (isFirst ? ' checked' : '') + ' style="display:none">' +
-            '<span style="width:6px;height:6px;border-radius:50%;background:' + lc + ';flex-shrink:0"></span>' +
-            '<span style="font-size:12px;font-weight:' + (isFirst ? '600' : '400') + ';color:' + (isFirst ? 'var(--primary)' : 'inherit') + '" class="tcard-label">' + t.name + '</span>' +
-          '</label>';
-        }).join('') +
-      '</div>' +
-    '</div>'
-  ).join('');
+  const defaultTitle   = _isEdit && _draftNotif ? _draftNotif.title   || '' : '';
+  const defaultContent = _isEdit && _draftNotif ? _draftNotif.content || '' : '';
 
-  /* first template defaults */
-  const firstType = allTypes[0];
-  const defaultTitle   = firstType.title.replace('{{year}}', yearStr).replace('{{deadline}}', '').replace('{{date}}', todayStr);
-  const defaultContent = firstType.content.replace(/{{year}}/g, yearStr).replace(/{{date}}/g, todayStr);
+  const _pageTitle = _isEdit ? '编辑草稿通知' : '新建通知';
 
   return '' +
-    breadcrumb('通知管理', '新建通知') +
+    breadcrumb('通知管理', _pageTitle) +
     '<div class="page-header">' +
-      '<div class="page-title">新建通知</div>' +
+      '<div class="page-title">' + _pageTitle + '</div>' +
       '<button class="btn" onclick="navigate(\'notification-list\')">← 返回列表</button>' +
     '</div>' +
 
-    /* TYPE SELECTOR CARD */
-    '<div class="card">' +
-      '<div class="card-title" style="margin-bottom:14px">选择通知类型</div>' +
-      groupsHtml +
+    /* CARD A: 从模板导入（默认折叠） */
+    '<div class="card" style="padding:0;margin-bottom:0" id="notif-import-card">' +
+      '<div id="notif-import-hdr" onclick="_toggleImportCard()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;user-select:none">' +
+        '<div style="font-weight:600;font-size:14px">从模板导入</div>' +
+        '<div style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:4px"><span id="notif-import-ico">▶</span><span id="notif-import-lbl">展开</span></div>' +
+      '</div>' +
+      '<div id="notif-import-body" style="display:none;border-top:1px solid #f0f0f0;padding:14px 16px">' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">' +
+          '<select class="form-control" id="notif-im-mod" onchange="_updateImportNodes()" style="width:140px">' +
+            '<option value="">全部模块</option>' +
+            '<option>需求征集</option><option>立项论证</option><option>招采管理</option>' +
+            '<option>项目实施</option><option>项目终止</option><option>项目验收</option><option>运维管理</option>' +
+          '</select>' +
+          '<select class="form-control" id="notif-im-node" style="width:220px"><option value="">全部节点</option></select>' +
+          '<button class="btn btn-sm btn-primary" onclick="_filterImport()">查询</button>' +
+          '<button class="btn btn-sm" onclick="_resetImport()">重置</button>' +
+        '</div>' +
+        '<div id="notif-im-result" style="font-size:12px;color:var(--text-secondary);text-align:center;padding:8px">请选择模块和节点后查询</div>' +
+      '</div>' +
     '</div>' +
 
     /* FORM CARD */
-    '<div class="card" style="margin-top:0">' +
+    '<div class="card" id="notif-form-card" style="margin-top:0">' +
       '<div class="card-title" style="margin-bottom:16px">通知内容</div>' +
       '<div class="form-grid">' +
 
@@ -332,6 +435,18 @@ registerView('notification-create', function() {
             '<option value="">— 不关联项目 —</option>' +
             projectOptions +
           '</select>' +
+        '</div>' +
+
+        /* contact name */
+        '<div class="form-item">' +
+          '<label class="form-label">通知联系人（选填）</label>' +
+          '<input class="form-control" id="notif-contact-name" placeholder="如：张建国" value="' + (_isEdit && _draftNotif.contactName ? _draftNotif.contactName : '') + '">' +
+        '</div>' +
+
+        /* contact info */
+        '<div class="form-item">' +
+          '<label class="form-label">联系方式（选填）</label>' +
+          '<input class="form-control" id="notif-contact-info" placeholder="如：023-68251234 / zjg@swu.edu.cn" value="' + (_isEdit && _draftNotif.contactInfo ? _draftNotif.contactInfo : '') + '">' +
         '</div>' +
 
         /* recipients */
@@ -401,35 +516,6 @@ registerView('notification-create', function() {
     '  var _year = ' + yearStr + ';' +
     '  var _today = "' + todayStr + '";' +
 
-    /* select type card */
-    '  window._selectNotifType = function(key) {' +
-    '    var t = _typeMap[key];' +
-    '    if (!t) return;' +
-    '    /* update cards visuals */' +
-    '    _allTypes.forEach(function(tt) {' +
-    '      var el = document.getElementById("tcard-"+tt.key);' +
-    '      if (!el) return;' +
-    '      var lbl = el.querySelector(".tcard-label");' +
-    '      if (tt.key === key) {' +
-    '        el.style.borderColor = "var(--primary)";' +
-    '        el.style.background = "rgba(0,0,0,.06)";' +
-    '        if(lbl){ lbl.style.fontWeight="600"; lbl.style.color="var(--primary)"; }' +
-    '        el.querySelector("input").checked = true;' +
-    '      } else {' +
-    '        el.style.borderColor = "#d9d9d9";' +
-    '        el.style.background = "#fafafa";' +
-    '        if(lbl){ lbl.style.fontWeight="400"; lbl.style.color="inherit"; }' +
-    '      }' +
-    '    });' +
-    '    /* auto-fill title & content */' +
-    '    var titleEl = document.getElementById("notif-title");' +
-    '    var contentEl = document.getElementById("notif-content");' +
-    '    var levelEl = document.getElementById("notif-level");' +
-    '    if (titleEl) titleEl.value = t.title.replace(/\\{\\{year\\}\\}/g,_year).replace(/\\{\\{date\\}\\}/g,_today);' +
-    '    if (contentEl) contentEl.value = t.content.replace(/\\{\\{year\\}\\}/g,_year).replace(/\\{\\{date\\}\\}/g,_today);' +
-    '    if (levelEl) levelEl.value = t.level;' +
-    '  };' +
-
     /* recipient mode toggle */
     '  window._updateRcptMode = function() {' +
     '    var val = document.querySelector("input[name=notif-rcpt-mode]:checked");' +
@@ -454,8 +540,6 @@ registerView('notification-create', function() {
     '    var content = (document.getElementById("notif-content")||{}).value||"";' +
     '    if (!title.trim()) { toast("请填写通知标题","warning"); return null; }' +
     '    if (!content.trim()) { toast("请填写通知正文","warning"); return null; }' +
-    '    var typeVal = document.querySelector("input[name=notif-type-radio]:checked");' +
-    '    typeVal = typeVal ? typeVal.value : "";' +
     '    var levelVal = (document.getElementById("notif-level")||{}).value || "info";' +
     '    var chSystem  = document.getElementById("ch-system")  && document.getElementById("ch-system").checked;' +
     '    var chDing    = document.getElementById("ch-dingtalk") && document.getElementById("ch-dingtalk").checked;' +
@@ -467,19 +551,16 @@ registerView('notification-create', function() {
     '    if(chDing)   channels.push("dingtalk");' +
     '    if(chSms)    channels.push("sms");' +
     '    if(chEmail)  channels.push("email");' +
-    '    return { title:title.trim(), content:content.trim(), type:typeVal, level:levelVal, channels:channels };' +
+    '    return { title:title.trim(), content:content.trim(), level:levelVal, channels:channels };' +
     '  }' +
 
     /* preview */
     '  window._previewNotification = function() {' +
     '    var d = _validateForm(); if(!d) return;' +
-    '    var levelLabels = {urgent:"紧急",warning:"提醒",info:"通知"};' +
-    '    var typeName = (_typeMap[d.type]||{}).name || d.type;' +
     '    var channelLabels = {system:\'<span class=\\"channel-badge\\">站内</span>系统消息\',dingtalk:\'<span class=\\"channel-badge\\">APP</span>钉钉\',sms:\'<span class=\\"channel-badge\\">APP</span>短信\',email:\'<span class=\\"channel-badge\\">邮件</span>邮件\'};' +
     '    var chStr = d.channels.map(function(c){return channelLabels[c]||c;}).join("　");' +
     '    var body = \'<div style="border:1px solid #f0f0f0;border-radius:8px;padding:20px;background:#fafafa">\'' +
-    '      + \'<div style="margin-bottom:12px"><span style="font-size:13px;color:var(--text-secondary)">类型：</span><strong>\' + typeName + \'</strong>&nbsp;&nbsp;\'' +
-    '      + \'<span style="font-size:13px;color:var(--text-secondary)">级别：</span>\' + notifLevelTag(d.level) + \'</div>\'' +
+    '      + \'<div style="margin-bottom:12px"><span style="font-size:13px;color:var(--text-secondary)">级别：</span>\' + notifLevelTag(d.level) + \'</div>\'' +
     '      + \'<div style="font-size:17px;font-weight:700;margin-bottom:14px">\' + d.title + \'</div>\'' +
     '      + \'<div style="font-size:14px;line-height:1.9;white-space:pre-wrap;color:#333">\' + d.content + \'</div>\'' +
     '      + \'<div style="margin-top:14px;font-size:12px;color:var(--text-secondary)">发送渠道：\' + chStr + \'</div>\'' +
@@ -490,7 +571,7 @@ registerView('notification-create', function() {
     /* send */
     '  window._sendNotification = function() {' +
     '    var d = _validateForm(); if(!d) return;' +
-    '    logOperation("通知管理","发送通知","N-NEW",d.title,"类型:"+d.type+"|渠道:"+d.channels.join(","),null);' +
+    '    logOperation("通知管理","发送通知","N-NEW",d.title,"渠道:"+d.channels.join(","),null);' +
     '    toast("通知已成功发送","success");' +
     '    navigate("notification-list");' +
     '  };' +
@@ -503,18 +584,36 @@ registerView('notification-create', function() {
     '    toast("草稿已保存","success");' +
     '  };' +
 
-    /* auto-select type & apply prefill when navigated from collection-create */
+    '  var _draftData = ' + JSON.stringify(_draftNotif) + ';' +
+
+    /* apply typeKey prefill when navigated from template library */
     '  (function() {' +
     '    var p = getViewParams("notification-create");' +
-    '    /* auto-select type by typeKey */' +
+    '    /* prefill from typeKey (navigated via template library 使用 button) */' +
     '    var initKey = p && p.typeKey ? p.typeKey : "";' +
-    '    if (initKey && _typeMap[initKey]) { window._selectNotifType(initKey); }' +
+    '    if (initKey && _typeMap[initKey]) {' +
+    '      var t = _typeMap[initKey];' +
+    '      var te = document.getElementById("notif-title");' +
+    '      var ce = document.getElementById("notif-content");' +
+    '      var le = document.getElementById("notif-level");' +
+    '      if (te && !te.value) te.value = t.title.replace(/\\{\\{year\\}\\}/g,_year).replace(/\\{\\{date\\}\\}/g,_today);' +
+    '      if (ce && !ce.value) ce.value = t.content.replace(/\\{\\{year\\}\\}/g,_year).replace(/\\{\\{date\\}\\}/g,_today);' +
+    '      if (le) le.value = t.level;' +
+    '    }' +
     '    /* apply prefill from collection-create */' +
     '    var pf = p && p.prefill ? p.prefill : null;' +
     '    if (pf) {' +
-    '      /* select type if provided */' +
-    '      if (pf.type && _typeMap[pf.type]) { window._selectNotifType(pf.type); }' +
-    '      /* pre-fill title */' +
+    '      /* prefill title/content/level from type if provided */' +
+    '      if (pf.type && _typeMap[pf.type]) {' +
+    '        var pt = _typeMap[pf.type];' +
+    '        var tle = document.getElementById("notif-title");' +
+    '        var cle = document.getElementById("notif-content");' +
+    '        var lle = document.getElementById("notif-level");' +
+    '        if (tle && !tle.value) tle.value = pt.title.replace(/\\{\\{year\\}\\}/g,_year).replace(/\\{\\{date\\}\\}/g,_today);' +
+    '        if (cle && !cle.value) cle.value = pt.content.replace(/\\{\\{year\\}\\}/g,_year).replace(/\\{\\{date\\}\\}/g,_today);' +
+    '        if (lle) lle.value = pt.level;' +
+    '      }' +
+    '      /* pre-fill title (overrides type default if explicitly provided) */' +
     '      var titleEl = document.getElementById("notif-title");' +
     '      if (titleEl && pf.title) titleEl.value = pf.title;' +
     '      /* switch to unit mode and check matching units */' +
@@ -531,6 +630,11 @@ registerView('notification-create', function() {
     '        var personInput = document.getElementById("rcpt-person-input");' +
     '        if (personInput) personInput.placeholder = "联系人：" + pf.contact;' +
     '      }' +
+    '    }' +
+    '    /* draft edit prefill (level) */' +
+    '    if (_draftData) {' +
+    '      var dle = document.getElementById("notif-level");' +
+    '      if (dle && _draftData.level) dle.value = _draftData.level;' +
     '    }' +
     '  })();' +
 

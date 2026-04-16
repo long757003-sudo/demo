@@ -21,7 +21,7 @@ const NAV_GROUPS = [
   ]},
   { label: '项目管理', items: [
     { id: 'proposal-list', label: '立项管理', icon: 'file-check', roles: ['info-admin','info-leader','leadership-office','project-manager','project-assistant','unit-admin'] },
-    { id: 'project-list', label: '项目列表', icon: 'folder-open', roles: [] },
+    { id: 'project-list', label: '项目列表', icon: 'folder-open', roles: [], hideRoles: ['expert'] },
     { id: 'procurement', label: '采购管理', icon: 'shopping-cart', roles: ['project-manager','project-assistant','info-leader','info-admin','contract-admin'] },
     { id: 'implement', label: '实施进展', icon: 'activity', roles: ['project-manager','project-assistant','info-leader','info-admin'] },
     { id: 'delay-change', label: '延期/变更', icon: 'clock', roles: ['project-manager','info-leader','info-admin'] },
@@ -36,11 +36,10 @@ const NAV_GROUPS = [
     { id: 'review-list', label: '评审列表', icon: 'clipboard-list', roles: ['info-admin','info-leader','leadership-office'] },
     { id: 'review-launch', label: '创建评审任务', icon: 'plus-circle', roles: ['info-admin'] },
     // expert-confirm: 仅通过工作台待办跳转，不在菜单展示
-    { id: 'my-reviews', label: '我的评审任务', icon: 'clipboard-check', roles: ['expert'] },
-    { id: 'expert-respond', label: '评审邀请响应', icon: 'message-square', roles: ['expert'] },
+    { id: 'my-reviews', label: '评审任务', icon: 'clipboard-check', roles: ['expert'] },
   ]},
   { label: '运维管理', items: [
-    { id: 'acceptance-list', label: '验收管理', icon: 'badge-check', roles: [] },
+    { id: 'acceptance-list', label: '验收管理', icon: 'badge-check', roles: [], hideRoles: ['expert'] },
     { id: 'ops-records', label: '运维记录', icon: 'wrench', roles: ['project-manager','project-assistant','info-leader'] },
     { id: 'fault-tickets', label: '故障工单', icon: 'alert-triangle', roles: ['project-manager','project-assistant','info-leader','info-admin'] },
     { id: 'system-usage', label: '系统使用情况', icon: 'bar-chart-2', roles: ['info-leader','leadership-office','leadership-group'] },
@@ -61,7 +60,10 @@ function renderNav() {
   if (!sidebar) return;
   let html = '';
   for (const group of NAV_GROUPS) {
-    const visibleItems = group.items.filter(item => item.roles.length === 0 || item.roles.includes(role));
+    const visibleItems = group.items.filter(item =>
+      (item.roles.length === 0 || item.roles.includes(role)) &&
+      !(item.hideRoles && item.hideRoles.includes(role))
+    );
     if (!visibleItems.length) continue;
     html += '<div class="nav-group-label">' + group.label + '</div>';
     for (const item of visibleItems) {

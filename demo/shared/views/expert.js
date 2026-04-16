@@ -176,84 +176,240 @@ registerView('expert-blacklist', function() {
 
 /* ====== Issue E (2.5a): 专家响应邀请 ====== */
 registerView('expert-respond', function() {
-  const role = getCurrentRole();
   const invites = DATA.expertInvites || [];
-  // 找到当前专家待回复的邀请
+
+  /* ── 分类：待回复 / 超时自动拒绝 / 已确认 ── */
   const pending = [];
+  const overdue = [];
+  const confirmed = [];
+  var now = new Date();
   invites.forEach(inv => {
     inv.invites.forEach(e => {
+      const item = { ...e, inv: inv };
       if (e.status === '待回复') {
-        pending.push({ ...e, reviewName: inv.reviewName, reviewType: inv.reviewType, scheduledAt: inv.scheduledAt, invRecord: inv });
+        /* 超时判定：截止时间已过 → 自动视为拒绝 */
+        var dl = inv.deadlineAt ? new Date(inv.deadlineAt.replace(' ', 'T')) : null;
+        if (dl && dl < now) {
+          overdue.push(item);
+        } else {
+          pending.push(item);
+        }
+      } else if (e.status === '已确认') {
+        confirmed.push(item);
       }
     });
   });
 
-  if (!pending.length) {
-    return `
-      <div class="breadcrumb">首页 / 评审管理 / <span>评审邀请响应</span></div>
-      <div class="page-header"><div class="page-title">评审邀请响应</div></div>
-      <div class="card" style="text-align:center;color:var(--text-secondary);padding:40px">暂无待回复的评审邀请</div>`;
+  /* ── 辅助：截止倒计时 ── */
+  function _deadlineChip(deadlineStr) {
+    if (!deadlineStr) return '';
+    var dl = new Date(deadlineStr.replace(' ', 'T'));
+    var now = new Date();
+    var diff = dl - now;
+    var overdue = diff <= 0;
+    var absDiff = Math.abs(diff);
+    var days = Math.floor(absDiff / 86400000);
+    var hours = Math.floor((absDiff % 86400000) / 3600000);
+    var text = overdue
+      ? '已超时'
+      : '剩余 ' + days + ' 天 ' + hours + ' 小时';
+    var ddStr = deadlineStr.slice(5, 10).replace('-', '-') + ' ' + deadlineStr.slice(11, 16);
+    var chipBg = overdue ? '#FEE2E2' : '#FAEEDA';
+    var chipColor = overdue ? '#DC2626' : '#854F0B';
+    return '<span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:' + chipColor + ';background:' + chipBg + ';padding:4px 10px;border-radius:4px">' +
+      '<i data-lucide="clock" style="width:12px;height:12px"></i>' +
+      text + ' · 截止 ' + ddStr +
+    '</span>';
   }
 
-  const inviteCards = pending.map((p, idx) => `
-    <div class="card" style="margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div>
-          <span style="font-weight:600;font-size:15px">${p.reviewName}</span>
-          <span class="tag tag-purple" style="margin-left:8px">${p.reviewType}</span>
-          <span class="tag tag-orange" style="margin-left:4px">待回复</span>
-        </div>
-        <span style="color:var(--text-secondary);font-size:12px">评审日期：${p.scheduledAt}</span>
-      </div>
-      <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">
-        诚邀您参加本项目立项论证评审。请在 <b>3 天</b>内确认参加或拒绝（超时 5 天未回复视为拒绝）。
-      </div>
-      <div style="display:flex;gap:10px;align-items:center">
-        <button class="btn btn-primary" onclick="
-          logOperation('评审管理','接受评审邀请','${p.invRecord.id}','${p.reviewName}','专家 ${p.name} 接受邀请',null);
-          toast('已确认参加评审','success');
-          setTimeout(()=>renderView('expert-respond'),1000);
-        ">&#10003; 接受邀请</button>
-        <button class="btn btn-warning" onclick="
-          const reason = prompt('请填写拒绝原因：');
-          if(!reason){toast('请填写拒绝原因','warning');return;}
-          logOperation('评审管理','拒绝评审邀请','${p.invRecord.id}','${p.reviewName}','专家 ${p.name} 拒绝：'+reason,null);
-          toast('已拒绝邀请，信息办管理员将补选专家','info');
-          setTimeout(()=>renderView('expert-respond'),1000);
-        ">拒绝邀请</button>
-      </div>
-      <div style="margin-top:8px;font-size:11px;color:var(--text-secondary)">
-        <span style="color:var(--warning)">●</span> 提醒：拒绝后信息办管理员将补选专家；超时 3 天系统自动发送提醒，5 天视为拒绝。
-      </div>
-    </div>`).join('');
+  /* ── 辅助：专家统计 ── */
+  function _expertStats(inv) {
+    var total = inv.invites.length;
+    var done = inv.invites.filter(function(e) { return e.status === '已确认'; }).length;
+    return '共邀请 ' + total + ' 位，已确认 ' + done + ' 位';
+  }
 
-  // 已确认的邀请
-  const confirmed = [];
-  invites.forEach(inv => {
-    inv.invites.forEach(e => {
-      if (e.status === '已确认') {
-        confirmed.push({ ...e, reviewName: inv.reviewName, scheduledAt: inv.scheduledAt });
-      }
-    });
-  });
-  const confirmedHtml = confirmed.length ? `
-    <div class="card" style="margin-top:16px">
-      <div class="card-title">已确认的评审</div>
-      ${confirmed.map(c => `
-        <div style="padding:8px 0;border-bottom:1px solid #f4f4f5;display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:13px">${c.reviewName} <span class="tag tag-green">已确认</span></span>
-          <span style="font-size:12px;color:var(--text-secondary)">评审日期：${c.scheduledAt}</span>
-        </div>`).join('')}
-    </div>` : '';
+  /* ── 辅助：类型 badge 颜色 ── */
+  function _typeBadge(type) {
+    return '<span style="display:inline-flex;align-items:center;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500;background:#E6F1FB;color:#185FA5">' + type + '</span>';
+  }
 
-  return `
-    <div class="breadcrumb">首页 / 评审管理 / <span>评审邀请响应</span></div>
-    <div class="page-header"><div class="page-title">评审邀请响应</div></div>
-    <div class="notice-item info" style="margin-bottom:16px">
-      <strong>步骤 2.5a</strong> — 收到评审邀请后，请在规定时间内确认是否参加。拒绝需填写原因，系统将通知信息办管理员补选专家。
-    </div>
-    ${inviteCards}
-    ${confirmedHtml}`;
+  /* ── 待回复卡片 ── */
+  var inviteCards = pending.map(function(p) {
+    var inv = p.inv;
+    return '' +
+    '<div class="card" style="margin-bottom:16px;overflow:hidden;border-top:3px solid var(--primary)">' +
+
+      /* ── 卡片头部：标题 + 截止时间 ── */
+      '<div style="padding:16px 20px;border-bottom:1px solid #f4f4f5;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">' +
+        '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">' +
+          '<span style="font-size:15px;font-weight:600;color:var(--text-primary)">' + inv.reviewName + '</span>' +
+          _typeBadge(inv.reviewType) +
+          '<span style="display:inline-flex;align-items:center;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500;background:#FAEEDA;color:#854F0B">待回复</span>' +
+        '</div>' +
+        _deadlineChip(inv.deadlineAt) +
+      '</div>' +
+
+      /* ── 卡片主体：左右两栏 ── */
+      '<div style="padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:0">' +
+
+        /* 左栏：项目基本信息 */
+        '<div style="padding-right:20px">' +
+          '<div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">项目基本信息</div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">申报单位</span><span style="font-size:13px;color:var(--text-primary);line-height:1.5">' + (inv.projectUnit || '—') + '</span></div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">项目类型</span><span style="font-size:13px;color:var(--text-primary);line-height:1.5">' + (inv.projectType || '—') + '</span></div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">预算金额</span><span style="font-size:13px;color:#185FA5;font-weight:500;line-height:1.5">' + (inv.budget ? inv.budget + ' 万元' : '—') + '</span></div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">项目简介</span><span style="font-size:13px;color:var(--text-primary);line-height:1.5">' + (inv.projectDesc || '—') + '</span></div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">立项材料</span><span style="font-size:13px;color:var(--primary);cursor:pointer;text-decoration:underline">查看可行性研究报告 →</span></div>' +
+        '</div>' +
+
+        /* 右栏：评审安排 */
+        '<div style="padding-left:20px;border-left:1px solid #f4f4f5">' +
+          '<div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">评审安排</div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">评审日期</span><span style="font-size:13px;color:#185FA5;font-weight:500;line-height:1.5">' + inv.scheduledAt + '</span></div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">评审时间</span><span style="font-size:13px;color:var(--text-primary);line-height:1.5">' + (inv.scheduledTime || '—') + '</span></div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">评审地点</span><span style="font-size:13px;color:var(--text-primary);line-height:1.5">' + (inv.location || '—') + '</span></div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">评审形式</span><span style="font-size:13px;color:var(--text-primary);line-height:1.5">' + (inv.reviewFormat || '—') + '</span></div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">组织方</span><span style="font-size:13px;color:var(--text-primary);line-height:1.5">' + (inv.organizer || '—') + '</span></div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">本次专家</span><span style="font-size:13px;color:var(--text-primary);line-height:1.5">' + _expertStats(inv) + '</span></div>' +
+        '</div>' +
+      '</div>' +
+
+      /* ── 分隔线 ── */
+      '<div style="height:1px;background:#f4f4f5;margin:0 20px"></div>' +
+
+      /* ── 利益冲突声明 ── */
+      '<div style="margin:16px 20px 0;padding:14px 16px;background:var(--bg-secondary, #f9fafb);border-radius:8px;border:1px solid #f4f4f5">' +
+        '<div style="font-size:12px;font-weight:500;color:var(--text-primary);margin-bottom:8px;display:flex;align-items:center;gap:6px">' +
+          '<i data-lucide="alert-triangle" style="width:14px;height:14px;color:#854F0B"></i>' +
+          '利益冲突声明（必填）— 您与该项目申报单位是否存在利益关联？' +
+        '</div>' +
+        '<div style="display:flex;gap:16px">' +
+          '<label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);cursor:pointer"><input type="radio" name="conflict-' + inv.id + '" value="no" style="accent-color:#378ADD"> 无利益冲突，可正常参与评审</label>' +
+          '<label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);cursor:pointer"><input type="radio" name="conflict-' + inv.id + '" value="yes"> 存在利益冲突，需回避</label>' +
+        '</div>' +
+      '</div>' +
+
+      /* ── 分隔线 ── */
+      '<div style="height:1px;background:#f4f4f5;margin:16px 20px"></div>' +
+
+      /* ── 操作区 ── */
+      '<div style="padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">' +
+        '<div style="font-size:12px;color:var(--text-secondary);display:flex;align-items:flex-start;gap:6px;line-height:1.5">' +
+          '<i data-lucide="info" style="width:13px;height:13px;flex-shrink:0;margin-top:1px;color:#854F0B"></i>' +
+          '拒绝后需填写原因，系统将通知信息办补选专家；超时 3 天自动提醒，5 天视为拒绝' +
+        '</div>' +
+        '<div style="display:flex;gap:10px;align-items:center">' +
+          '<button class="btn" onclick="' +
+            "var reason = prompt('请填写拒绝原因：');" +
+            "if(!reason){toast('请填写拒绝原因','warning');return;}" +
+            "logOperation('评审管理','拒绝评审邀请','" + inv.id + "','" + inv.reviewName + "','专家 " + p.name + " 拒绝：'+reason,null);" +
+            "toast('已拒绝邀请，信息办管理员将补选专家','info');" +
+            "setTimeout(function(){renderView('expert-respond')},1000);" +
+          '">拒绝邀请</button>' +
+          '<button class="btn btn-primary" onclick="' +
+            "logOperation('评审管理','接受评审邀请','" + inv.id + "','" + inv.reviewName + "','专家 " + p.name + " 接受邀请',null);" +
+            "toast('已确认参加评审','success');" +
+            "setTimeout(function(){renderView('expert-respond')},1000);" +
+          '"><i data-lucide="check" style="width:14px;height:14px"></i> 接受邀请</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  /* ── 超时自动拒绝卡片 ── */
+  var overdueCards = overdue.map(function(p) {
+    var inv = p.inv;
+    return '' +
+    '<div class="card" style="margin-bottom:16px;overflow:hidden;border-top:3px solid #DC2626;opacity:0.85">' +
+
+      /* ── 卡片头部 ── */
+      '<div style="padding:16px 20px;border-bottom:1px solid #f4f4f5;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">' +
+        '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">' +
+          '<span style="font-size:15px;font-weight:600;color:var(--text-primary)">' + inv.reviewName + '</span>' +
+          _typeBadge(inv.reviewType) +
+          '<span style="display:inline-flex;align-items:center;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500;background:#FEE2E2;color:#DC2626">超时未响应（自动拒绝）</span>' +
+        '</div>' +
+        _deadlineChip(inv.deadlineAt) +
+      '</div>' +
+
+      /* ── 卡片主体：左右两栏 ── */
+      '<div style="padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:0">' +
+
+        /* 左栏：项目基本信息 */
+        '<div style="padding-right:20px">' +
+          '<div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">项目基本信息</div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">申报单位</span><span style="font-size:13px;color:var(--text-primary);line-height:1.5">' + (inv.projectUnit || '—') + '</span></div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">项目类型</span><span style="font-size:13px;color:var(--text-primary);line-height:1.5">' + (inv.projectType || '—') + '</span></div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">预算金额</span><span style="font-size:13px;color:#185FA5;font-weight:500;line-height:1.5">' + (inv.budget ? inv.budget + ' 万元' : '—') + '</span></div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">项目简介</span><span style="font-size:13px;color:var(--text-primary);line-height:1.5">' + (inv.projectDesc || '—') + '</span></div>' +
+        '</div>' +
+
+        /* 右栏：评审安排 */
+        '<div style="padding-left:20px;border-left:1px solid #f4f4f5">' +
+          '<div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">评审安排</div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">评审日期</span><span style="font-size:13px;color:#185FA5;font-weight:500;line-height:1.5">' + inv.scheduledAt + '</span></div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">评审时间</span><span style="font-size:13px;color:var(--text-primary);line-height:1.5">' + (inv.scheduledTime || '—') + '</span></div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">评审地点</span><span style="font-size:13px;color:var(--text-primary);line-height:1.5">' + (inv.location || '—') + '</span></div>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="font-size:12px;color:var(--text-secondary);flex-shrink:0;width:68px">组织方</span><span style="font-size:13px;color:var(--text-primary);line-height:1.5">' + (inv.organizer || '—') + '</span></div>' +
+        '</div>' +
+      '</div>' +
+
+      /* ── 底部提示：拒绝原因 ── */
+      '<div style="height:1px;background:#f4f4f5;margin:0 20px"></div>' +
+      '<div style="padding:14px 20px;display:flex;align-items:center;gap:8px">' +
+        '<i data-lucide="x-circle" style="width:14px;height:14px;color:#DC2626;flex-shrink:0"></i>' +
+        '<span style="font-size:13px;color:#DC2626;font-weight:500">拒绝原因：超时未响应</span>' +
+        '<span style="font-size:12px;color:var(--text-secondary);margin-left:8px">— 系统已自动通知信息办管理员补选专家</span>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  /* ── 已确认列表 ── */
+  var confirmedHtml = '';
+  if (confirmed.length) {
+    var cItems = confirmed.map(function(c) {
+      var inv = c.inv;
+      return '' +
+        '<div style="padding:12px 20px;border-bottom:1px solid #f4f4f5;display:flex;align-items:center;justify-content:space-between">' +
+          '<div>' +
+            '<div style="font-size:13px;color:var(--text-primary)">' + inv.reviewName + '</div>' +
+            '<div style="font-size:12px;color:var(--text-secondary);margin-top:3px">' + (inv.projectUnit || '') + ' · ' + (inv.location || '') + ' · ' + inv.scheduledAt + ' ' + (inv.scheduledTime ? inv.scheduledTime.split('—')[0].trim() : '') + '</div>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:12px">' +
+            '<span class="tag tag-green">已确认</span>' +
+            '<span style="font-size:12px;color:var(--text-secondary)">' + (c.respondAt ? '回复于 ' + c.respondAt.slice(5) : '') + '</span>' +
+          '</div>' +
+        '</div>';
+    }).join('');
+    confirmedHtml = '' +
+      '<div class="card" style="overflow:hidden">' +
+        '<div style="padding:14px 20px;border-bottom:1px solid #f4f4f5;font-size:13px;font-weight:500;color:var(--text-secondary)">已确认的评审（' + confirmed.length + ' 项）</div>' +
+        cItems +
+      '</div>';
+  }
+
+  /* ── 空状态 ── */
+  if (!pending.length && !overdue.length && !confirmed.length) {
+    return breadcrumb('评审管理', '评审邀请响应') +
+      '<div class="page-header"><div class="page-title">评审邀请响应</div></div>' +
+      '<div class="card" style="text-align:center;color:var(--text-secondary);padding:40px">暂无评审邀请</div>';
+  }
+
+  return '' +
+    breadcrumb('评审管理', '评审邀请响应') +
+    '<div class="page-header">' +
+      '<div>' +
+        '<div class="page-title">评审邀请响应</div>' +
+        '<div style="font-size:13px;color:var(--text-secondary);margin-top:4px">请在截止时间前确认是否参加评审，系统将自动通知组织方</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="notice-item info" style="margin-bottom:16px">' +
+      '<strong>步骤 2.5a</strong> — 收到评审邀请后，请在规定时间内确认是否参加。拒绝需填写原因，系统将通知信息办管理员补选专家。' +
+    '</div>' +
+    inviteCards +
+    overdueCards +
+    confirmedHtml;
 });
 
 

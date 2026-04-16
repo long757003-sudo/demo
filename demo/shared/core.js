@@ -31,6 +31,7 @@ function renderView(viewId) {
   } else {
     content.innerHTML = '<div class="empty-state"><div class="icon">&mdash;</div><p>视图 "' + viewId + '" 尚未实现</p></div>';
   }
+  if (window.lucide) lucide.createIcons();
   highlightNav(viewId);
 }
 window.addEventListener('hashchange', () => renderView(getCurrentView()));

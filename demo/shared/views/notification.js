@@ -177,8 +177,15 @@ registerView('notification-list', function() {
   const canCreate = role === 'info-admin' || role === 'info-leader';
   const typeNameMap = _typeNameMap();
 
+  /* role-based filtering: expert only sees expert-relevant notifications */
+  const allNotifs = (DATA.notifications || []).slice();
+  const expertTypes = ['expert-invite', 'acceptance-invite'];
+  const filtered = role === 'expert'
+    ? allNotifs.filter(n => expertTypes.includes(n.type))
+    : allNotifs;
+
   /* sort by sendTime desc */
-  const sorted = (DATA.notifications || []).slice().sort((a, b) =>
+  const sorted = filtered.sort((a, b) =>
     (b.sendTime || '').localeCompare(a.sendTime || '')
   );
 
@@ -196,12 +203,16 @@ registerView('notification-list', function() {
     const sendTimeCell = isDraft ? '<span class="tag tag-gray">草稿</span>' : (n.sendTime || '—');
     const readRateCell = isDraft ? '<span style="color:var(--text-secondary)">—</span>' : _readRateBar(readCount, total);
     const deliveryCell = isDraft ? '<span style="color:var(--text-secondary)">—</span>' : _overallDeliveryTag(n);
+    /* expert-invite / acceptance-invite: expert clicks go to expert-respond page */
+    const isExpertInvite = role === 'expert' && (n.type === 'expert-invite' || n.type === 'acceptance-invite');
+    const detailTarget   = isExpertInvite ? 'expert-respond' : 'notification-detail';
+    const detailParams   = isExpertInvite ? '' : ',{id:\'' + n.id + '\'}';
     const titleCell    = isDraft
       ? '<span style="color:var(--text-secondary)">' + n.title + '</span>'
-      : '<a onclick="navigate(\'notification-detail\',{id:\'' + n.id + '\'})" style="color:var(--primary);cursor:pointer">' + n.title + '</a>';
+      : '<a onclick="navigate(\'' + detailTarget + '\'' + detailParams + ')" style="color:var(--primary);cursor:pointer">' + n.title + '</a>';
     const opBtn = isDraft && canCreate
       ? '<button class="btn btn-sm btn-primary" style="font-size:11px" onclick="navigate(\'notification-create\',{id:\'' + n.id + '\'})">编辑草稿</button>'
-      : '<button class="btn btn-sm" onclick="navigate(\'notification-detail\',{id:\'' + n.id + '\'})">查看详情</button>';
+      : '<button class="btn btn-sm" onclick="navigate(\'' + detailTarget + '\'' + detailParams + ')">查看详情</button>';
     return '<tr>' +
       '<td>' + notifLevelTag(n.level) + '</td>' +
       '<td>' + titleCell + '</td>' +

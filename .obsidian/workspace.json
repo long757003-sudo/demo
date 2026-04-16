@@ -50,31 +50,17 @@
             }
           },
           {
-            "id": "a6b92c162ae8358c",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "my-project-wiki/wiki/overview.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "overview"
-            }
-          },
-          {
             "id": "f907d8ff438d39e6",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "my-project-code/CLAUDE.md",
+                "file": "my-project-wiki/raw/docs/详细业务流程说明书-01-需求征集.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "CLAUDE"
+              "title": "详细业务流程说明书-01-需求征集"
             }
           }
         ],
@@ -240,43 +226,43 @@
       "bases:新建数据库": false
     }
   },
-  "active": "a6b92c162ae8358c",
+  "active": "f907d8ff438d39e6",
   "lastOpenFiles": [
+    "demo/shared/views/dashboard.js",
+    "my-project-wiki/raw/docs/详细业务流程说明书-06-项目运维.md",
+    "my-project-wiki/raw/docs/业务流程概要说明书.md",
     "my-project-wiki/wiki/log.md",
-    "20260413Demo调整记录.md",
-    "my-project-code/openspec/changes/notification-template/spec.md",
-    "demo-0408/shared/graphify-out/cache/d51af2cedba5ab858b8665dc5eb9def28ee79e79452fa3339659805597e86906.json",
-    "demo-0408/shared/graphify-out/cache/cd0f723c74d5d73d3a2ac9c7b45fb43726986a3ae27c94f5ce8425b3c95aec27.json",
-    "demo-0408/shared/graphify-out/cache/bf4eaee688bf01888f70393621a923a8e426fa167c6577837c05479157557aae.json",
-    "demo-0408/shared/graphify-out/cache/b2dd7cb10cc2b9a96d79d58ff713849a04d8cfeb906233112dd5b56f07d89e02.json",
-    "demo-0408/shared/graphify-out/cache/b2291601d52d178f1a1cd53582a1bb184009c55bc955ca67b7042acf6102f3c0.json",
-    "demo-0408/shared/graphify-out/cache/a46bac36c733ef0cc798cf3fcdd7087d1d2d030c155eb1eef53387bc9d63ef32.json",
-    "demo-0408/shared/graphify-out/cache/a016cf9933f068e43f2b34fe8e3304f8689cf03f6970f13966fab57e1ef3f4c6.json",
-    "demo-0408/shared/graphify-out/cache/2698475c7213439cead04dc0e3cbec6f349bef507606a02a61faff24c2c0a4e5.json",
-    "demo-0408/shared/graphify-out/cache/7180ef78c300ed0db29db9a22ce00d2c7504d53ddd8c4bbdd3b53809bed7520b.json",
-    "demo-0408/shared/graphify-out/cache/9cac64c476ff0a67744f794366c606cbb07ef86e4295a2171f3560b4f3ed3e98.json",
-    "my-project-code/openspec/changes/notification-template/proposal.md",
-    "my-project-code/openspec/changes/notification-template/design.md",
-    "my-project-wiki/raw/meetings/260409会议纪要.md",
-    "my-project-wiki/raw/openspec/notification-template/design.md",
-    "graphify-out/GRAPH_REPORT.md",
-    "my-project-code/openspec/changes/notification-template/tasks.md",
-    "my-project-wiki/CLAUDE.md",
-    "my-project-code/CLAUDE.md",
-    "my-project-code/doce/ui-spec.md",
-    "CLAUDE.md",
-    "信息办.md",
-    "my-project-wiki/wiki/concepts/需求征集模块.md",
     "my-project-wiki/wiki/index.md",
-    "my-project-wiki/wiki/concepts/合同关键条款.md",
-    "my-project-wiki/wiki/synthesis/系统规则表.md",
-    "my-project-wiki/wiki/synthesis/通知矩阵.md",
+    "my-project-code/doce/ui-spec.md",
+    "demo/shared/style.css",
+    "my-project-code/openspec/changes/demand-collection-wizard-enhance/proposal.md",
+    "my-project-wiki/raw/openspec/notification-template/design.md",
     "my-project-wiki/raw/openspec/notification-template/tasks.md",
     "my-project-wiki/raw/openspec/notification-template/spec.md",
     "my-project-wiki/raw/openspec/notification-template/proposal.md",
-    "my-project-wiki/wiki/sources/260409会议纪要.md",
-    "my-project-wiki/raw/docs/西南大学信息化项目全生命周期管理系统 — 产品详细设计方案.md",
-    "my-project-code/代码仓库_CLAUDE.md",
-    "my-project-wiki/wiki/entities/全生命周期管理系统.md"
+    "my-project-wiki/raw/decisions/西南大学项目终止专家评审意见表.md",
+    "my-project-wiki/raw/decisions/西南大学项目终止专家评审意见表.docx",
+    "my-project-wiki/raw/decisions/西南大学建设需求申请表.md",
+    "my-project-wiki/raw/decisions/西南大学建设需求申请表.docx",
+    "my-project-wiki/raw/decisions/西南大学信息技术服务类（非软件开发）采购合同模板.md",
+    "my-project-wiki/raw/decisions/西南大学信息化建设项目验收阶段实施细则.docx",
+    "my-project-wiki/raw/decisions/西南大学信息技术服务类（非软件开发）采购合同模板.doc",
+    "my-project-wiki/raw/decisions/西南大学信息技术服务类（软件开发）采购合同模板.md",
+    "my-project-wiki/raw/decisions/西南大学信息技术服务类（软件开发）采购合同模板.doc",
+    "my-project-wiki/raw/decisions/西南大学信息技术服务类（成品软件）采购合同模板.md",
+    "my-project-wiki/raw/decisions/西南大学信息技术服务类（成品软件）采购合同模板.docx",
+    "my-project-wiki/raw/decisions/西南大学信息化项目管理办法.pdf",
+    "my-project-wiki/raw/decisions/西南大学信息化项目管理办法.md",
+    "my-project-wiki/raw/decisions/西南大学信息化项目立项通知书.md",
+    "my-project-wiki/raw/decisions/西南大学信息化项目立项通知书.docx",
+    "my-project-wiki/raw/decisions/西南大学信息化项目建设申报书.md",
+    "my-project-wiki/raw/decisions/西南大学信息化项目建设申报书.docx",
+    "my-project-wiki/raw/decisions/西南大学信息化建设项目验收阶段实施细则.md",
+    "my-project-wiki/raw/decisions/本科生院-2026年信息化项目需求入库评审结果通知.md",
+    "my-project-wiki/wiki/synthesis/通知矩阵.md",
+    "my-project-wiki/wiki/synthesis/系统规则表.md",
+    "my-project-wiki/wiki/synthesis/业务状态表.md",
+    "my-project-wiki/wiki/synthesis/业务流程状态机图.md",
+    "my-project-wiki/raw/meetings/260409会议纪要.md"
   ]
 }

@@ -169,6 +169,7 @@ registerView('dashboard', function() {
   }
 
   const sorted = (DATA.notifications || [])
+    .filter(function(n) { return n.sendTime; })
     .slice()
     .sort(function(a, b) { return b.sendTime.localeCompare(a.sendTime); })
     .slice(0, 5);

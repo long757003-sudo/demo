@@ -42,10 +42,26 @@ window.DATA = {
     { id: 'D012', projectId: null, projectName: '图书馆智能检索系统', unitId: '图书馆', submittedBy: '钱图', budgetEstimate: 35, status: 'unit-approved', submitDate: '2026-03-25', deadline: '2026-04-15', sortOrder: 1, background: '建设基于AI的图书馆智能检索和推荐系统。', authorized: true, authorizedBy: '馆长', collectionId: 'CP001', contactPhone: '13500135001', contactEmail: 'qiantu@swu.edu.cn' },
     { id: 'D013', projectId: null, projectName: '网站无障碍改造', unitId: '图书馆', submittedBy: '钱图', budgetEstimate: 8, status: 'draft', submitDate: null, deadline: '2026-04-15', sortOrder: null, background: '对图书馆网站进行无障碍访问改造。', authorized: true, authorizedBy: '馆长', collectionId: 'CP001', contactPhone: '13500135001', contactEmail: 'qiantu@swu.edu.cn' },
     { id: 'D014', projectId: null, projectName: '党员信息管理系统升级', unitId: '党政办公室', submittedBy: '吴秘书', budgetEstimate: 25, status: 'not-supported', submitDate: '2026-03-20', deadline: '2026-04-15', sortOrder: null, background: '对党员信息管理系统进行功能升级。', authorized: true, authorizedBy: '王书记', collectionId: 'CP001', contactPhone: '13800138009', contactEmail: 'wushuji@swu.edu.cn', rejectionCategory: '与现有系统功能重叠，不予支持', rejectionAt: '2026-04-05' },
+    /* ── 2026年度更多单位需求（CP001，覆盖全流程状态） ── */
+    /* 阶段二：项目负责人填报中（步骤2.3） */
+    { id: 'D015', projectId: null, projectName: '财务报销智能审核系统', unitId: '财务处', submittedBy: '赵会计', budgetEstimate: 55, status: 'draft', submitDate: null, deadline: '2026-04-15', sortOrder: null, background: '利用 OCR 和规则引擎自动审核报销单据，减少人工复核工作量，降低差错率。', authorized: true, authorizedBy: '吴处长', collectionId: 'CP001', contactPhone: '13600136015', contactEmail: 'zhaokj@swu.edu.cn' },
+    /* 阶段二：单位管理员已排序，待单位领导审批（步骤2.4→2.5） */
+    { id: 'D016', projectId: null, projectName: '人事绩效考核平台', unitId: '人事处', submittedBy: '周丽', budgetEstimate: 75, status: 'unit-pending', submitDate: '2026-03-28', deadline: '2026-04-15', sortOrder: 1, background: '建设教职工年度绩效考核线上平台，实现指标设定、自评互评、审核汇总全流程数字化，替代现有纸质+Excel模式。', authorized: true, authorizedBy: '孙处长', collectionId: 'CP001', contactPhone: '13900139016', contactEmail: 'zhouli@swu.edu.cn' },
+    { id: 'D017', projectId: null, projectName: '教职工培训管理系统', unitId: '人事处', submittedBy: '周丽', budgetEstimate: 30, status: 'unit-pending', submitDate: '2026-03-29', deadline: '2026-04-15', sortOrder: 2, background: '建设教职工继续教育与培训管理系统，支持培训报名、学时记录、证书管理。', authorized: true, authorizedBy: '孙处长', collectionId: 'CP001', contactPhone: '13900139016', contactEmail: 'zhouli@swu.edu.cn' },
+    /* 阶段二：单位领导已审批通过，已推送至信息办（步骤2.5.1） */
+    { id: 'D018', projectId: null, projectName: '校园能耗监测平台', unitId: '后勤管理处', submittedBy: '张伟', budgetEstimate: 90, status: 'unit-approved', submitDate: '2026-03-20', deadline: '2026-04-15', sortOrder: 1, background: '建设校园水电能耗智能监测平台，接入各楼宇智能电表水表数据，实现实时监测、异常告警和节能分析报表。', authorized: true, authorizedBy: '何处长', collectionId: 'CP001', contactPhone: '13800138018', contactEmail: 'zhangwei2@swu.edu.cn' },
+    { id: 'D019', projectId: null, projectName: '宿舍报修管理系统', unitId: '后勤管理处', submittedBy: '李工', budgetEstimate: 18, status: 'unit-approved', submitDate: '2026-03-22', deadline: '2026-04-15', sortOrder: 2, background: '学生宿舍报修流程线上化，支持扫码报修、工单流转、维修评价和统计分析。', authorized: true, authorizedBy: '何处长', collectionId: 'CP001', contactPhone: '13700137019', contactEmail: 'ligong@swu.edu.cn' },
+    /* 阶段三：信办筛选中 — 筛选结果待信办领导审核（步骤4.2） */
+    { id: 'D020', projectId: null, projectName: '实验室安全巡检系统', unitId: '实验室与设备管理处', submittedBy: '郑强', budgetEstimate: 42, status: 'in-selection', submitDate: '2026-03-19', deadline: '2026-04-15', sortOrder: 1, background: '建设实验室安全巡检数字化系统，支持巡检任务下发、移动端巡检记录、隐患整改追踪和数据统计分析。', authorized: true, authorizedBy: '陈主任', collectionId: 'CP001', contactPhone: '13700137020', contactEmail: 'zhengqiang@swu.edu.cn' },
+    { id: 'D021', projectId: null, projectName: '大型仪器共享预约平台', unitId: '实验室与设备管理处', submittedBy: '郑强', budgetEstimate: 38, status: 'in-selection', submitDate: '2026-03-19', deadline: '2026-04-15', sortOrder: 2, background: '建设大型仪器设备共享预约平台，实现设备信息公示、在线预约、使用记录和机时统计。', authorized: true, authorizedBy: '陈主任', collectionId: 'CP001', contactPhone: '13700137020', contactEmail: 'zhengqiang@swu.edu.cn' },
+    /* 阶段三：筛选已通过（步骤4.3.1，可进入立项论证） */
+    { id: 'D022', projectId: null, projectName: '就业信息管理平台', unitId: '招生处', submittedBy: '王芳', budgetEstimate: 48, status: 'supported', submitDate: '2026-03-16', deadline: '2026-04-15', sortOrder: 2, background: '建设毕业生就业信息一站式服务平台，整合招聘信息发布、签约管理、去向登记和就业统计分析。', authorized: true, authorizedBy: '张明', collectionId: 'CP001', contactPhone: '13900139001', contactEmail: 'wangfang@swu.edu.cn' },
+    /* 阶段三：筛选不通过（步骤4.3.2） */
+    { id: 'D023', projectId: null, projectName: '教室多媒体远程控制', unitId: '后勤管理处', submittedBy: '李工', budgetEstimate: 12, status: 'not-supported', submitDate: '2026-03-23', deadline: '2026-04-15', sortOrder: 3, background: '对教室多媒体设备实现远程开关机和状态监控。', authorized: true, authorizedBy: '何处长', collectionId: 'CP001', contactPhone: '13700137019', contactEmail: 'ligong@swu.edu.cn', rejectionCategory: '需求范围与智慧教室管理平台重叠，建议合并', rejectionAt: '2026-04-08' },
     /* ── 信息化办公室需求（unit-info，供单位系统管理员排序演示） ── */
-    { id: 'D015', projectId: null, projectName: '信息化项目管理平台建设', unitId: 'unit-info', submittedBy: '王一凡 50240014', budgetEstimate: 160, status: 'submitted', submitDate: '2026-04-01', deadline: '2026-04-30', sortOrder: 1, background: '建设覆盖项目全生命周期的信息化管理平台，支持立项、招采、实施、验收各阶段在线流转。', authorized: true, authorizedBy: '唐明', collectionId: 'CP001', contactPhone: '13800138010', contactEmail: 'wangyifan@swu.edu.cn' },
-    { id: 'D016', projectId: null, projectName: '网络安全态势感知系统', unitId: 'unit-info', submittedBy: '王一凡 50240014', budgetEstimate: 95, status: 'submitted', submitDate: '2026-04-02', deadline: '2026-04-30', sortOrder: 2, background: '建设全校网络安全态势感知平台，实现威胁实时监测与预警。', authorized: true, authorizedBy: '唐明', collectionId: 'CP001', contactPhone: '13800138010', contactEmail: 'wangyifan@swu.edu.cn' },
-    { id: 'D017', projectId: null, projectName: '统一身份认证平台升级', unitId: 'unit-info', submittedBy: '王一凡 50240014', budgetEstimate: 55, status: 'submitted', submitDate: '2026-04-03', deadline: '2026-04-30', sortOrder: 3, background: '升级统一身份认证平台，支持多因素认证和第三方系统对接。', authorized: true, authorizedBy: '唐明', collectionId: 'CP001', contactPhone: '13800138010', contactEmail: 'wangyifan@swu.edu.cn' },
+    { id: 'D024', projectId: null, projectName: '信息化项目管理平台建设', unitId: 'unit-info', submittedBy: '王一凡 50240014', budgetEstimate: 160, status: 'submitted', submitDate: '2026-04-01', deadline: '2026-04-30', sortOrder: 1, background: '建设覆盖项目全生命周期的信息化管理平台，支持立项、招采、实施、验收各阶段在线流转。', authorized: true, authorizedBy: '唐明', collectionId: 'CP001', contactPhone: '13800138010', contactEmail: 'wangyifan@swu.edu.cn' },
+    { id: 'D025', projectId: null, projectName: '网络安全态势感知系统', unitId: 'unit-info', submittedBy: '王一凡 50240014', budgetEstimate: 95, status: 'submitted', submitDate: '2026-04-02', deadline: '2026-04-30', sortOrder: 2, background: '建设全校网络安全态势感知平台，实现威胁实时监测与预警。', authorized: true, authorizedBy: '唐明', collectionId: 'CP001', contactPhone: '13800138010', contactEmail: 'wangyifan@swu.edu.cn' },
+    { id: 'D026', projectId: null, projectName: '统一身份认证平台升级', unitId: 'unit-info', submittedBy: '王一凡 50240014', budgetEstimate: 55, status: 'submitted', submitDate: '2026-04-03', deadline: '2026-04-30', sortOrder: 3, background: '升级统一身份认证平台，支持多因素认证和第三方系统对接。', authorized: true, authorizedBy: '唐明', collectionId: 'CP001', contactPhone: '13800138010', contactEmail: 'wangyifan@swu.edu.cn' },
   ],
   experts: [
     { id: 'E001', name: '张国强', org: '西南大学计算机学院', title: '教授', type: 'tech', scope: 'internal', field: '软件工程、系统架构', phone: '13900001111', email: 'zhanggq@swu.edu.cn', status: 'active' },
@@ -399,16 +415,19 @@ window.DATA = {
         ]
       },
       submitStats: {
-        totalUnits: 28, submittedUnits: 18, notSubmittedUnits: 10, totalDemands: 8, totalBudget: 528,
-        assignedCount: 12,
+        totalUnits: 28, submittedUnits: 22, notSubmittedUnits: 6, totalDemands: 18, totalBudget: 1048,
+        assignedCount: 18,
         unitDetails: [
           { unit: '教务处', submitted: true, count: 2, lastSubmit: '2026-03-20', budget: 130, assignedCount: 3 },
-          { unit: '招生处', submitted: true, count: 1, lastSubmit: '2026-03-15', budget: 60, assignedCount: 2 },
+          { unit: '招生处', submitted: true, count: 2, lastSubmit: '2026-03-16', budget: 108, assignedCount: 3 },
           { unit: '学生工作处', submitted: true, count: 1, lastSubmit: '2026-03-22', budget: 35, assignedCount: 2 },
           { unit: '科研处', submitted: true, count: 2, lastSubmit: '2026-03-18', budget: 260, assignedCount: 3 },
-          { unit: '党政办公室', submitted: false, count: 0, lastSubmit: null, budget: 0, assignedCount: 0 },
-          { unit: '图书馆', submitted: true, count: 1, lastSubmit: '2026-03-25', budget: 35, assignedCount: 2 },
-          { unit: '财务处', submitted: false, count: 0, lastSubmit: null, budget: 0, assignedCount: 0 },
+          { unit: '党政办公室', submitted: true, count: 1, lastSubmit: '2026-03-20', budget: 25, assignedCount: 1 },
+          { unit: '图书馆', submitted: true, count: 2, lastSubmit: '2026-03-25', budget: 43, assignedCount: 2 },
+          { unit: '财务处', submitted: false, count: 1, lastSubmit: null, budget: 55, assignedCount: 1 },
+          { unit: '人事处', submitted: true, count: 2, lastSubmit: '2026-03-29', budget: 105, assignedCount: 2 },
+          { unit: '后勤管理处', submitted: true, count: 3, lastSubmit: '2026-03-23', budget: 120, assignedCount: 3 },
+          { unit: '实验室与设备管理处', submitted: true, count: 2, lastSubmit: '2026-03-19', budget: 80, assignedCount: 2 },
         ]
       }
     },

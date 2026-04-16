@@ -1,252 +1,230 @@
-# UI 规范 — shadcn/ui 风格
+# UI 设计规范 — 浅色蓝主题
 
-> 本文件由 `/opsx:apply` 执行时读取，定义所有 HTML 页面的视觉和代码规范。
-
----
-
-## CDN 引入模板
-
-每个 HTML 文件头部必须完整包含以下内容：
-
-```html
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>页面标题 — 项目名</title>
-
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            border: "hsl(214.3 31.8% 91.4%)",
-            input: "hsl(214.3 31.8% 91.4%)",
-            ring: "hsl(222.2 84% 4.9%)",
-            background: "hsl(0 0% 100%)",
-            foreground: "hsl(222.2 84% 4.9%)",
-            primary: {
-              DEFAULT: "hsl(222.2 47.4% 11.2%)",
-              foreground: "hsl(210 40% 98%)",
-            },
-            secondary: {
-              DEFAULT: "hsl(210 40% 96.1%)",
-              foreground: "hsl(222.2 47.4% 11.2%)",
-            },
-            muted: {
-              DEFAULT: "hsl(210 40% 96.1%)",
-              foreground: "hsl(215.4 16.3% 46.9%)",
-            },
-            accent: {
-              DEFAULT: "hsl(210 40% 96.1%)",
-              foreground: "hsl(222.2 47.4% 11.2%)",
-            },
-          },
-          borderRadius: {
-            lg: "0.5rem",
-            md: "calc(0.5rem - 2px)",
-            sm: "calc(0.5rem - 4px)",
-          },
-        },
-      },
-    }
-  </script>
-
-  <style>
-    * { border-color: hsl(214.3 31.8% 91.4%); }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-  </style>
-</head>
-```
+> 本文件定义 demo 演示系统的视觉与代码规范。所有新页面、组件必须遵循本规范。
+> 样式文件：`demo/shared/style.css`
 
 ---
 
-## 页面整体布局
+## 1. 色彩体系
 
-所有页面统一使用左侧菜单 + 右侧内容区布局：
+### 1.1 主色与强调色
 
-```html
-<body class="bg-background text-foreground">
-  <div class="flex h-screen overflow-hidden">
+| 变量 | 色值 | 用途 |
+|------|------|------|
+| `--primary` | `#2563eb` | 顶部导航栏背景、主按钮 |
+| `--primary-hover` | `#1d4ed8` | 主色 hover 态 |
+| `--primary-light` | `#3b82f6` | 辅助蓝 |
+| `--accent` | `#2563eb` | 强调色（与主色统一为蓝色） |
+| `--accent-hover` | `#1d4ed8` | 强调色 hover 态 |
+| `--accent-light` | `#dbeafe` | 强调色浅底 |
 
-    <!-- 左侧菜单 -->
-    <aside class="w-60 border-r bg-white flex flex-col shrink-0">
-      <!-- 项目名 -->
-      <div class="h-14 flex items-center px-4 border-b font-semibold text-sm">
-        项目名称
-      </div>
-      <!-- 菜单项 -->
-      <nav class="flex-1 p-2 space-y-0.5 overflow-y-auto">
-        <a href="index.html"
-          class="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
-          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-          首页
-        </a>
-        <!-- 当前页菜单项加 active 样式 -->
-        <a href="pages/xxx.html"
-          class="flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-accent text-foreground font-medium">
-          <i data-lucide="file-text" class="w-4 h-4"></i>
-          当前页名称
-        </a>
-      </nav>
-    </aside>
+### 1.2 语义色
 
-    <!-- 右侧主区域 -->
-    <div class="flex-1 flex flex-col overflow-hidden">
-      <!-- 顶部栏 -->
-      <header class="h-14 border-b flex items-center justify-between px-6 bg-white shrink-0">
-        <h1 class="text-sm font-semibold">页面标题</h1>
-        <div class="flex items-center gap-2 text-sm text-muted-foreground">
-          <i data-lucide="user" class="w-4 h-4"></i>
-          张三
-        </div>
-      </header>
-      <!-- 内容区 -->
-      <main class="flex-1 overflow-y-auto p-6 bg-muted/30">
-        <!-- 页面内容放这里 -->
-      </main>
-    </div>
+| 变量 | 色值 | 用途 |
+|------|------|------|
+| `--success` | `#15803d` | 成功、通过 |
+| `--warning` | `#a16207` | 警告、待处理 |
+| `--danger` | `#dc2626` | 危险、拒绝、删除 |
+| `--info` | `#1d4ed8` | 提示信息 |
 
-  </div>
-  <script>lucide.createIcons();</script>
-</body>
-```
+### 1.3 文字色
 
----
+| 变量 | 色值 | 用途 |
+|------|------|------|
+| `--text-primary` | `#0f172a` | 正文、标题 |
+| `--text-secondary` | `#64748b` | 次要文字、标签 |
+| `--text-muted` | `#94a3b8` | 辅助文字、时间戳 |
 
-## 常用组件
+### 1.4 背景与边框
 
-### 按钮
-```html
-<!-- Primary 主按钮 -->
-<button class="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-  <i data-lucide="plus" class="w-4 h-4"></i>
-  新建
-</button>
+| 变量 | 色值 | 用途 |
+|------|------|------|
+| `--bg-layout` | `#f0f5ff` | 页面整体背景（淡蓝） |
+| `--bg-card` | `#ffffff` | 卡片、表格背景 |
+| `--bg-warm` | `#f8faff` | 暖底色区域 |
+| `--border` | `#e2e8f0` | 主边框 |
+| `--border-light` | `#f1f5f9` | 浅边框、分隔线 |
 
-<!-- Secondary 次按钮 -->
-<button class="inline-flex items-center gap-1.5 rounded-md border bg-background px-3 py-2 text-sm font-medium hover:bg-accent transition-colors">
-  导出
-</button>
+### 1.5 侧边栏色（浅色方案）
 
-<!-- Destructive 危险按钮 -->
-<button class="inline-flex items-center gap-1.5 rounded-md bg-red-500 px-3 py-2 text-sm font-medium text-white hover:bg-red-600 transition-colors">
-  删除
-</button>
-```
-
-### 卡片
-```html
-<div class="rounded-lg border bg-white p-6 shadow-sm">
-  <div class="flex items-center justify-between mb-1">
-    <span class="text-sm text-muted-foreground">标题</span>
-    <i data-lucide="trending-up" class="w-4 h-4 text-muted-foreground"></i>
-  </div>
-  <div class="text-2xl font-bold">128</div>
-  <p class="text-xs text-muted-foreground mt-1">较上月 +12%</p>
-</div>
-```
-
-### 表格
-```html
-<div class="rounded-lg border bg-white overflow-hidden">
-  <table class="w-full text-sm">
-    <thead class="bg-muted/50 border-b">
-      <tr>
-        <th class="px-4 py-3 text-left font-medium text-muted-foreground">列名</th>
-        <th class="px-4 py-3 text-left font-medium text-muted-foreground">状态</th>
-        <th class="px-4 py-3 text-left font-medium text-muted-foreground">操作</th>
-      </tr>
-    </thead>
-    <tbody class="divide-y">
-      <tr class="hover:bg-muted/30 transition-colors">
-        <td class="px-4 py-3">内容</td>
-        <td class="px-4 py-3"><!-- Badge 放这里 --></td>
-        <td class="px-4 py-3">
-          <button class="text-sm text-primary hover:underline">查看</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-```
-
-### 输入框与搜索
-```html
-<!-- 普通输入框 -->
-<input type="text" placeholder="请输入..."
-  class="flex h-9 w-full rounded-md border bg-background px-3 py-1 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-colors">
-
-<!-- 带图标的搜索框 -->
-<div class="relative">
-  <i data-lucide="search" class="absolute left-2.5 top-2.5 w-4 h-4 text-muted-foreground"></i>
-  <input type="text" placeholder="搜索..."
-    class="flex h-9 w-64 rounded-md border bg-background pl-8 pr-3 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring">
-</div>
-```
-
-### 下拉选择
-```html
-<select class="flex h-9 rounded-md border bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring">
-  <option value="">全部状态</option>
-  <option value="pending">待审批</option>
-  <option value="approved">已通过</option>
-</select>
-```
-
-### 状态 Badge
-```html
-<!-- 根据 config.yaml 中 status_colors 的约定 -->
-<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-600">草稿</span>
-<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-700">待审批</span>
-<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-700">已通过</span>
-<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-red-100 text-red-700">已拒绝</span>
-<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-slate-100 text-slate-600">已关闭</span>
-```
-
-### 模态弹窗（操作反馈）
-```html
-<!-- 操作成功提示，用 JS 控制显示/隐藏 -->
-<div id="toast"
-  class="fixed bottom-4 right-4 hidden items-center gap-2 rounded-lg border bg-white px-4 py-3 shadow-lg text-sm">
-  <i data-lucide="check-circle" class="w-4 h-4 text-green-500"></i>
-  <span id="toast-msg">操作成功</span>
-</div>
-
-<script>
-function showToast(msg) {
-  const el = document.getElementById('toast');
-  document.getElementById('toast-msg').textContent = msg;
-  el.classList.remove('hidden');
-  el.classList.add('flex');
-  setTimeout(() => {
-    el.classList.add('hidden');
-    el.classList.remove('flex');
-  }, 2000);
-}
-</script>
-```
+| 变量 | 色值 | 用途 |
+|------|------|------|
+| `--sidebar-bg` | `#ffffff` | 侧边栏背景（白色） |
+| `--sidebar-text` | `#475569` | 菜单项默认文字 |
+| `--sidebar-active-bg` | `#eff6ff` | 选中菜单项背景（淡蓝） |
+| `--sidebar-hover-bg` | `#f8fafc` | hover 菜单项背景 |
+| `--sidebar-active-text` | `#2563eb` | 选中菜单项文字（蓝色） |
+| `--sidebar-group-text` | `#94a3b8` | 菜单分组标题 |
 
 ---
 
-## 图标使用规则
+## 2. 页面整体布局
 
-- 所有图标必须使用 shadcn 体系下的 **Lucide Icons**（已通过 CDN 引入），禁止使用 emoji、Font Awesome 或其他图标库
-- 图标统一使用 **线性（outline/stroke）风格**，不使用填充（filled）变体
-- 图标不带背景色块，直接以线性图标形式出现；如需强调可通过文字颜色区分，不得为图标添加圆形/方形背景容器
-- 用法统一为 `<i data-lucide="icon-name" class="w-4 h-4"></i>`，尺寸通过 `w-*` / `h-*` 类控制
-- **Review 检查项**：代码审查时必须核查页面中是否存在 emoji 图标、非 Lucide 图标、填充风格图标或带背景容器的图标，发现即为不通过项
+### 2.1 布局结构
+
+```
+┌─────────────────────────────────────────────┐
+│  layout-header (蓝色 #2563eb, 高度 56px)      │
+├──────────┬──────────────────────────────────┤
+│ sidebar  │  layout-content                   │
+│ 白色背景  │  淡蓝背景 #f0f5ff                  │
+│ 宽 220px │  padding: 20px 24px               │
+│ 右边框    │                                   │
+│          │                                   │
+└──────────┴──────────────────────────────────┘
+```
+
+### 2.2 顶部导航栏
+
+- 背景色：`var(--primary)` = `#2563eb`（蓝色）
+- 高度：`56px`
+- Logo 文字：白色 `#f1f5f9`，使用 `--font-display` 字体
+- 角色切换下拉框：白色半透明边框，与蓝色背景协调
+- 退出按钮：白色半透明背景，浅色文字
+
+### 2.3 侧边栏
+
+- 背景色：白色 `#ffffff`
+- 宽度：`220px`
+- 右边框：`1px solid var(--border)` — 无 box-shadow
+- 菜单项默认态：文字 `#475569`，左侧 3px 透明边框
+- 菜单项 hover 态：背景 `#f8fafc`，文字加深
+- 菜单项选中态：背景 `#eff6ff`，文字 `#2563eb` 蓝色，左侧边框 `#2563eb`
+- 分组标题：`#94a3b8`，大写，字间距 2px
+
+### 2.4 内容区
+
+- 背景色：`#f0f5ff`（淡蓝）
+- padding：`20px 24px`
+- 进入动画：`contentFadeIn 0.35s`
 
 ---
 
-## 编码禁止事项
-- 禁止使用内联 `style=""` 属性，所有样式通过 Tailwind 类实现
-- 禁止使用 `npm`、`import`、`require`，所有依赖通过 CDN 引入
-- 禁止调用任何真实接口，所有数据在 HTML 内用 JS 定义
-- 禁止使用 `<form>` 表单提交，用 `button + onclick` 模拟操作并调用 `showToast()`
+## 3. 登录页规范
+
+- 页面背景：蓝色渐变 `linear-gradient(180deg, #1e40af, #2563eb)`
+- 径向装饰：`rgba(59,130,246,.2)` 和 `rgba(37,99,235,.1)`
+- 品牌副标题颜色：`#93c5fd`（浅蓝）
+- 系统名称颜色：`#f1f5f9`（近白）
+- 角色卡片 hover：边框变为 `var(--accent)` 蓝色，阴影 `rgba(37,99,235,.15)`
+- Demo 标签背景：`#eff6ff`
+
+---
+
+## 4. 组件规范
+
+### 4.1 按钮
+
+| 类名 | 样式 | 用途 |
+|------|------|------|
+| `.btn-primary` | 蓝色背景 `#2563eb`，白色文字 | 主操作 |
+| `.btn-default` | 白色背景，灰色边框 | 次要操作 |
+| `.btn-success` | 绿色背景 `#15803d` | 确认、通过 |
+| `.btn-danger` | 浅红背景，红色文字 | 危险操作 |
+| `.btn-sm` | padding 缩小，字号 12px | 表格内操作 |
+| `.btn-link` | 无边框，下划线蓝色文字 | 文字链接 |
+
+### 4.2 标签（Tag）
+
+| 类名 | 背景 | 文字 | 用途 |
+|------|------|------|------|
+| `.tag-blue` | `#eff6ff` | `#1d4ed8` | 信息类 |
+| `.tag-green` | `#f0fdf4` | `#15803d` | 已完成 |
+| `.tag-orange` | `#fff7ed` | `#c2410c` | 进行中 |
+| `.tag-red` | `#fef2f2` | `#dc2626` | 已拒绝 |
+| `.tag-purple` | `#faf5ff` | `#7c3aed` | 特殊标记 |
+| `.tag-gray` | `#f1f5f9` | `#475569` | 默认/草稿 |
+
+### 4.3 卡片
+
+- 背景：白色 `#ffffff`
+- 圆角：`12px`（`--radius-lg`）
+- 边框：`1px solid var(--border)`
+- 阴影：`var(--shadow)`，hover 加深为 `var(--shadow-md)`
+- 进入动画：`cardEnter 0.4s`
+
+### 4.4 表格
+
+- 表头背景：`#f1f5f9`
+- 表头文字：大写，`#64748b`，字间距 0.5px
+- 行 hover：`#f8fafc`
+- 底部分页栏背景：`#fafbfc`
+
+### 4.5 表单
+
+- 输入框 focus：蓝色边框 `var(--accent)`，蓝色光晕 `rgba(37,99,235,.12)`
+- 必填标记：红色 `*`
+- 表单标题：`--font-display` 字体，底部蓝色边框
+- 分段标题：左侧 3px 蓝色边框
+
+### 4.6 进度条
+
+- 渐变色：`linear-gradient(90deg, #2563eb, #60a5fa)`（深蓝到浅蓝）
+
+### 4.7 生命周期步骤条
+
+- 完成态：蓝色圆点 + 蓝色连线
+- 当前态：蓝色圆点 + 外发光 `rgba(37,99,235,.15)`
+- 待处理态：灰色圆点
+
+### 4.8 角色图标
+
+- 渐变背景：`linear-gradient(135deg, #1d4ed8, #3b82f6)`
+- 白色文字/图标
+
+---
+
+## 5. 字体规范
+
+| 变量 | 字体族 | 用途 |
+|------|--------|------|
+| `--font-display` | Noto Serif SC, SimSun, serif | 标题、品牌名 |
+| `--font-body` | LXGW WenKai, PingFang SC, Microsoft YaHei | 正文、表单 |
+
+- 正文字号：`14px`
+- 表头/标签：`12px`
+- 卡片标题：`15px`
+- 页面标题：`20px`
+
+---
+
+## 6. 间距与圆角
+
+| 变量 | 值 | 用途 |
+|------|-----|------|
+| `--radius` | `8px` | 按钮、输入框、小组件 |
+| `--radius-lg` | `12px` | 卡片、表格容器 |
+| `--header-height` | `56px` | 顶部导航栏高度 |
+| `--sidebar-width` | `220px` | 侧边栏宽度 |
+
+---
+
+## 7. 动效
+
+| 名称 | 时长 | 缓动 | 用途 |
+|------|------|------|------|
+| `--transition` | `0.2s` | `cubic-bezier(.4,0,.2,1)` | 通用交互过渡 |
+| `contentFadeIn` | `0.35s` | ease | 内容区进入 |
+| `cardEnter` | `0.4s` | ease | 卡片逐个进入 |
+| `toastSlideIn` | `0.3s` | cubic-bezier | Toast 从右滑入 |
+| `modalSlideUp` | `0.3s` | cubic-bezier | 弹窗从下滑入 |
+
+---
+
+## 8. 设计原则
+
+1. **浅色优先**：整体为浅色背景 + 白色卡片，蓝色仅用于强调和操作元素
+2. **蓝色主色统一**：所有交互元素（按钮、链接、选中态）统一使用 `#2563eb` 蓝色系
+3. **侧边栏保持白色**：侧边栏与内容区以细边框分隔，不使用深色背景
+4. **渐变克制**：仅在登录页背景和进度条使用渐变，其他场景使用纯色
+5. **语义色独立**：success/warning/danger 保持绿/黄/红独立语义，不被主色覆盖
+
+---
+
+## 9. 编码约束
+
+- 所有颜色通过 CSS 变量引用，禁止在组件中硬编码色值
+- 禁止使用内联 `style=""`，所有样式通过 class 实现（app.html 顶栏少量内联除外）
+- 禁止引入 npm/import/require，所有依赖通过 CDN 或本地文件引入
+- 图标使用 Lucide Icons 线性风格，统一通过 `<i data-lucide="icon-name">` 引入
+- 所有数据在 JS 文件内 mock，禁止调用真实接口

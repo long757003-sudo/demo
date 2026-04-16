@@ -648,16 +648,54 @@ registerView('notification-create', function(params) {
    ============================================================ */
 registerView('notification-detail', function() {
   const params = getViewParams('notification-detail');
-  const nid = (params && params.id) ? params.id
-    : (params && typeof params === 'string' && params.includes('id='))
-      ? params.split('id=')[1]
-      : 'N001';
 
-  const n = (DATA.notifications || []).find(x => x.id === nid) || (DATA.notifications || [])[0];
+  /* ── 来源判断：支持从通知列表(id) 或需求征集列表(planId) 跳入 ── */
+  const source  = (params && params.source) || 'notification-list';
+  const planId  = params && params.planId;
+
+  var n = null;
+  if (planId) {
+    /* 从 collectionPlan.notification 构造与 notifications 兼容的对象 */
+    var plan = (DATA.collectionPlans || []).find(function(p) { return p.id === planId; }) || (DATA.collectionPlans || [])[0];
+    if (plan && plan.notification) {
+      var pn = plan.notification;
+      /* 构造 mock 收件人状态，复用征集计划的 submitStats */
+      var mockUnitsCP  = ['教务处','招生处','学生工作处','科研处','党政办公室','图书馆','财务处','人事处'];
+      var mockNamesCP  = mockUnitsCP.map(function(u) { return u.replace(/处|馆/, '') + '管理员'; });
+      var readStatusCP = {}, deliveryStatusCP = {};
+      mockNamesCP.forEach(function(name, i) {
+        deliveryStatusCP[name] = i < 5 ? 'delivered' : (i === 5 ? 'delivered' : 'pending');
+        readStatusCP[name] = i < 3;
+      });
+      n = {
+        id: 'CP-' + plan.id, type: 'collection-notice',
+        title: pn.title || plan.title,
+        content: pn.body || '',
+        sender: pn.contactName || plan.createdBy || '信息办管理员',
+        sendTime: plan.notification.sendTime === 'immediate' ? plan.createdAt + ' 09:00' : (plan.notification.sendTime || plan.createdAt + ' 09:00'),
+        recipients: pn.recipients || ['unit-admin'],
+        level: 'info',
+        readStatus: readStatusCP,
+        deliveryStatus: deliveryStatusCP,
+        channel: ['system', 'dingtalk']
+      };
+    }
+  }
+  if (!n) {
+    var nid = (params && params.id) ? params.id
+      : (params && typeof params === 'string' && params.includes('id='))
+        ? params.split('id=')[1]
+        : 'N001';
+    n = (DATA.notifications || []).find(function(x) { return x.id === nid; }) || (DATA.notifications || [])[0];
+  }
   if (!n) {
     return breadcrumb('通知管理', '通知详情') +
       '<div class="card"><div style="text-align:center;padding:40px;color:var(--text-secondary)">通知不存在</div></div>';
   }
+
+  /* ── 返回按钮根据来源动态设置 ── */
+  var backTarget = source === 'demand-collect' ? 'demand-collect' : 'notification-list';
+  var backLabel  = source === 'demand-collect' ? '← 返回征集列表' : '← 返回列表';
 
   const typeNameMap = _typeNameMap();
   const typeName    = typeNameMap[n.type] || n.type;
@@ -761,7 +799,7 @@ registerView('notification-detail', function() {
     breadcrumb('通知管理', '通知详情') +
     '<div class="page-header">' +
       '<div class="page-title">通知发送详情</div>' +
-      '<button class="btn" onclick="navigate(\'notification-list\')">← 返回列表</button>' +
+      '<button class="btn" onclick="navigate(\'' + backTarget + '\')">' + backLabel + '</button>' +
     '</div>' +
 
     /* Basic info card */

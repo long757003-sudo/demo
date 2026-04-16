@@ -86,7 +86,9 @@ function highlightNav(viewId) {
     'preliminary-review': 'proposal-list',
     'self-review': 'proposal-list', 'info-confirm': 'proposal-list',
     'project-detail': 'project-list', 'project-change': 'delay-change',
-    'notification-detail': 'notification-list',
+    'notification-detail': (function() {
+      try { var p = JSON.parse(localStorage.getItem('viewParams_notification-detail') || '{}'); return p.source === 'demand-collect' ? 'demand-collect' : 'notification-list'; } catch(e) { return 'notification-list'; }
+    })(),
     'notification-template': 'notification-template',
     'notification-template-create': 'notification-template',
     'notification-template-edit':   'notification-template',

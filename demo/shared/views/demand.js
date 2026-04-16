@@ -118,73 +118,7 @@ function _collectionStatusTag(status) {
   return '<span class="tag ' + cls + '">' + label + '</span>';
 }
 
-function _showNotifDrawer(planId) {
-  const plan = DATA.collectionPlans.find(function(p) { return p.id === planId; }) || DATA.collectionPlans[0];
-
-  const mockRecipients = [
-    { name: '刘管理员', unit: '教务处',     role: '单位系统管理员', channel: '系统+钉钉', sendTime: '2026-02-20 09:00', recvTime: '2026-02-20 09:00', readTime: '2026-02-20 09:05', status: 'read', acknowledged: true },
-    { name: '赵管理员', unit: '招生处',     role: '单位系统管理员', channel: '系统+钉钉', sendTime: '2026-02-20 09:00', recvTime: '2026-02-20 09:01', readTime: '2026-02-20 10:22', status: 'read', acknowledged: true },
-    { name: '孙管理员', unit: '学生工作处', role: '单位系统管理员', channel: '系统+钉钉', sendTime: '2026-02-20 09:00', recvTime: '2026-02-20 09:00', readTime: '—',               status: 'unread', acknowledged: false },
-    { name: '周管理员', unit: '科研处',     role: '单位系统管理员', channel: '系统+钉钉', sendTime: '2026-02-20 09:00', recvTime: '—',               readTime: '—',               status: 'failed', acknowledged: false },
-    { name: '吴管理员', unit: '党政办公室', role: '单位系统管理员', channel: '系统+钉钉', sendTime: '2026-02-20 09:00', recvTime: '2026-02-20 09:02', readTime: '2026-02-20 11:30', status: 'read', acknowledged: true },
-    { name: '钱管理员', unit: '图书馆',     role: '单位系统管理员', channel: '系统+钉钉', sendTime: '2026-02-20 09:00', recvTime: '2026-02-20 09:01', readTime: '—',               status: 'unread', acknowledged: false },
-  ];
-
-  const total     = mockRecipients.length;
-  const delivered = mockRecipients.filter(function(r) { return r.status !== 'failed'; }).length;
-  const read      = mockRecipients.filter(function(r) { return r.status === 'read'; }).length;
-  const acked     = mockRecipients.filter(function(r) { return r.acknowledged; }).length;
-
-  const statusTag = function(s) {
-    if (s === 'read')    return '<span class="tag tag-green">已读</span>';
-    if (s === 'unread')  return '<span class="tag tag-blue">已送达/未读</span>';
-    if (s === 'failed')  return '<span class="tag tag-red">未送达</span>';
-    return '<span class="tag tag-gray">—</span>';
-  };
-  var ackTag = function(a) {
-    return a ? '<span class="tag tag-green">已知晓</span>' : '<span class="tag tag-gray">未确认</span>';
-  };
-
-  const rows = mockRecipients.map(function(r) {
-    return '<tr>' +
-      '<td>' + r.name + '</td>' +
-      '<td>' + r.unit + '</td>' +
-      '<td>' + r.role + '</td>' +
-      '<td>' + r.channel + '</td>' +
-      '<td style="font-size:11px">' + r.sendTime + '</td>' +
-      '<td style="font-size:11px">' + r.recvTime + '</td>' +
-      '<td style="font-size:11px">' + r.readTime + '</td>' +
-      '<td>' + statusTag(r.status) + '</td>' +
-      '<td>' + ackTag(r.acknowledged) + '</td>' +
-    '</tr>';
-  }).join('');
-
-  const html =
-    '<div style="display:flex;gap:24px;margin-bottom:20px">' +
-      '<div class="stat-mini"><div class="stat-mini-value">' + total + '</div><div class="stat-mini-label">总通知人数</div></div>' +
-      '<div class="stat-mini"><div class="stat-mini-value" style="color:var(--success)">' + delivered + '</div><div class="stat-mini-label">已送达</div></div>' +
-      '<div class="stat-mini"><div class="stat-mini-value" style="color:var(--primary)">' + read + '</div><div class="stat-mini-label">已读</div></div>' +
-      '<div class="stat-mini"><div class="stat-mini-value" style="color:#52c41a">' + acked + '</div><div class="stat-mini-label">已知晓</div></div>' +
-    '</div>' +
-    '<div style="overflow-x:auto">' +
-      '<table class="data-table" style="font-size:12px">' +
-        '<thead><tr>' +
-          '<th>姓名</th><th>单位</th><th>角色</th><th>发送渠道</th>' +
-          '<th>发送时间</th><th>接收时间</th><th>已读时间</th><th>状态</th><th>知晓确认</th>' +
-        '</tr></thead>' +
-        '<tbody>' + rows + '</tbody>' +
-      '</table>' +
-    '</div>' +
-    '<div style="margin-top:16px;display:flex;gap:8px">' +
-      '<button class="btn btn-sm" onclick="toast(\'Demo：已重发给未送达用户\',\'info\')">重发给未送达</button>' +
-      '<button class="btn btn-sm" onclick="toast(\'Demo：已重发给未读用户\',\'info\')">重发给未读</button>' +
-      '<button class="btn btn-sm" onclick="toast(\'Demo：记录导出功能暂不可用\',\'info\')">导出记录</button>' +
-    '</div>';
-
-  showDrawer('通知详情 — ' + (plan.notification ? plan.notification.title : plan.title), html);
-}
-
-window._showNotifDrawer = _showNotifDrawer;
+/* _showNotifDrawer 已移除 — 通知详情统一使用 notification-detail 页面 */
 
 registerView('demand-collect', function() {
   const role = getCurrentRole();
@@ -193,7 +127,7 @@ registerView('demand-collect', function() {
   const rows = DATA.collectionPlans.map(function(plan) {
     var opBtns =
       '<button class="btn btn-sm" style="margin-right:4px" onclick="navigate(\'collection-detail\',{id:\'' + plan.id + '\'})">查看征集详情</button>' +
-      '<button class="btn btn-sm" style="margin-right:4px" onclick="_showNotifDrawer(\'' + plan.id + '\')">通知详情</button>';
+      '<button class="btn btn-sm" style="margin-right:4px" onclick="navigate(\'notification-detail\',{planId:\'' + plan.id + '\',source:\'demand-collect\'})">通知详情</button>';
 
     if (!isUnitAdmin) {
       opBtns += '<button class="btn btn-sm" onclick="navigate(\'demand-list\',{collectionId:\'' + plan.id + '\'})">查看申报详情</button>';

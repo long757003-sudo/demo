@@ -1077,17 +1077,60 @@ function _demandStatusTag(status) {
 /* ── demand-list 状态 Badge 映射（DEM-07，UI-SPEC 视图 H Color 规则）── */
 function _dlStatusBadge(status) {
   var map = {
-    'draft':         { cls: 'tag-gray',   text: '草稿' },
-    'submitted':     { cls: 'tag-orange', text: '已提交' },
-    'unit-pending':  { cls: 'tag-orange', text: '待审批' },
-    'unit-approved': { cls: 'tag-green',  text: '待遴选' },
-    'unit-rejected': { cls: 'tag-red',    text: '已退回' },
-    'in-selection':  { cls: 'tag-blue',   text: '遴选中' },
-    'supported':     { cls: 'tag-green',  text: '已支持' },
-    'not-supported': { cls: 'tag-red',    text: '不支持' }
+    'draft':                     { cls: 'tag-gray',   text: '草稿' },
+    'submitted':                 { cls: 'tag-orange', text: '已提交' },
+    'unit-pending':              { cls: 'tag-orange', text: '待审批' },
+    'unit-approved':             { cls: 'tag-green',  text: '待遴选' },
+    'unit-rejected':             { cls: 'tag-red',    text: '已退回' },
+    'sorted':                    { cls: 'tag-blue',   text: '已排序' },
+    'in-selection':              { cls: 'tag-blue',   text: '遴选中' },
+    'selection-pending-review':  { cls: 'tag-orange', text: '筛选结果待审核' },
+    'supported':                 { cls: 'tag-green',  text: '已支持' },
+    'not-supported':             { cls: 'tag-red',    text: '不支持' }
   };
   var m = map[status] || { cls: 'tag-gray', text: status };
   return '<span class="tag ' + m.cls + '">' + m.text + '</span>';
+}
+
+/* ── demand-list 操作列按角色 + 状态渲染（参考业务流程说明书-01-需求征集 §2）── */
+function _dlOpBtns(role, d) {
+  var id = d.id;
+  var s = d.status;
+  var view     = '<button class="btn btn-sm" onclick="navigate(\'demand-fill\',{id:\'' + id + '\'})">查看</button>';
+  var edit     = '<button class="btn btn-sm btn-primary" onclick="navigate(\'demand-fill\',{id:\'' + id + '\'})">编辑</button>';
+  var submit   = '<button class="btn btn-sm" onclick="toast(\'Demo：提交至单位管理员\',\'info\')">提交</button>';
+  var del      = '<button class="btn btn-sm" onclick="toast(\'Demo：删除草稿\',\'info\')">删除</button>';
+  var resubmit = '<button class="btn btn-sm" onclick="toast(\'Demo：重新提交\',\'info\')">重新提交</button>';
+  var sortBtn  = '<button class="btn btn-sm" onclick="navigate(\'demand-sort\')">排序</button>';
+  var submitToLeader = '<button class="btn btn-sm btn-primary" onclick="toast(\'Demo：提交单位领导审批\',\'info\')">提交审批</button>';
+  var approve  = '<button class="btn btn-sm btn-primary" onclick="toast(\'Demo：审批通过\',\'info\')">通过</button>';
+  var reject   = '<button class="btn btn-sm" onclick="toast(\'Demo：驳回\',\'info\')">驳回</button>';
+  var selectBtn = '<button class="btn btn-sm btn-primary" onclick="navigate(\'demand-select\')">遴选</button>';
+
+  if (role === 'project-manager') {
+    if (s === 'draft')         return edit + ' ' + submit + ' ' + del;
+    if (s === 'unit-rejected') return edit + ' ' + resubmit;
+    return view;
+  }
+  if (role === 'unit-admin' || role === 'unit-sysadmin') {
+    if (s === 'submitted') return sortBtn + ' ' + submitToLeader;
+    if (s === 'sorted')    return submitToLeader;
+    return view;
+  }
+  if (role === 'unit-leader') {
+    if (s === 'unit-pending') return approve + ' ' + reject;
+    return view;
+  }
+  if (role === 'info-admin') {
+    if (s === 'in-selection') return selectBtn;
+    return view;
+  }
+  if (role === 'info-leader') {
+    if (s === 'selection-pending-review') return approve + ' ' + reject;
+    return view;
+  }
+  // 专家等无操作角色显式只读兜底（非 else 滥用）
+  return view;
 }
 
 /* ── demand-list 筛选状态（DEM-07，Claude's Discretion 允许简化逻辑）── */
@@ -1124,20 +1167,8 @@ registerView('demand-list', function() {
     var priorityBadge = d.priority === '高' ? '<span class="tag tag-red">高</span>'
       : d.priority === '低' ? '<span class="tag tag-gray">低</span>'
       : (d.priority ? '<span class="tag tag-orange">中</span>' : '—');
-    // 操作列按角色区分
-    var opBtns;
-    if (role === 'project-manager') {
-      opBtns = '<button class="btn btn-sm" onclick="navigate(\'demand-fill\',{id:\'' + d.id + '\'})">编辑</button> ' +
-               '<button class="btn btn-sm" onclick="toast(\'Demo：详情页待完善\',\'info\')">查看</button>';
-    } else if (role === 'unit-leader') {
-      opBtns = '<button class="btn btn-sm" onclick="toast(\'Demo：详情页待完善\',\'info\')">查看</button>';
-    } else if (role === 'unit-sysadmin' || role === 'unit-admin') {
-      opBtns = '<button class="btn btn-sm btn-primary" onclick="navigate(\'demand-assign\')">需求指派</button>';
-    } else if (role === 'info-admin') {
-      opBtns = '<button class="btn btn-sm btn-primary" onclick="navigate(\'demand-select\')">遴选</button>';
-    } else {
-      opBtns = '<button class="btn btn-sm" onclick="toast(\'Demo：详情页待完善\',\'info\')">查看</button>';
-    }
+    // 操作列按角色 + 状态区分（_dlOpBtns）
+    var opBtns = _dlOpBtns(role, d);
     return '<tr>' +
       '<td><a onclick="navigate(\'demand-fill\',{id:\'' + d.id + '\'})" style="cursor:pointer">' + dName + '</a></td>' +
       '<td>' + (d.unitId || '—') + '</td>' +
@@ -1178,6 +1209,7 @@ registerView('demand-list', function() {
           '<option value="unit-approved"' + (status === 'unit-approved' ? ' selected' : '') + '>待遴选</option>' +
           '<option value="unit-rejected"' + (status === 'unit-rejected' ? ' selected' : '') + '>已退回</option>' +
           '<option value="in-selection"' + (status === 'in-selection' ? ' selected' : '') + '>遴选中</option>' +
+          '<option value="selection-pending-review"' + (status === 'selection-pending-review' ? ' selected' : '') + '>筛选结果待审核</option>' +
           '<option value="supported"' + (status === 'supported' ? ' selected' : '') + '>已支持</option>' +
           '<option value="not-supported"' + (status === 'not-supported' ? ' selected' : '') + '>不支持</option>' +
         '</select>' +
@@ -1241,7 +1273,6 @@ window._demandSendNotice = function() {
    ════════════════════════════════════════════════════════════════ */
 
 if (typeof window._demandFormData === 'undefined') window._demandFormData = {};
-if (typeof window._demandFormStep === 'undefined') window._demandFormStep = 0;
 
 registerView('demand-fill', function() {
   // 草稿恢复：仅在 _demandFormData 为空时恢复（D-06）
@@ -1249,9 +1280,7 @@ registerView('demand-fill', function() {
     window._demandFormData = loadDraft('demand-fill') || {};
   }
 
-  var d   = window._demandFormData;
-  var stp = window._demandFormStep || 0;
-  var role = getCurrentRole();
+  var d = window._demandFormData;
 
   // 从 demandUsers 自动查询项目负责人信息
   var pmUser = (DATA.demandUsers || []).find(function(u) {
@@ -1261,47 +1290,100 @@ registerView('demand-fill', function() {
   var unitMap = {'unit-edu':'教务处','unit-enroll':'招生处','unit-research':'科研处','unit-student':'学工处','unit-office':'党政办','unit-lib':'图书馆','unit-info':'信息化办','unit-assets':'资产处'};
   var unitName = unitMap[pmUser.unitId] || '教务处';
 
-  var steps = ['基本信息', '需求描述', '技术要求', '附件上传'];
+  var budgetVal = d.budget || '';
+  var applyDate = d.applyDate || new Date().toISOString().slice(0, 10);
+  var summaryLen = (d.summary || '').length;
 
-  // ── Step 0: 基本信息 ──────────────────────────────────────────
-  function renderStep0() {
-    var budgetVal = d.budget || '';
-    var budgetType = budgetVal ? budgetToType(+budgetVal).label : '请先填写预算';
-    return '<div class="form-grid">' +
-      '<div class="form-item">' +
+  // ── Section Title Helper（带 Lucide 图标） ──
+  var sectionTitle = function(lucideIcon, color, text) {
+    return '<div style="display:flex;align-items:center;gap:10px;margin:20px 0 14px">' +
+      '<i data-lucide="' + lucideIcon + '" style="width:18px;height:18px;color:' + color.fg + ';flex-shrink:0"></i>' +
+      '<div style="font-size:15px;font-weight:600;color:var(--text-primary)">' + text + '</div>' +
+    '</div>';
+  };
+
+  // ── Section 1: 项目基本信息 ──
+  var section1 =
+    sectionTitle('clipboard-list', {bg:'#d6eaf8', fg:'#1a5276'}, '一、项目基本信息') +
+    '<div class="form-grid">' +
+      '<div class="form-item span-2">' +
         '<label class="form-label">项目名称 <span class="req">*</span>' +
           '<span class="tooltip-icon" data-tip="建议格式：[单位简称]+[系统/平台名称]，不超过60字" style="cursor:help;margin-left:4px;color:var(--text-secondary)">?</span>' +
         '</label>' +
         '<input class="form-control" id="df-name" placeholder="请输入项目名称（建议不超过60字）" value="' + (d.name || '') + '" maxlength="60">' +
       '</div>' +
       '<div class="form-item">' +
-        '<label class="form-label">所在单位</label>' +
-        '<input class="form-control" id="df-unit" value="' + unitName + '" readonly>' +
-      '</div>' +
-      '<div class="form-item">' +
-        '<label class="form-label">负责人</label>' +
-        '<input class="form-control" id="df-leader" value="' + leaderName + '" readonly>' +
-      '</div>' +
-      '<div class="form-item">' +
-        '<label class="form-label">联系方式 <span class="req">*</span></label>' +
-        '<input class="form-control" id="df-contact" placeholder="请输入联系电话或邮箱" value="' + (d.contact || '') + '">' +
-      '</div>' +
-      '<div class="form-item">' +
         '<label class="form-label">预期投入金额（万元）<span class="req">*</span>' +
-          '<span class="tooltip-icon" data-tip="100万元以下为小型，100-500万为中型，500万以上为重大项目，金额决定审批流程层级" style="cursor:help;margin-left:4px;color:var(--text-secondary)">?</span>' +
+          '<span class="tooltip-icon" data-tip="100万元以下为小型，100-500万为中型，500万以上为重大项目" style="cursor:help;margin-left:4px;color:var(--text-secondary)">?</span>' +
         '</label>' +
         '<div style="display:flex;gap:8px;align-items:center">' +
           '<input class="form-control" id="df-budget" type="number" placeholder="请输入金额（万元）" value="' + budgetVal + '" oninput="_dfUpdateTypeBadge()" style="flex:1">' +
           '<span id="df-budget-badge">' + (budgetVal ? projectTypeTag(budgetToType(+budgetVal).type) : '') + '</span>' +
         '</div>' +
       '</div>' +
+      '<div class="form-item">' +
+        '<label class="form-label">申请日期 <span class="req">*</span></label>' +
+        '<input class="form-control" id="df-date" type="date" value="' + applyDate + '">' +
+      '</div>' +
+      '<div class="form-item">' +
+        '<label class="form-label">与现有系统的关系</label>' +
+        '<select class="form-control" id="df-relation">' +
+          ['全新建设','功能扩展','系统替换'].map(function(v) {
+            return '<option value="' + v + '"' + (d.relation === v ? ' selected' : '') + '>' + v + '</option>';
+          }).join('') +
+        '</select>' +
+      '</div>' +
     '</div>';
-  }
 
-  // ── Step 1: 需求描述 ──────────────────────────────────────────
-  function renderStep1() {
-    var summaryLen = (d.summary || '').length;
-    return '<div class="form-grid">' +
+  // ── Section 2: 申请单位信息 ──
+  var section2 =
+    sectionTitle('building-2', {bg:'#fdebd0', fg:'#b9770e'}, '二、申请单位信息') +
+    '<div class="form-grid">' +
+      '<div class="form-item span-2">' +
+        '<label class="form-label">项目用户单位名称</label>' +
+        '<input class="form-control" id="df-unit" value="' + unitName + '" readonly>' +
+      '</div>' +
+      '<div class="form-item">' +
+        '<label class="form-label">单位负责人 <span class="req">*</span></label>' +
+        '<input class="form-control" id="df-unit-leader" placeholder="请输入单位负责人姓名" value="' + (d.unitLeader || '') + '">' +
+      '</div>' +
+      '<div class="form-item">' +
+        '<label class="form-label">单位负责人联系方式 <span class="req">*</span></label>' +
+        '<input class="form-control" id="df-unit-leader-phone" placeholder="手机号码" value="' + (d.unitLeaderPhone || '') + '">' +
+      '</div>' +
+      '<div class="form-item">' +
+        '<label class="form-label">项目联系人</label>' +
+        '<input class="form-control" id="df-leader" value="' + leaderName + '" readonly>' +
+      '</div>' +
+      '<div class="form-item">' +
+        '<label class="form-label">联系人联系方式 <span class="req">*</span></label>' +
+        '<input class="form-control" id="df-contact" placeholder="请输入联系电话或邮箱" value="' + (d.contact || '') + '">' +
+      '</div>' +
+    '</div>';
+
+  // ── Section 3: 项目概述与建设需求 ──
+  var tagsByCategory = {};
+  (DATA.tagLibrary || []).forEach(function(t) {
+    if (!tagsByCategory[t.category]) tagsByCategory[t.category] = [];
+    tagsByCategory[t.category].push(t);
+  });
+  var tagHtml = Object.keys(tagsByCategory).map(function(cat) {
+    return '<div style="margin-bottom:10px">' +
+      '<h4 style="font-size:12px;font-weight:600;color:var(--text-secondary);margin:0 0 6px 0">' + cat + '</h4>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:6px">' +
+      tagsByCategory[cat].map(function(t) {
+        var checked = d.tags && d.tags.some(function(x) { return x.id === t.id; });
+        return '<label style="display:flex;align-items:center;gap:4px;padding:3px 8px;background:#f4f4f5;border-radius:4px;cursor:pointer;font-size:13px">' +
+          '<input type="checkbox" class="df-tag" value="' + t.id + '" data-cat="' + t.category + '" data-name="' + t.name + '"' + (checked ? ' checked' : '') + '>' +
+          t.name +
+        '</label>';
+      }).join('') +
+      '</div></div>';
+  }).join('');
+
+  var section3 =
+    sectionTitle('file-text', {bg:'#d5f5e3', fg:'#1e8449'}, '三、项目概述及建设需求') +
+    '<div class="form-grid">' +
       '<div class="form-item span-2">' +
         '<label class="form-label">摘要 <span class="req">*</span>' +
           '<span class="tooltip-icon" data-tip="用2~3句话描述需求核心价值和预期效果，不超过200字，将作为遴选摘要展示给信息办" style="cursor:help;margin-left:4px;color:var(--text-secondary)">?</span>' +
@@ -1310,8 +1392,42 @@ registerView('demand-fill', function() {
         '<div style="text-align:right;font-size:11px;color:var(--text-secondary);margin-top:2px"><span id="df-summary-count">' + summaryLen + '/200</span></div>' +
       '</div>' +
       '<div class="form-item span-2">' +
-        '<label class="form-label">功能描述 <span class="req">*</span></label>' +
-        '<textarea class="form-control" id="df-desc" rows="4" placeholder="请详细描述项目背景、主要功能需求及建设目标...">' + (d.desc || '') + '</textarea>' +
+        '<label class="form-label">需求描述 <span class="req">*</span></label>' +
+        // 填写引导面板
+        '<div style="background:linear-gradient(135deg,#f0f7ee 0%,#f6faf4 100%);border:1px solid #d5e8cf;border-radius:6px;padding:14px 16px;margin-bottom:10px">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">' +
+            '<div style="font-size:13px;font-weight:600;color:#2d6a1e;display:flex;align-items:center;gap:6px"><i data-lucide="lightbulb" style="width:14px;height:14px"></i>填写引导 — 不知道怎么写？按以下几个方面逐条描述即可</div>' +
+            '<button type="button" onclick="_dfToggleExample()" id="df-guide-toggle" style="font-size:11px;color:var(--primary);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0">查看填写范例 ↓</button>' +
+          '</div>' +
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
+            [
+              {n:1, t:'现状与痛点', h:'目前工作中遇到了什么问题？', eg:'目前 XX 业务仍使用纸质审批，流转慢、易丢失'},
+              {n:2, t:'期望目标',   h:'希望通过信息化系统达到什么效果？', eg:'实现线上审批，缩短流程至 2 个工作日内'},
+              {n:3, t:'主要使用场景', h:'谁来用？在什么场景下使用？', eg:'各学院教师提交、学院审批、信息办汇总'},
+              {n:4, t:'涉及范围与规模', h:'覆盖多少人/单位？有无对接需求？', eg:'覆盖全校 30+ 二级单位，需对接统一身份认证'}
+            ].map(function(g) {
+              return '<div style="display:flex;align-items:flex-start;gap:8px;background:#fff;border:1px solid #e2eddc;border-radius:6px;padding:10px 12px">' +
+                '<div style="width:20px;height:20px;border-radius:50%;background:#e8f5e2;color:#2d6a1e;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">' + g.n + '</div>' +
+                '<div style="flex:1">' +
+                  '<div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:2px">' + g.t + '</div>' +
+                  '<div style="font-size:11px;color:var(--text-secondary);line-height:1.5">' + g.h + '<br>例如：<em style="font-style:normal;color:#5a9a48">"' + g.eg + '"</em></div>' +
+                '</div>' +
+              '</div>';
+            }).join('') +
+          '</div>' +
+          '<div id="df-guide-example" style="display:none;margin-top:10px;border-top:1px dashed #cde0c5;padding-top:12px">' +
+            '<div style="font-size:11px;font-weight:600;color:#2d6a1e;margin-bottom:6px;display:flex;align-items:center;gap:4px"><i data-lucide="book-open" style="width:12px;height:12px"></i>填写范例（可直接引用修改）</div>' +
+            '<div style="font-size:12px;color:var(--text-primary);line-height:1.7;background:#fff;border:1px solid #e2eddc;border-radius:6px;padding:12px 14px">' +
+              '<div style="margin-bottom:6px"><b style="color:#2d6a1e">【现状与痛点】</b>目前全校各单位的信息化建设需求通过纸质申请表提交，存在以下问题：表单填写不规范，关键信息缺失率高；纸质流转周期长（平均 7-10 个工作日）；历史需求无法检索和统计分析。</div>' +
+              '<div style="margin-bottom:6px"><b style="color:#2d6a1e">【期望目标】</b>建设线上需求征集与管理系统，实现需求在线提交、自动校验、流程审批和数据统计，将需求提交到立项评审的周期缩短至 3 个工作日以内。</div>' +
+              '<div style="margin-bottom:6px"><b style="color:#2d6a1e">【主要使用场景】</b>二级单位联系人在线填报需求 → 单位负责人线上审批 → 信息办统一受理、组织专家评审 → 反馈评审结果并跟踪实施。</div>' +
+              '<div><b style="color:#2d6a1e">【涉及范围与规模】</b>覆盖全校 35 个二级单位，约 200 名填报和审批用户；系统需对接学校统一身份认证平台和 OA 消息通知接口。</div>' +
+            '</div>' +
+            '<button type="button" onclick="_dfUseExample()" style="margin-top:8px;padding:5px 14px;border-radius:4px;border:1px solid #b5d4a8;background:#f0f7ee;color:#2d6a1e;font-size:11px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:4px"><i data-lucide="pen-line" style="width:11px;height:11px"></i>引用此范例到输入框</button>' +
+          '</div>' +
+        '</div>' +
+        '<textarea class="form-control" id="df-desc" rows="6" placeholder="请参考上方引导，分条描述您的需求。如不确定如何表述，可点击「查看填写范例」参考后修改。">' + (d.desc || '') + '</textarea>' +
+        '<div style="font-size:12px;color:var(--text-secondary);margin-top:4px">提示：尽量用日常工作语言描述即可，不需要使用专业技术术语，信息办会协助您细化技术方案。</div>' +
       '</div>' +
       '<div class="form-item">' +
         '<label class="form-label">优先级</label>' +
@@ -1324,61 +1440,21 @@ registerView('demand-fill', function() {
           }).join('') +
         '</div>' +
       '</div>' +
-    '</div>';
-  }
-
-  // ── Step 2: 技术要求 ──────────────────────────────────────────
-  function renderStep2() {
-    // 从 DATA.tagLibrary 按 category 分组
-    var tagsByCategory = {};
-    (DATA.tagLibrary || []).forEach(function(t) {
-      if (!tagsByCategory[t.category]) tagsByCategory[t.category] = [];
-      tagsByCategory[t.category].push(t);
-    });
-    var tagHtml = Object.keys(tagsByCategory).map(function(cat) {
-      return '<div style="margin-bottom:12px">' +
-        '<h4 style="font-size:13px;font-weight:600;color:var(--text-secondary);margin:0 0 6px 0">' + cat + '</h4>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:6px">' +
-        tagsByCategory[cat].map(function(t) {
-          var checked = d.tags && d.tags.some(function(x) { return x.id === t.id; });
-          return '<label style="display:flex;align-items:center;gap:4px;padding:3px 8px;background:#f4f4f5;border-radius:4px;cursor:pointer;font-size:13px">' +
-            '<input type="checkbox" class="df-tag" value="' + t.id + '" data-cat="' + t.category + '" data-name="' + t.name + '"' + (checked ? ' checked' : '') + '>' +
-            t.name +
-          '</label>';
-        }).join('') +
-        '</div></div>';
-    }).join('');
-
-    return '<div class="form-grid">' +
       '<div class="form-item span-2">' +
         '<label class="form-label">技术方案描述（选填）</label>' +
         '<textarea class="form-control" id="df-tech" rows="3" placeholder="请描述技术实现方案、采用的主要技术框架等...">' + (d.tech || '') + '</textarea>' +
       '</div>' +
       '<div class="form-item span-2">' +
-        '<label class="form-label">标签选择（D-05/D-09）' +
+        '<label class="form-label">标签选择' +
           '<span class="tooltip-icon" data-tip="标签来自标签库，将用于需求分类汇总和遴选参考，可多选" style="cursor:help;margin-left:4px;color:var(--text-secondary)">?</span>' +
         '</label>' +
         (tagHtml || '<div style="color:var(--text-secondary);font-size:13px">暂无可用标签，请先在标签库中添加</div>') +
       '</div>' +
-      '<div class="form-item">' +
-        '<label class="form-label">与现有系统的关系</label>' +
-        '<select class="form-control" id="df-relation">' +
-          ['全新建设','功能扩展','系统替换'].map(function(v) {
-            return '<option value="' + v + '"' + (d.relation === v ? ' selected' : '') + '>' + v + '</option>';
-          }).join('') +
-        '</select>' +
-      '</div>' +
-    '</div>';
-  }
-
-  // ── Step 3: 附件上传 ──────────────────────────────────────────
-  function renderStep3() {
-    return '<div class="form-grid">' +
       '<div class="form-item span-2">' +
-        '<label class="form-label">文件上传（Demo 展示）</label>' +
+        '<label class="form-label">附件材料（选填）</label>' +
         '<input class="form-control" id="df-files" type="file" multiple>' +
         '<div style="margin-top:6px;padding:8px 12px;background:#fffbe6;border:1px solid #ffe58f;border-radius:4px;font-size:12px;color:#ad6800">' +
-          'Demo 说明：当前仅展示文件上传控件，不做真实文件上传和内容自动识别填充（D-05 文件识别功能为 Demo 占位展示）。' +
+          'Demo 说明：仅展示文件上传控件，不做真实文件上传和内容自动识别填充。' +
         '</div>' +
       '</div>' +
       '<div class="form-item span-2">' +
@@ -1386,26 +1462,57 @@ registerView('demand-fill', function() {
         '<textarea class="form-control" id="df-remark" rows="3" placeholder="其他需要补充说明的内容...">' + (d.remark || '') + '</textarea>' +
       '</div>' +
     '</div>';
-  }
 
-  // 当前 step 内容
-  var stepContent = stp === 0 ? renderStep0() : stp === 1 ? renderStep1() : stp === 2 ? renderStep2() : renderStep3();
+  // ── Import Toolbar（模板文件导入） ──
+  var toolbar =
+    '<div class="card" style="margin-top:16px;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-left:3px solid var(--primary)">' +
+      '<div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-secondary)">' +
+        '<i data-lucide="file-up" style="width:16px;height:16px;color:var(--primary);flex-shrink:0"></i>' +
+        '<span>支持通过模板文件快速导入，自动识别并填充表单字段</span>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        '<button class="btn btn-sm" onclick="_dfDownloadTemplate()" style="display:inline-flex;align-items:center;gap:4px"><i data-lucide="download" style="width:13px;height:13px"></i>下载模板</button>' +
+        '<button class="btn btn-sm btn-primary" onclick="_dfOpenImport()" style="display:inline-flex;align-items:center;gap:4px"><i data-lucide="upload" style="width:13px;height:13px"></i>文件导入</button>' +
+      '</div>' +
+    '</div>';
 
-  // 底部操作按钮
-  var footerBtns =
-    '<button class="btn" onclick="_dfSaveDraft()">暂存草稿</button>' +
-    (stp > 0 ? '<button class="btn" onclick="_dfPrevStep()">上一步</button>' : '') +
-    (stp < 3 ? '<button class="btn btn-primary" onclick="_dfNextStep()">下一步</button>' : '') +
-    (stp === 3 ? '<button class="btn btn-primary" onclick="_dfSubmit()">提交审核</button>' : '');
+  // ── 4 步流程进度条 ──
+  var stepLabels = ['填写申请', '单位审批', '信息办审核', '立项完成'];
+  var progress =
+    '<div class="card" style="margin-top:12px;padding:16px 24px">' +
+      '<div style="display:flex;align-items:center;gap:4px">' +
+        stepLabels.map(function(label, i) {
+          var active = i === 0;
+          var numStyle = active
+            ? 'border:2px solid var(--primary);background:var(--primary);color:#fff'
+            : 'border:2px solid var(--border);background:#fff;color:var(--text-secondary)';
+          var labelStyle = active
+            ? 'color:var(--primary);font-weight:500'
+            : 'color:var(--text-secondary)';
+          var connector = (i < stepLabels.length - 1)
+            ? '<div style="flex:1;height:2px;background:var(--border);margin:0 8px;border-radius:1px"></div>'
+            : '';
+          return '<div style="display:flex;align-items:center;gap:8px;flex:' + (i < stepLabels.length - 1 ? '1' : '0 0 auto') + '">' +
+            '<div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;' + numStyle + '">' + (i + 1) + '</div>' +
+            '<span style="font-size:13px;white-space:nowrap;' + labelStyle + '">' + label + '</span>' +
+          '</div>' + connector;
+        }).join('') +
+      '</div>' +
+    '</div>';
 
   return (
     breadcrumb('首页', '需求管理', '需求申请表') +
-    '<div class="page-header"><div class="page-title">新建需求申请</div></div>' +
-    renderStepWizard(steps, stp) +
+    '<div class="page-header"><div class="page-title">信息化项目建设需求申请</div><div style="font-size:13px;color:var(--text-secondary);margin-top:4px">请填写以下信息提交项目建设需求，信息办将统一审核</div></div>' +
+    progress +
+    toolbar +
     '<div class="card" style="margin-top:16px">' +
-      '<div class="card-title">' + steps[stp] + '</div>' +
-      stepContent +
-      '<div class="form-footer" style="gap:8px">' + footerBtns + '</div>' +
+      section1 +
+      section2 +
+      section3 +
+      '<div class="form-footer" style="gap:8px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--border);margin-top:16px">' +
+        '<button class="btn" onclick="_dfSaveDraft()">暂存草稿</button>' +
+        '<button class="btn btn-primary" onclick="_dfSubmit()">提交申请</button>' +
+      '</div>' +
     '</div>'
   );
 });
@@ -1414,66 +1521,66 @@ registerView('demand-fill', function() {
 
 window._val = function(id) { var el = document.getElementById(id); return el ? el.value : ''; };
 
-window._dfCaptureStep = function() {
-  var step = window._demandFormStep;
+window._dfCaptureAll = function() {
   var d = window._demandFormData;
-  if (step === 0) {
-    d.name    = window._val('df-name');
-    d.contact = window._val('df-contact');
-    d.budget  = window._val('df-budget');
-  } else if (step === 1) {
-    d.summary = window._val('df-summary');
-    d.desc    = window._val('df-desc');
-    var pr = document.querySelector('input[name="df-priority"]:checked');
-    d.priority = pr ? pr.value : '中';
-  } else if (step === 2) {
-    d.tech = window._val('df-tech');
-    var checkedTags = document.querySelectorAll('.df-tag:checked');
-    d.tags = Array.prototype.map.call(checkedTags, function(el) {
-      return { id: el.value, category: el.dataset.cat, name: el.dataset.name };
-    });
-    d.relation = window._val('df-relation');
-  } else if (step === 3) {
-    d.remark = window._val('df-remark');
-  }
+  d.name            = window._val('df-name');
+  d.budget          = window._val('df-budget');
+  d.applyDate       = window._val('df-date');
+  d.relation        = window._val('df-relation');
+  d.unitLeader      = window._val('df-unit-leader');
+  d.unitLeaderPhone = window._val('df-unit-leader-phone');
+  d.contact         = window._val('df-contact');
+  d.summary         = window._val('df-summary');
+  d.desc            = window._val('df-desc');
+  var pr = document.querySelector('input[name="df-priority"]:checked');
+  d.priority = pr ? pr.value : '中';
+  d.tech = window._val('df-tech');
+  var checkedTags = document.querySelectorAll('.df-tag:checked');
+  d.tags = Array.prototype.map.call(checkedTags, function(el) {
+    return { id: el.value, category: el.dataset.cat, name: el.dataset.name };
+  });
+  d.remark = window._val('df-remark');
 };
 
 window._dfSaveDraft = function() {
-  window._dfCaptureStep();
+  window._dfCaptureAll();
   saveDraft('demand-fill', window._demandFormData);
   toast('草稿已保存', 'success');
 };
 
-window._dfNextStep = function() {
-  window._dfCaptureStep();
-  var d = window._demandFormData;
-  if (window._demandFormStep === 0) {
-    if (!d.name)    { toast('请填写「项目名称」', 'error'); return; }
-    if (!d.contact) { toast('请填写「联系方式」', 'error'); return; }
-    if (!d.budget)  { toast('请填写「预期投入金额」', 'error'); return; }
-  }
-  if (window._demandFormStep === 1) {
-    if (!d.summary) { toast('请填写「摘要」', 'error'); return; }
-    if (!d.desc)    { toast('请填写「功能描述」', 'error'); return; }
-  }
-  window._demandFormStep++;
-  renderView('demand-fill');
+window._dfToggleExample = function() {
+  var box = document.getElementById('df-guide-example');
+  var btn = document.getElementById('df-guide-toggle');
+  if (!box || !btn) return;
+  var isOpen = box.style.display !== 'none';
+  box.style.display = isOpen ? 'none' : 'block';
+  btn.textContent = isOpen ? '查看填写范例 ↓' : '收起填写范例 ↑';
 };
 
-window._dfPrevStep = function() {
-  window._dfCaptureStep();
-  if (window._demandFormStep > 0) window._demandFormStep--;
-  renderView('demand-fill');
+window._dfUseExample = function() {
+  var ta = document.getElementById('df-desc');
+  if (!ta) return;
+  ta.value =
+    '【现状与痛点】目前全校各单位的信息化建设需求通过纸质申请表提交，存在以下问题：表单填写不规范，关键信息缺失率高；纸质流转周期长（平均 7-10 个工作日）；历史需求无法检索和统计分析。\n\n' +
+    '【期望目标】建设线上需求征集与管理系统，实现需求在线提交、自动校验、流程审批和数据统计，将需求提交到立项评审的周期缩短至 3 个工作日以内。\n\n' +
+    '【主要使用场景】二级单位联系人在线填报需求 → 单位负责人线上审批 → 信息办统一受理、组织专家评审 → 反馈评审结果并跟踪实施。\n\n' +
+    '【涉及范围与规模】覆盖全校 35 个二级单位，约 200 名填报和审批用户；系统需对接学校统一身份认证平台和 OA 消息通知接口。';
+  ta.focus();
+  toast('已引用范例，请按实际情况修改', 'success');
 };
 
 window._dfSubmit = function() {
-  window._dfCaptureStep();
+  window._dfCaptureAll();
   var d = window._demandFormData;
-  if (!d.name || !d.contact || !d.budget || !d.summary || !d.desc) {
-    toast('请完整填写前序步骤的必填字段', 'error'); return;
-  }
-  // budget 负值校验（T-03-01 mitigate）
+  if (!d.name)            { toast('请填写「项目名称」', 'error'); return; }
+  if (!d.budget)          { toast('请填写「预期投入金额」', 'error'); return; }
   if (Number(d.budget) < 0) { toast('预期投入金额不能为负值', 'error'); return; }
+  if (!d.applyDate)       { toast('请选择「申请日期」', 'error'); return; }
+  if (!d.unitLeader)      { toast('请填写「单位负责人」', 'error'); return; }
+  if (!d.unitLeaderPhone) { toast('请填写「单位负责人联系方式」', 'error'); return; }
+  if (!d.contact)         { toast('请填写「联系人联系方式」', 'error'); return; }
+  if (!d.summary)         { toast('请填写「摘要」', 'error'); return; }
+  if (!d.desc)            { toast('请填写「需求描述」', 'error'); return; }
 
   var pmUser = (DATA.demandUsers || []).find(function(u) {
     return u.roles && u.roles.indexOf('project-manager') >= 0 && u.empNo === '50240014';
@@ -1496,6 +1603,9 @@ window._dfSubmit = function() {
     tags:         d.tags || [],
     relation:     d.relation || '',
     remark:       d.remark || '',
+    unitLeader:      d.unitLeader || '',
+    unitLeaderPhone: d.unitLeaderPhone || '',
+    applyDate:    d.applyDate || '',
     status:       'submitted',
     sortOrder:    999,
     submitDate:   new Date().toISOString().slice(0, 10),
@@ -1506,7 +1616,6 @@ window._dfSubmit = function() {
   logOperation('demand-fill', '提交', demand.name);  // T-03-04 mitigate
   clearDraft('demand-fill');
   window._demandFormData = {};   // T-03-03 mitigate
-  window._demandFormStep = 0;
   toast('需求已提交，等待单位系统管理员处理', 'success');
   navigate('demand-list');
 };
@@ -1521,9 +1630,209 @@ window._dfUpdateTypeBadge = function() {
 
 window._dfStartNew = function() {
   window._demandFormData = {};   // T-03-03 mitigate
-  window._demandFormStep = 0;
   clearDraft('demand-fill');
   navigate('demand-fill');
+};
+
+/* ── 模板文件导入（import wizard） ─────────────────────────────── */
+
+window._DF_IMP_DEMO = {
+  name: '智慧校园一卡通升级改造项目',
+  budget: '186.5',
+  date: '2026-04-15',
+  unit: '信息化建设办公室',
+  head: '张明远',
+  headtel: '13812345678',
+  contact: '李思然',
+  contacttel: '13987654321',
+  desc: '为满足学校智慧校园建设总体规划要求，拟对现有一卡通系统进行全面升级改造。主要建设内容包括：\n1. 核心平台升级至云架构，支持多校区统一管理；\n2. 新增移动支付（微信/支付宝）和数字人民币支付通道；\n3. 部署人脸识别终端，覆盖食堂、图书馆、门禁等场景；\n4. 建设数据分析平台，实现消费行为分析和异常预警。\n预计覆盖全校 4 万余名师生，项目建设周期 12 个月。'
+};
+
+window._dfInjectImportStyle = function() {
+  if (document.getElementById('df-imp-style')) return;
+  var css =
+    '.df-imp-drop{border:2px dashed var(--border);border-radius:8px;padding:36px 24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg-layout)}' +
+    '.df-imp-drop:hover,.df-imp-drop.dragover{border-color:var(--primary);background:#f0f7ff}' +
+    '.df-imp-drop .di{font-size:40px;opacity:.5;margin-bottom:10px}' +
+    '.df-imp-drop h4{font-size:14px;font-weight:500;margin:0 0 4px 0}' +
+    '.df-imp-drop p{font-size:12px;color:var(--text-secondary);margin:2px 0}' +
+    '.df-imp-drop .bl{color:var(--primary);text-decoration:underline}' +
+    '.df-imp-fileinfo{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f8faf8;border:1px solid #d5f5e3;border-radius:6px;margin-bottom:14px}' +
+    '.df-imp-fileinfo .ic{font-size:20px}' +
+    '.df-imp-fileinfo .nm{font-size:13px;font-weight:500}' +
+    '.df-imp-fileinfo .sz{font-size:11px;color:var(--text-secondary)}' +
+    '.df-imp-step{display:flex;align-items:flex-start;gap:12px;padding:10px 0;position:relative}' +
+    '.df-imp-step:not(:last-child)::after{content:"";position:absolute;left:15px;top:40px;bottom:0;width:2px;background:#eee}' +
+    '.df-imp-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;position:relative;z-index:1}' +
+    '.df-imp-dot.pending{background:#f0f0f0;color:#bbb}' +
+    '.df-imp-dot.running{background:#d6eaf8;color:var(--primary)}' +
+    '.df-imp-dot.running::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:2px solid transparent;border-top-color:var(--primary);animation:dfImpSpin .8s linear infinite}' +
+    '.df-imp-dot.pass{background:#d5f5e3;color:var(--success)}' +
+    '.df-imp-dot.fail{background:#fce4e4;color:var(--danger)}' +
+    '@keyframes dfImpSpin{to{transform:rotate(360deg)}}' +
+    '.df-imp-info{flex:1;padding-top:5px}' +
+    '.df-imp-info .vt{font-size:13px;font-weight:500;margin-bottom:2px}' +
+    '.df-imp-info .vd{font-size:12px;color:var(--text-secondary)}' +
+    '.df-imp-info .ve{display:none;font-size:12px;color:var(--danger);margin-top:6px;background:#fef5f5;padding:8px 12px;border-radius:4px;border-left:3px solid var(--danger);line-height:1.6}' +
+    '.df-imp-info .ve.active{display:block}' +
+    '.df-imp-preview{display:none;margin-top:14px;background:#f8faf8;border:1px solid #d5f5e3;border-radius:6px;padding:14px 16px}' +
+    '.df-imp-preview.active{display:block}' +
+    '.df-imp-preview h4{font-size:13px;font-weight:600;color:var(--success);margin:0 0 10px 0}' +
+    '.df-imp-preview .fi{display:flex;gap:8px;padding:4px 0;font-size:12px;border-bottom:1px dashed #e8f5e8}' +
+    '.df-imp-preview .fi:last-child{border-bottom:none}' +
+    '.df-imp-preview .fl{color:var(--text-secondary);min-width:84px}' +
+    '.df-imp-preview .fv{color:var(--text);font-weight:500;word-break:break-all}' +
+    '@keyframes dfFieldFlash{0%{background:#c8f7d5;box-shadow:0 0 0 3px rgba(39,174,96,.2)}100%{background:var(--bg-layout);box-shadow:none}}' +
+    '.df-field-flash{animation:dfFieldFlash 1.6s ease forwards}';
+  var el = document.createElement('style');
+  el.id = 'df-imp-style';
+  el.textContent = css;
+  document.head.appendChild(el);
+};
+
+window._dfDownloadTemplate = function() {
+  toast('Demo：正在下载《西南大学信息化项目建设需求申请表.docx》', 'info');
+};
+
+window._dfOpenImport = function() {
+  window._dfInjectImportStyle();
+  var body =
+    '<div id="df-imp-upload">' +
+      '<div class="df-imp-drop" id="df-imp-drop">' +
+        '<div class="di">📂</div>' +
+        '<h4>选择模板文件</h4>' +
+        '<p>拖拽文件到此处，或 <span class="bl">点击浏览</span></p>' +
+        '<p style="font-size:11px;color:#bbb;margin-top:6px">仅支持《西南大学信息化项目建设需求申请表》模板（.docx / .doc）</p>' +
+      '</div>' +
+      '<input type="file" id="df-imp-file" style="display:none" accept=".doc,.docx,.pdf,.xlsx,.txt">' +
+    '</div>' +
+    '<div id="df-imp-validate" style="display:none">' +
+      '<div class="df-imp-fileinfo"><div class="ic">📄</div><div style="flex:1"><div class="nm" id="df-imp-fname">—</div><div class="sz" id="df-imp-fsize">—</div></div></div>' +
+      '<div class="df-imp-step"><div class="df-imp-dot pending" id="df-imp-d1">①</div><div class="df-imp-info"><div class="vt">文件格式校验</div><div class="vd">检查文件类型是否为支持的 .docx / .doc 格式</div><div class="ve" id="df-imp-e1"></div></div></div>' +
+      '<div class="df-imp-step"><div class="df-imp-dot pending" id="df-imp-d2">②</div><div class="df-imp-info"><div class="vt">模板结构识别</div><div class="vd">校验表格结构是否符合标准《建设需求申请表》模板</div><div class="ve" id="df-imp-e2"></div></div></div>' +
+      '<div class="df-imp-step"><div class="df-imp-dot pending" id="df-imp-d3">③</div><div class="df-imp-info"><div class="vt">字段内容提取</div><div class="vd">读取模板中已填写的各项字段数据</div></div></div>' +
+      '<div class="df-imp-step"><div class="df-imp-dot pending" id="df-imp-d4">④</div><div class="df-imp-info"><div class="vt">数据映射就绪</div><div class="vd">将提取内容映射到表单对应字段，准备自动填入</div></div></div>' +
+      '<div class="df-imp-preview" id="df-imp-preview">' +
+        '<h4>✓ 识别完成 — 以下内容将自动填入表单</h4>' +
+        '<div class="fi"><span class="fl">项目名称</span><span class="fv" id="df-imp-pv-name">—</span></div>' +
+        '<div class="fi"><span class="fl">项目预算</span><span class="fv" id="df-imp-pv-budget">—</span></div>' +
+        '<div class="fi"><span class="fl">申请日期</span><span class="fv" id="df-imp-pv-date">—</span></div>' +
+        '<div class="fi"><span class="fl">单位负责人</span><span class="fv" id="df-imp-pv-head">—</span></div>' +
+        '<div class="fi"><span class="fl">负责人电话</span><span class="fv" id="df-imp-pv-headtel">—</span></div>' +
+        '<div class="fi"><span class="fl">联系人电话</span><span class="fv" id="df-imp-pv-contacttel">—</span></div>' +
+        '<div class="fi"><span class="fl">需求描述</span><span class="fv" id="df-imp-pv-desc">—</span></div>' +
+      '</div>' +
+    '</div>';
+  var footer =
+    '<button class="btn" onclick="closeModal()">取消</button>' +
+    '<button class="btn btn-primary" id="df-imp-ok" disabled onclick="_dfConfirmFill()">确认填入</button>';
+  showModal('📄 导入申请表文件', body, footer);
+  window._dfImpValid = false;
+
+  var drop = document.getElementById('df-imp-drop');
+  var inp = document.getElementById('df-imp-file');
+  drop.onclick = function() { inp.click(); };
+  drop.ondragover = function(e) { e.preventDefault(); drop.classList.add('dragover'); };
+  drop.ondragleave = function() { drop.classList.remove('dragover'); };
+  drop.ondrop = function(e) {
+    e.preventDefault(); drop.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) window._dfHandleImportFile(e.dataTransfer.files[0]);
+  };
+  inp.onchange = function() {
+    if (inp.files[0]) window._dfHandleImportFile(inp.files[0]);
+  };
+};
+
+window._dfHandleImportFile = function(file) {
+  var ext = file.name.split('.').pop().toLowerCase();
+  var sizeKB = (file.size / 1024).toFixed(1);
+  document.getElementById('df-imp-upload').style.display = 'none';
+  document.getElementById('df-imp-validate').style.display = 'block';
+  document.getElementById('df-imp-fname').textContent = file.name;
+  document.getElementById('df-imp-fsize').textContent = sizeKB + ' KB';
+  var isDocx = (ext === 'docx' || ext === 'doc');
+  var looksLikeTemplate = file.name.indexOf('申请') >= 0 || file.name.indexOf('需求') >= 0;
+  window._dfRunImportValidation(isDocx, looksLikeTemplate);
+};
+
+window._dfRunImportValidation = function(isDocx, looksLikeTemplate) {
+  var pass = function(id) {
+    var el = document.getElementById(id);
+    if (el) { el.className = 'df-imp-dot pass'; el.textContent = '✓'; }
+  };
+  var fail = function(id, eid, msg) {
+    var el = document.getElementById(id);
+    if (el) { el.className = 'df-imp-dot fail'; el.textContent = '✗'; }
+    var ev = document.getElementById(eid);
+    if (ev) { ev.innerHTML = msg; ev.classList.add('active'); }
+    var ft = document.querySelector('.modal-footer');
+    if (ft) {
+      ft.innerHTML =
+        '<button class="btn" onclick="closeModal()">关闭</button>' +
+        '<button class="btn btn-warning" onclick="_dfOpenImport()">🔄 重新选择文件</button>';
+    }
+  };
+  setTimeout(function() { var el = document.getElementById('df-imp-d1'); if (el) el.className = 'df-imp-dot running'; }, 250);
+  setTimeout(function() {
+    if (!isDocx) { fail('df-imp-d1', 'df-imp-e1', '文件格式不正确。系统仅支持 <b>.docx / .doc</b> 格式的模板文件。<br>请下载标准模板填写后重新导入。'); return; }
+    pass('df-imp-d1');
+    setTimeout(function() { var el = document.getElementById('df-imp-d2'); if (el) el.className = 'df-imp-dot running'; }, 200);
+    setTimeout(function() {
+      if (!looksLikeTemplate) { fail('df-imp-d2', 'df-imp-e2', '模板结构校验失败。未识别到标准《西南大学信息化项目建设需求申请表》的表格结构。<br>请确保上传的是通过 <b>"下载模板"</b> 获取的标准文件。'); return; }
+      pass('df-imp-d2');
+      setTimeout(function() { var el = document.getElementById('df-imp-d3'); if (el) el.className = 'df-imp-dot running'; }, 200);
+      setTimeout(function() {
+        pass('df-imp-d3');
+        setTimeout(function() { var el = document.getElementById('df-imp-d4'); if (el) el.className = 'df-imp-dot running'; }, 200);
+        setTimeout(function() {
+          pass('df-imp-d4');
+          window._dfImpValid = true;
+          var D = window._DF_IMP_DEMO;
+          document.getElementById('df-imp-pv-name').textContent       = D.name;
+          document.getElementById('df-imp-pv-budget').textContent     = D.budget + ' 万元';
+          document.getElementById('df-imp-pv-date').textContent       = D.date;
+          document.getElementById('df-imp-pv-head').textContent       = D.head;
+          document.getElementById('df-imp-pv-headtel').textContent    = D.headtel;
+          document.getElementById('df-imp-pv-contacttel').textContent = D.contacttel;
+          var descShort = D.desc.length > 60 ? D.desc.substring(0, 60) + '…' : D.desc;
+          document.getElementById('df-imp-pv-desc').textContent = descShort;
+          document.getElementById('df-imp-preview').classList.add('active');
+          var okBtn = document.getElementById('df-imp-ok');
+          if (okBtn) okBtn.removeAttribute('disabled');
+        }, 550);
+      }, 650);
+    }, 850);
+  }, 850);
+};
+
+window._dfConfirmFill = function() {
+  if (!window._dfImpValid) return;
+  closeModal();
+  var D = window._DF_IMP_DEMO;
+  var fields = [
+    { id: 'df-name',              val: D.name,       delay: 100 },
+    { id: 'df-budget',            val: D.budget,     delay: 240 },
+    { id: 'df-date',              val: D.date,       delay: 380 },
+    { id: 'df-unit-leader',       val: D.head,       delay: 520 },
+    { id: 'df-unit-leader-phone', val: D.headtel,    delay: 660 },
+    { id: 'df-contact',           val: D.contacttel, delay: 800 },
+    { id: 'df-desc',              val: D.desc,       delay: 940 }
+  ];
+  fields.forEach(function(f) {
+    setTimeout(function() {
+      var el = document.getElementById(f.id);
+      if (!el) return;
+      el.value = f.val;
+      el.classList.remove('df-field-flash');
+      void el.offsetWidth;
+      el.classList.add('df-field-flash');
+    }, f.delay);
+  });
+  setTimeout(function() {
+    if (typeof window._dfUpdateTypeBadge === 'function') window._dfUpdateTypeBadge();
+    window._dfCaptureAll();
+    toast('已从模板文件自动填入 7 个字段', 'success');
+  }, 1100);
 };
 
 

@@ -235,6 +235,16 @@ function showToast(msg) {
 
 ---
 
+## 图标使用规则
+
+- 所有图标必须使用 shadcn 体系下的 **Lucide Icons**（已通过 CDN 引入），禁止使用 emoji、Font Awesome 或其他图标库
+- 图标统一使用 **线性（outline/stroke）风格**，不使用填充（filled）变体
+- 图标不带背景色块，直接以线性图标形式出现；如需强调可通过文字颜色区分，不得为图标添加圆形/方形背景容器
+- 用法统一为 `<i data-lucide="icon-name" class="w-4 h-4"></i>`，尺寸通过 `w-*` / `h-*` 类控制
+- **Review 检查项**：代码审查时必须核查页面中是否存在 emoji 图标、非 Lucide 图标、填充风格图标或带背景容器的图标，发现即为不通过项
+
+---
+
 ## 编码禁止事项
 - 禁止使用内联 `style=""` 属性，所有样式通过 Tailwind 类实现
 - 禁止使用 `npm`、`import`、`require`，所有依赖通过 CDN 引入

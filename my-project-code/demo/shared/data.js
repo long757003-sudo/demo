@@ -64,22 +64,23 @@ window.DATA = {
     { id: 'D026', projectId: null, projectName: '统一身份认证平台升级', unitId: 'unit-info', submittedBy: '王一凡 50240014', budgetEstimate: 55, status: 'submitted', submitDate: '2026-04-03', deadline: '2026-04-30', sortOrder: 3, background: '升级统一身份认证平台，支持多因素认证和第三方系统对接。', authorized: true, authorizedBy: '唐明', collectionId: 'CP001', contactPhone: '13800138010', contactEmail: 'wangyifan@swu.edu.cn' },
   ],
   experts: [
-    { id: 'E001', name: '张国强', org: '西南大学计算机学院', title: '教授', type: 'tech', scope: 'internal', field: '软件工程、系统架构', phone: '13900001111', email: 'zhanggq@swu.edu.cn', status: 'active' },
-    { id: 'E002', name: '李慧敏', org: '西南大学信息办', title: '高工', type: 'tech', scope: 'internal', field: '网络安全、数据治理', phone: '13900002222', email: 'lihm@swu.edu.cn', status: 'active' },
-    { id: 'E003', name: '陈志远', org: '重庆大学计算机学院', title: '副教授', type: 'tech', scope: 'external', field: '数据库、大数据平台', phone: '13900003333', email: 'chenzhy@cqu.edu.cn', status: 'active' },
-    { id: 'E004', name: '王小燕', org: '西南大学教务处', title: '处长', type: 'business', scope: 'internal', field: '教学管理、质量评估', phone: '13900004444', email: 'wangxy@swu.edu.cn', status: 'active' },
-    { id: 'E005', name: '刘建国', org: '西南大学财务处', title: '副处长', type: 'business', scope: 'internal', field: '预算管理、财务审计', phone: '13900005555', email: 'liujg@swu.edu.cn', status: 'active' },
-    { id: 'E006', name: '赵明华', org: '四川大学信息化办', title: '主任', type: 'tech', scope: 'external', field: '信息化规划、项目管理', phone: '13900006666', email: 'zhaomh@scu.edu.cn', status: 'active' },
-    { id: 'E007', name: '孙丽娟', org: '西南大学招生处', title: '科长', type: 'user', scope: 'internal', field: '招生业务', phone: '13900007777', email: 'sunlj@swu.edu.cn', status: 'active' },
-    { id: 'E008', name: '周大鹏', org: '电子科技大学软件学院', title: '教授', type: 'tech', scope: 'external', field: '软件工程、AI应用', phone: '13900008888', email: 'zhoudp@uestc.edu.cn', status: 'blacklisted', blackReason: '曾在评审中泄露商业信息', blackDate: '2024-11-01' },
-    { id: 'E009', name: '吴晓峰', org: '西南大学科研处', title: '副处长', type: 'business', scope: 'internal', field: '科研项目管理', phone: '13900009999', email: 'wuxf@swu.edu.cn', status: 'active' },
-    { id: 'E010', name: '郑雪梅', org: '重庆邮电大学信息学院', title: '副教授', type: 'tech', scope: 'external', field: '信息安全、云计算', phone: '13900000000', email: 'zhengxm@cqupt.edu.cn', status: 'active' },
+    { id: 'E001', name: '张国强', org: '西南大学计算机学院', title: '教授', type: 'tech', scope: 'internal', field: '软件工程、系统架构', phone: '13900001111', email: 'zhanggq@swu.edu.cn', status: 'active', tags: ['软件工程','计算机科学与技术'] },
+    { id: 'E002', name: '李慧敏', org: '西南大学信息办', title: '高工', type: 'tech', scope: 'internal', field: '网络安全、数据治理', phone: '13900002222', email: 'lihm@swu.edu.cn', status: 'active', tags: ['管理信息系统网络通信与安全','数据管理'] },
+    { id: 'E003', name: '陈志远', org: '重庆大学计算机学院', title: '副教授', type: 'tech', scope: 'external', field: '数据库、大数据平台', phone: '13900003333', email: 'chenzhy@cqu.edu.cn', status: 'active', tags: ['数据科学','计算机科学与技术'] },
+    { id: 'E004', name: '王小燕', org: '西南大学教务处', title: '处长', type: 'business', scope: 'internal', field: '教学管理、质量评估', phone: '13900004444', email: 'wangxy@swu.edu.cn', status: 'active', tags: ['教学','管理'] },
+    { id: 'E005', name: '刘建国', org: '西南大学财务处', title: '副处长', type: 'business', scope: 'internal', field: '预算管理、财务审计', phone: '13900005555', email: 'liujg@swu.edu.cn', status: 'active', tags: ['财务','管理'] },
+    { id: 'E006', name: '赵明华', org: '四川大学信息化办', title: '主任', type: 'tech', scope: 'external', field: '信息化规划、项目管理', phone: '13900006666', email: 'zhaomh@scu.edu.cn', status: 'active', tags: ['管理信息系统网络通信与安全','工程管理'] },
+    { id: 'E007', name: '孙丽娟', org: '西南大学招生处', title: '科长', type: 'user', scope: 'internal', field: '招生业务', phone: '13900007777', email: 'sunlj@swu.edu.cn', status: 'active', tags: ['学生管理','管理'] },
+    { id: 'E008', name: '周大鹏', org: '电子科技大学软件学院', title: '教授', type: 'tech', scope: 'external', field: '软件工程、AI应用', phone: '13900008888', email: 'zhoudp@uestc.edu.cn', status: 'blacklisted', blackReason: '曾在评审中泄露商业信息', blackDate: '2024-11-01', tags: ['软件工程','人工智能'] },
+    { id: 'E009', name: '吴晓峰', org: '西南大学科研处', title: '副处长', type: 'business', scope: 'internal', field: '科研项目管理', phone: '13900009999', email: 'wuxf@swu.edu.cn', status: 'active', tags: ['科研','工程管理'] },
+    { id: 'E010', name: '郑雪梅', org: '重庆邮电大学信息学院', title: '副教授', type: 'tech', scope: 'external', field: '信息安全、云计算', phone: '13900000000', email: 'zhengxm@cqupt.edu.cn', status: 'active', tags: ['管理信息系统网络通信与安全','通信网络'] },
   ],
   reviews: [
-    { id: 'RV001', type: 'approval', projectId: 'P001', projectName: '本科教学质量分析平台', date: '2025-03-25', experts: ['E001','E003','E004'], status: 'in-progress', conclusion: null, inviteStatus: { E001: 'accepted', E003: 'accepted', E004: 'accepted' } },
-    { id: 'RV002', type: 'approval', projectId: 'P005', projectName: '科研项目全程管理平台', date: '2025-01-28', experts: ['E001','E002','E006'], status: 'rejected', conclusion: '技术方案存在重大缺陷，建议重新设计后提交二次论证', inviteStatus: { E001: 'accepted', E002: 'accepted', E006: 'accepted' } },
-    { id: 'RV003', type: 'acceptance', projectId: 'P003', projectName: 'OA协同办公平台升级', date: '2025-01-25', experts: ['E001','E003','E006','E002','E010'], status: 'passed', conclusion: '验收通过，系统功能达到预期建设目标', inviteStatus: { E001: 'accepted', E003: 'accepted', E006: 'accepted', E002: 'accepted', E010: 'accepted' } },
-    { id: 'RV004', type: 'approval', projectId: 'P002', projectName: '招生系统升级改造', date: '2025-01-10', experts: ['E001','E005','E007'], status: 'passed', conclusion: '需求合理，建议立项', inviteStatus: { E001: 'accepted', E005: 'accepted', E007: 'pending' } },
+    { id: 'RV001', type: 'approval', projectId: 'P001', projectName: '本科教学质量分析平台', date: '2025-03-25', experts: ['E001','E003','E004'], status: 'in-progress', conclusion: null, inviteStatus: { E001: 'accepted', E003: 'accepted', E004: 'accepted' }, round: 1, triggerScene: '立项论证', weightedScore: null, finalConclusion: null, reworkDeadline: null, reworkStatus: null },
+    { id: 'RV002', type: 'approval', projectId: 'P005', projectName: '科研项目全程管理平台', date: '2025-01-28', experts: ['E001','E002','E006'], status: 'rejected', conclusion: '技术方案存在重大缺陷，建议重新设计后提交二次论证', inviteStatus: { E001: 'accepted', E002: 'accepted', E006: 'accepted' }, round: 2, triggerScene: '立项论证', weightedScore: 52, finalConclusion: '不通过', reworkDeadline: null, reworkStatus: null },
+    { id: 'RV003', type: 'acceptance', projectId: 'P003', projectName: 'OA协同办公平台升级', date: '2025-01-25', experts: ['E001','E003','E006','E002','E010'], status: 'passed', conclusion: '验收通过，系统功能达到预期建设目标', inviteStatus: { E001: 'accepted', E003: 'accepted', E006: 'accepted', E002: 'accepted', E010: 'accepted' }, round: 1, triggerScene: '项目验收', weightedScore: 86, finalConclusion: '通过', reworkDeadline: null, reworkStatus: null },
+    { id: 'RV004', type: 'approval', projectId: 'P002', projectName: '招生系统升级改造', date: '2025-01-10', experts: ['E001','E005','E007'], status: 'passed', conclusion: '需求合理，建议立项', inviteStatus: { E001: 'accepted', E005: 'accepted', E007: 'pending' }, round: 1, triggerScene: '立项论证', weightedScore: 78, finalConclusion: '通过', reworkDeadline: null, reworkStatus: null },
+    { id: 'RV005', type: 'approval', projectId: 'P010', projectName: '实验室安全管理平台', date: '2025-06-15', experts: ['E001','E003','E006'], status: 'rework-pending', conclusion: '方案基本可行，但安全架构部分需补充完善', inviteStatus: { E001: 'accepted', E003: 'accepted', E006: 'accepted' }, round: 1, triggerScene: '立项论证', weightedScore: 65, finalConclusion: '退回修改', reworkDeadline: '2025-07-15', reworkStatus: 'pending', reworkRequirement: '1. 补充实验室危化品安全监测方案\n2. 完善应急预警联动机制\n3. 明确与现有门禁系统的对接方案' },
   ],
   contracts: [
     { id: 'C001', projectId: 'P002', projectName: '招生系统升级改造', vendor: '成都华信软件有限公司', amount: 58, signDate: '2025-02-10', endDate: '2025-09-30', warrantyYears: 3, status: 'active', payments: [ { node: '合同签订', ratio: 30, amount: 17.4, status: 'paid', date: '2025-02-15' }, { node: '初步设计完成', ratio: 30, amount: 17.4, status: 'paid', date: '2025-04-20' }, { node: '系统上线', ratio: 30, amount: 17.4, status: 'pending', date: null }, { node: '验收通过', ratio: 10, amount: 5.8, status: 'pending', date: null } ] },
@@ -373,6 +374,7 @@ window.DATA = {
       id: 'INV001',
       reviewName: '本科教学质量分析平台 — 立项论证',
       reviewType: '论证',
+      requiredCount: 3,
       projectName: '本科教学质量分析平台',
       projectUnit: '教务处',
       projectType: '业务系统建设',
@@ -397,6 +399,7 @@ window.DATA = {
       id: 'INV002',
       reviewName: '招生系统升级改造 — 需求评审',
       reviewType: '需求评审',
+      requiredCount: 3,
       projectName: '招生系统升级改造',
       projectUnit: '招生处',
       projectType: '系统升级改造',
@@ -419,6 +422,7 @@ window.DATA = {
       id: 'INV003',
       reviewName: 'OA协同办公平台升级 — 验收评审',
       reviewType: '验收',
+      requiredCount: 5,
       projectName: 'OA协同办公平台升级',
       projectUnit: '党政办公室',
       projectType: '系统升级改造',
@@ -607,4 +611,47 @@ window.DATA = {
     { id: 15, key: 'major-fault', name: '重大故障上报通知', level: 'urgent' },
     { id: 16, key: 'contract-expiry', name: '合同到期提醒', level: 'warning' },
   ],
+
+  /* ====== 评审维度（论证4维度 + 验收9维度） ====== */
+  reviewDimensions: {
+    approval: [
+      { key: 'techPlan',  label: '技术方案',   weight: 30, desc: '技术方案的可行性、成熟度与先进性' },
+      { key: 'necessity', label: '建设必要性', weight: 30, desc: '项目建设的必要性、紧迫性及与规划的关系' },
+      { key: 'budget',    label: '预算合理性', weight: 20, desc: '建设预算的合理性、性价比与资金来源' },
+      { key: 'security',  label: '安全合规',   weight: 20, desc: '信息安全方案完整性、等保合规与数据保护' },
+    ],
+    acceptance: [
+      { key: 'goalAchieve',  label: '建设目标达成度', weight: 15, desc: '项目实际建设成果与立项目标的符合程度' },
+      { key: 'techIndex',    label: '技术指标',       weight: 15, desc: '系统技术指标是否达到设计要求' },
+      { key: 'runEffect',    label: '运行效果',       weight: 12, desc: '系统运行稳定性、性能表现及可靠性' },
+      { key: 'userExp',      label: '用户体验',       weight: 10, desc: '用户界面友好度、操作便捷性及满意度' },
+      { key: 'dataShare',    label: '数据对接共享',   weight: 10, desc: '与校内其他系统的数据互通与共享能力' },
+      { key: 'training',     label: '使用培训',       weight: 8,  desc: '用户培训覆盖度、培训材料完整性' },
+      { key: 'maintenance',  label: '维保任务',       weight: 10, desc: '运维方案完整性、维保服务响应机制' },
+      { key: 'netSecurity',  label: '网络安全',       weight: 10, desc: '安全防护措施、等保测评及漏洞修复情况' },
+      { key: 'budgetUse',    label: '经费使用',       weight: 10, desc: '经费使用合规性、预算执行率及审计情况' },
+    ],
+  },
+
+  /* ====== 专家人数规则（按项目级别） ====== */
+  expertRules: {
+    major: { minExperts: 5, mustExternal: true, externalRatio: 1/3, needLabAttend: true, needFinanceAttend: true, label: '重大项目（≥200万）' },
+    mid:   { minExperts: 5, mustExternal: true, externalRatio: 1/3, needLabAttend: false, needFinanceAttend: false, label: '中型项目（100-200万）' },
+    small: { minExperts: 3, mustExternal: false, externalRatio: 1/3, needLabAttend: false, needFinanceAttend: false, label: '小型项目（20-100万）' },
+    micro: { minExperts: 3, mustExternal: false, externalRatio: 1/3, needLabAttend: false, needFinanceAttend: false, label: '微型项目（<20万）' },
+  },
+
+  /* ====== 专家标签体系（30个标准标签：6职能+24专业领域） ====== */
+  expertTagLibrary: {
+    functional: ['教学','学生管理','服务管理','科研','财务','其他'],
+    professional: [
+      '计算机科学与技术','教育技术学','通信网络','数据科学','软件工程','人工智能',
+      '管理信息系统网络通信与安全','合成生物学','机电一体化','物理','迁移学习',
+      '计算机视觉','管理科学与工程','创新创业','思想政治教育','管理','规划',
+      '学科','学术管理','学科建设','数据管理','工程管理','招标采购','机器学习','智能制造',
+    ],
+  },
+
+  /* ====== 评审须知（专家确认后方可填写意见） ====== */
+  reviewGuidelines: '一、评审纪律\n1. 评审专家应客观公正地对项目进行评审，不得受任何单位或个人的干预。\n2. 评审专家与被评审项目存在利益关系的，应当主动回避。\n3. 评审过程中获悉的信息（含项目方案、预算等）属于保密信息，不得向外泄露。\n\n二、评审要求\n1. 请认真阅读项目材料，从专业角度给出评审意见。\n2. 评分应基于评审维度逐项打分，综合意见应具体明确。\n3. 如选择"退回修改"，须详细说明修改要求和修改要点。\n4. 评审意见将经信息办审核后作为参考依据，最终决策权在主流程审批角色手中（BR-E01）。\n\n三、行为规范\n1. 系统将记录评审页面操作时间，用于识别评审行为是否规范。\n2. 同一项目可发起多次评审，每次独立记录（BR-E02）。',
 };

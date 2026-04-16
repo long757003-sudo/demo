@@ -95,6 +95,7 @@ function highlightNav(viewId) {
     'notification-template-create': 'notification-template',
     'notification-template-edit':   'notification-template',
     'review-opinion': 'my-reviews',
+    'review-rework': 'review-list',
     'expert-respond': 'my-reviews',
     'expert-confirm': 'review-list',
     'internal-check': 'acceptance-list', 'formal-acceptance': 'acceptance-list',

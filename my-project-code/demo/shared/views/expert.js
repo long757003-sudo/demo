@@ -50,7 +50,7 @@ registerView('expert-pool', function() {
         <td>${e.org}</td>
         <td>${catTag}</td>
         <td>${srcTag}</td>
-        <td style="font-size:12px;color:var(--text-secondary)">${e.field || '—'}</td>
+        <td style="font-size:12px;color:var(--text-secondary)" title="${e.field || ''}">${(e.tags && e.tags.length) ? e.tags.map(t => '<span class="tag tag-gray" style="font-size:10px;padding:1px 5px;margin:1px">' + t + '</span>').join(' ') : (e.field || '—')}</td>
         <td>${statusTag}</td>
         <td>${ops}</td>
       </tr>`;
@@ -121,7 +121,7 @@ registerView('expert-pool', function() {
 
       <table class="data-table">
         <thead><tr>
-          <th>姓名</th><th>职称</th><th>所在单位</th><th>类别</th><th>来源</th><th>研究领域</th><th>状态</th><th>操作</th>
+          <th>姓名</th><th>职称</th><th>所在单位</th><th>类别</th><th>来源</th><th>专家标签</th><th>状态</th><th>操作</th>
         </tr></thead>
         <tbody id="ep-tbody">${renderExpertRows(allExperts)}</tbody>
       </table>

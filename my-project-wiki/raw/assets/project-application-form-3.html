@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>信息化项目建设需求申请</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1a5276;
+    --primary-light: #2980b9;
+    --primary-pale: #d6eaf8;
+    --accent: #e67e22;
+    --accent-light: #f39c12;
+    --bg: #f0f3f7;
+    --card: #ffffff;
+    --text: #2c3e50;
+    --text-secondary: #7f8c8d;
+    --border: #dce1e8;
+    --input-bg: #f8f9fb;
+    --input-focus: #eaf2f8;
+    --success: #27ae60;
+    --danger: #e74c3c;
+    --warning: #f39c12;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 16px rgba(26,82,118,0.10);
+    --shadow-lg: 0 8px 32px rgba(26,82,118,0.12);
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Noto Sans SC',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; line-height:1.6; }
+
+  /* ── Header ── */
+  .page-header {
+    background: linear-gradient(135deg, var(--primary) 0%, #1a6fa0 50%, var(--primary-light) 100%);
+    position: relative; overflow: hidden;
+  }
+  .page-header::before {
+    content:''; position:absolute; top:-50%; right:-20%; width:500px; height:500px;
+    background:radial-gradient(circle,rgba(255,255,255,.06) 0%,transparent 70%); border-radius:50%;
+  }
+  .header-inner { max-width:860px; margin:0 auto; padding:36px 32px 32px; position:relative; z-index:1; }
+  .header-badge {
+    display:inline-flex; align-items:center; gap:6px;
+    background:rgba(255,255,255,.15); backdrop-filter:blur(8px);
+    padding:5px 14px; border-radius:20px; font-size:12px; color:rgba(255,255,255,.9); margin-bottom:16px;
+  }
+  .header-badge .dot { width:6px; height:6px; background:var(--accent-light); border-radius:50%; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .page-header h1 { font-family:'Noto Serif SC',serif; font-size:26px; font-weight:700; color:#fff; letter-spacing:1px; }
+  .page-header p { color:rgba(255,255,255,.7); font-size:14px; margin-top:6px; }
+
+  /* ── Progress ── */
+  .progress-bar { max-width:860px; margin:0 auto; padding:0 32px; transform:translateY(-18px); position:relative; z-index:2; }
+  .progress-track { background:var(--card); border-radius:var(--radius); padding:16px 24px; box-shadow:var(--shadow-md); display:flex; align-items:center; gap:4px; }
+  .step { display:flex; align-items:center; gap:8px; flex:1; }
+  .step:not(:last-child)::after { content:''; flex:1; height:2px; background:var(--border); margin:0 8px; border-radius:1px; transition:background .4s; }
+  .step.done:not(:last-child)::after { background:var(--success); }
+  .step-num {
+    width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:600; border:2px solid var(--border); color:var(--text-secondary); background:#fff; flex-shrink:0; transition:all .3s;
+  }
+  .step.active .step-num { border-color:var(--primary); background:var(--primary); color:#fff; }
+  .step.done .step-num { border-color:var(--success); background:var(--success); color:#fff; }
+  .step-label { font-size:13px; color:var(--text-secondary); white-space:nowrap; }
+  .step.active .step-label { color:var(--primary); font-weight:500; }
+  .step.done .step-label { color:var(--success); }
+
+  /* ── Import Toolbar ── */
+  .import-toolbar { max-width:860px; margin:8px auto 0; padding:0 32px; }
+  .toolbar-card {
+    background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow-sm);
+    padding:12px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px;
+    border:1.5px solid var(--border); position:relative; overflow:hidden;
+  }
+  .toolbar-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:linear-gradient(180deg,var(--primary-light),var(--accent)); border-radius:3px 0 0 3px; }
+  .toolbar-left { display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-secondary); }
+  .toolbar-left svg { flex-shrink:0; color:var(--primary-light); }
+  .toolbar-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  .tb {
+    font-family:'Noto Sans SC',sans-serif; font-size:13px; font-weight:500;
+    padding:8px 16px; border-radius:var(--radius-sm); border:none; cursor:pointer;
+    transition:all .2s; display:inline-flex; align-items:center; gap:6px; white-space:nowrap;
+  }
+  .tb-import { background:linear-gradient(135deg,var(--primary),var(--primary-light)); color:#fff; box-shadow:0 2px 6px rgba(26,82,118,.2); }
+  .tb-import:hover { box-shadow:0 3px 12px rgba(26,82,118,.3); transform:translateY(-1px); }
+  .tb-download { background:#fff; border:1.5px solid var(--border); color:var(--text); }
+  .tb-download:hover { border-color:var(--accent); color:var(--accent); background:#fffaf5; }
+  .tb-divider { width:1px; height:24px; background:var(--border); }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.45); backdrop-filter:blur(4px);
+    z-index:1000; display:none; align-items:center; justify-content:center; padding:24px;
+  }
+  .modal-overlay.active { display:flex; animation:fadeIn .25s ease; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .modal {
+    background:var(--card); border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.2);
+    width:100%; max-width:540px; overflow:hidden; animation:slideUp .35s cubic-bezier(.22,1,.36,1);
+  }
+  @keyframes slideUp { from{opacity:0;transform:translateY(24px) scale(.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+  .modal-hd { padding:20px 24px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); }
+  .modal-hd h3 { font-size:16px; font-weight:600; display:flex; align-items:center; gap:8px; }
+  .modal-x {
+    width:32px; height:32px; border-radius:8px; border:none; background:transparent;
+    cursor:pointer; font-size:18px; color:var(--text-secondary); display:flex; align-items:center; justify-content:center;
+  }
+  .modal-x:hover { background:var(--input-bg); color:var(--text); }
+  .modal-bd { padding:24px; max-height:65vh; overflow-y:auto; }
+
+  /* drop zone */
+  .import-drop {
+    border:2px dashed var(--border); border-radius:var(--radius); padding:36px 24px;
+    text-align:center; cursor:pointer; transition:all .25s; background:var(--input-bg);
+  }
+  .import-drop:hover,.import-drop.dragover { border-color:var(--primary-light); background:var(--input-focus); }
+  .import-drop .di { font-size:40px; margin-bottom:12px; opacity:.5; }
+  .import-drop h4 { font-size:15px; font-weight:500; margin-bottom:6px; }
+  .import-drop p { font-size:13px; color:var(--text-secondary); }
+  .import-drop .bl { color:var(--primary-light); text-decoration:underline; cursor:pointer; }
+  .import-drop .fh { font-size:11px; color:#bbb; margin-top:8px; }
+
+  /* selected file */
+  .file-selected {
+    display:none; padding:12px 16px; background:#f8faf8; border:1px solid #d5f5e3;
+    border-radius:var(--radius-sm); margin-bottom:18px; align-items:center; gap:12px;
+  }
+  .file-selected.active { display:flex; }
+  .file-selected .fs-icon { font-size:22px; flex-shrink:0; }
+  .file-selected .fs-info { flex:1; }
+  .file-selected .fs-name { font-size:13px; font-weight:500; }
+  .file-selected .fs-size { font-size:11px; color:var(--text-secondary); }
+  .file-selected .fs-remove {
+    width:26px; height:26px; border-radius:6px; border:none; background:transparent;
+    cursor:pointer; font-size:13px; color:var(--text-secondary); display:flex; align-items:center; justify-content:center;
+  }
+  .file-selected .fs-remove:hover { background:#fce4e4; color:var(--danger); }
+
+  /* validation steps */
+  .val-flow { display:none; }
+  .val-flow.active { display:block; }
+  .vs { display:flex; align-items:flex-start; gap:12px; padding:12px 0; position:relative; }
+  .vs:not(:last-child)::after { content:''; position:absolute; left:15px; top:44px; bottom:0; width:2px; background:#eee; }
+  .vi {
+    width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:13px; flex-shrink:0; transition:all .3s; position:relative; z-index:1; font-weight:600;
+  }
+  .vi.pending { background:#f0f0f0; color:#ccc; }
+  .vi.running { background:var(--primary-pale); color:var(--primary-light); }
+  .vi.running::after {
+    content:''; position:absolute; inset:-3px; border-radius:50%;
+    border:2px solid transparent; border-top-color:var(--primary-light);
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .vi.pass { background:#d5f5e3; color:var(--success); }
+  .vi.fail { background:#fce4e4; color:var(--danger); }
+  .vinfo { flex:1; padding-top:5px; }
+  .vinfo .vt { font-size:14px; font-weight:500; margin-bottom:2px; }
+  .vinfo .vd { font-size:12px; color:var(--text-secondary); }
+  .vinfo .ve {
+    font-size:12px; color:var(--danger); margin-top:6px;
+    background:#fef5f5; padding:8px 12px; border-radius:4px; border-left:3px solid var(--danger); line-height:1.6;
+  }
+  .vinfo .ve b { font-weight:600; }
+
+  /* fill preview */
+  .fill-preview { display:none; margin-top:16px; background:#f8faf8; border:1px solid #d5f5e3; border-radius:var(--radius-sm); padding:16px 18px; }
+  .fill-preview.active { display:block; animation:fadeIn .3s ease; }
+  .fill-preview h4 { font-size:14px; font-weight:600; color:var(--success); margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+  .fi { display:flex; align-items:baseline; gap:8px; padding:5px 0; font-size:13px; border-bottom:1px dashed #e8f5e8; }
+  .fi:last-child { border-bottom:none; }
+  .fi .fl { color:var(--text-secondary); min-width:100px; flex-shrink:0; }
+  .fi .fv { color:var(--text); font-weight:500; word-break:break-all; }
+
+  .modal-ft { padding:16px 24px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px; background:#fafbfc; }
+  .mbtn {
+    font-family:'Noto Sans SC',sans-serif; font-size:13px; font-weight:500;
+    padding:8px 20px; border-radius:var(--radius-sm); border:none; cursor:pointer; transition:all .2s;
+    display:inline-flex; align-items:center; gap:5px;
+  }
+  .mbtn-cancel { background:#fff; border:1.5px solid var(--border); color:var(--text); }
+  .mbtn-cancel:hover { background:var(--input-bg); }
+  .mbtn-ok { background:linear-gradient(135deg,var(--success),#2ecc71); color:#fff; box-shadow:0 2px 6px rgba(39,174,96,.25); }
+  .mbtn-ok:hover { box-shadow:0 3px 12px rgba(39,174,96,.35); transform:translateY(-1px); }
+  .mbtn-ok:disabled { opacity:.45; pointer-events:none; transform:none; }
+  .mbtn-retry { background:linear-gradient(135deg,var(--accent),var(--accent-light)); color:#fff; }
+  .mbtn-retry:hover { transform:translateY(-1px); }
+
+  /* ── Form ── */
+  .form-container { max-width:860px; margin:8px auto 48px; padding:0 32px; }
+  .form-card { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow-sm); overflow:hidden; }
+  .section { padding:28px 32px; border-bottom:1px solid var(--border); animation:fadeUp .5s ease both; }
+  .section:last-child { border-bottom:none; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+  .section:nth-child(2){animation-delay:.05s} .section:nth-child(3){animation-delay:.1s} .section:nth-child(4){animation-delay:.15s}
+  .section-title { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+  .section-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+  .section-icon.blue { background:var(--primary-pale); color:var(--primary); }
+  .section-icon.orange { background:#fdebd0; color:var(--accent); }
+  .section-icon.green { background:#d5f5e3; color:var(--success); }
+  .section-title h2 { font-size:16px; font-weight:600; }
+  .section-title .required-hint { font-size:12px; color:var(--text-secondary); font-weight:400; margin-left:auto; }
+  .field-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px 24px; }
+  .field-grid .full { grid-column:1/-1; }
+  .field { display:flex; flex-direction:column; gap:6px; }
+  .field label { font-size:13px; font-weight:500; display:flex; align-items:center; gap:4px; }
+  .field label .req { color:var(--danger); font-size:14px; line-height:1; }
+  .field input,.field select,.field textarea {
+    font-family:'Noto Sans SC',sans-serif; font-size:14px; padding:10px 14px;
+    border:1.5px solid var(--border); border-radius:var(--radius-sm); background:var(--input-bg);
+    color:var(--text); transition:all .2s; outline:none;
+  }
+  .field input:hover,.field select:hover,.field textarea:hover { border-color:#bdc3c7; }
+  .field input:focus,.field select:focus,.field textarea:focus { border-color:var(--primary-light); background:var(--input-focus); box-shadow:0 0 0 3px rgba(41,128,185,.1); }
+  .field input::placeholder,.field textarea::placeholder { color:#b0b8c1; }
+  .field textarea { resize:vertical; min-height:140px; line-height:1.7; }
+  .field .hint { font-size:12px; color:var(--text-secondary); margin-top:2px; }
+  .input-suffix { position:relative; }
+  .input-suffix input { width:100%; padding-right:42px; }
+  .input-suffix .suffix { position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:13px; color:var(--text-secondary); pointer-events:none; }
+
+  @keyframes fillFlash {
+    0%   { background:#c8f7d5; border-color:var(--success); box-shadow:0 0 0 3px rgba(39,174,96,.15); }
+    100% { background:var(--input-bg); border-color:var(--border); box-shadow:none; }
+  }
+  .field-filled { animation:fillFlash 1.8s ease forwards; }
+
+  .upload-area {
+    border:2px dashed var(--border); border-radius:var(--radius-sm); padding:24px;
+    text-align:center; cursor:pointer; transition:all .25s; background:var(--input-bg);
+  }
+  .upload-area:hover { border-color:var(--primary-light); background:var(--input-focus); }
+  .upload-icon { font-size:28px; margin-bottom:8px; opacity:.5; }
+  .upload-area p { font-size:13px; color:var(--text-secondary); }
+  .upload-area .browse { color:var(--primary-light); text-decoration:underline; cursor:pointer; }
+
+  .form-actions {
+    padding:24px 32px; background:#fafbfc; border-top:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+  }
+  .form-note { font-size:12px; color:var(--text-secondary); max-width:360px; line-height:1.5; }
+  .btn-group { display:flex; gap:10px; }
+  .btn {
+    font-family:'Noto Sans SC',sans-serif; font-size:14px; font-weight:500;
+    padding:10px 28px; border-radius:var(--radius-sm); border:none; cursor:pointer;
+    transition:all .2s; display:inline-flex; align-items:center; gap:6px;
+  }
+  .btn-secondary { background:#fff; border:1.5px solid var(--border); color:var(--text); }
+  .btn-secondary:hover { border-color:#bdc3c7; background:#f8f9fa; }
+  .btn-primary { background:linear-gradient(135deg,var(--primary),var(--primary-light)); color:#fff; box-shadow:0 2px 8px rgba(26,82,118,.25); }
+  .btn-primary:hover { box-shadow:0 4px 16px rgba(26,82,118,.35); transform:translateY(-1px); }
+
+  .toast {
+    position:fixed; top:24px; right:24px; background:var(--success); color:#fff;
+    padding:14px 24px; border-radius:var(--radius-sm); font-size:14px; font-weight:500;
+    box-shadow:var(--shadow-lg); transform:translateX(120%); transition:transform .4s cubic-bezier(.22,1,.36,1); z-index:1999;
+  }
+  .toast.show { transform:translateX(0); }
+
+  /* ── Writing Guide ── */
+  .write-guide {
+    background: linear-gradient(135deg, #f0f7ee 0%, #f6faf4 100%);
+    border: 1px solid #d5e8cf;
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+    margin-bottom: 14px;
+  }
+  .guide-header {
+    display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px;
+  }
+  .guide-header h4 {
+    font-size:13px; font-weight:600; color:#2d6a1e; display:flex; align-items:center; gap:6px;
+  }
+  .guide-toggle {
+    font-family:'Noto Sans SC',sans-serif; font-size:11px; color:var(--primary-light);
+    background:none; border:none; cursor:pointer; text-decoration:underline; padding:0;
+  }
+  .guide-prompts {
+    display:grid; grid-template-columns:1fr 1fr; gap:8px;
+  }
+  .guide-prompt {
+    display:flex; align-items:flex-start; gap:8px;
+    background:#fff; border:1px solid #e2eddc; border-radius:6px; padding:10px 12px;
+    transition:all .2s; cursor:default;
+  }
+  .guide-prompt:hover { border-color:#b5d4a8; box-shadow:0 1px 4px rgba(45,106,30,.08); }
+  .guide-prompt .gp-num {
+    width:20px; height:20px; border-radius:50%; background:#e8f5e2; color:#2d6a1e;
+    font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;
+  }
+  .guide-prompt .gp-body { flex:1; }
+  .guide-prompt .gp-title { font-size:12px; font-weight:600; color:var(--text); margin-bottom:2px; }
+  .guide-prompt .gp-hint { font-size:11px; color:var(--text-secondary); line-height:1.5; }
+  .guide-prompt .gp-hint em { font-style:normal; color:#5a9a48; }
+
+  /* Example panel */
+  .guide-example {
+    margin-top:10px; border-top:1px dashed #cde0c5; padding-top:12px; display:none;
+  }
+  .guide-example.active { display:block; animation:fadeIn .25s ease; }
+  .guide-example-label {
+    font-size:11px; font-weight:600; color:#2d6a1e; margin-bottom:6px; display:flex; align-items:center; gap:5px;
+  }
+  .guide-example-text {
+    font-size:12px; color:var(--text); line-height:1.7; background:#fff;
+    border:1px solid #e2eddc; border-radius:6px; padding:12px 14px; position:relative;
+  }
+  .guide-example-text .ge-section { margin-bottom:6px; }
+  .guide-example-text .ge-section:last-child { margin-bottom:0; }
+  .guide-example-text .ge-label { font-weight:600; color:#2d6a1e; }
+  .use-example-btn {
+    font-family:'Noto Sans SC',sans-serif; font-size:11px; font-weight:500;
+    margin-top:8px; padding:5px 14px; border-radius:4px; border:1px solid #b5d4a8;
+    background:#f0f7ee; color:#2d6a1e; cursor:pointer; transition:all .2s;
+    display:inline-flex; align-items:center; gap:4px;
+  }
+  .use-example-btn:hover { background:#e0efda; border-color:#8ec07c; }
+
+  @media(max-width:640px){
+    .guide-prompts{grid-template-columns:1fr;}
+    .header-inner{padding:24px 20px} .page-header h1{font-size:20px}
+    .progress-bar,.import-toolbar,.form-container{padding:0 16px}
+    .step-label{display:none} .section{padding:20px}
+    .field-grid{grid-template-columns:1fr;gap:14px}
+    .form-actions{padding:16px 20px;flex-direction:column;align-items:stretch;text-align:center}
+    .btn-group{justify-content:center} .form-note{max-width:100%}
+    .toolbar-card{flex-wrap:wrap} .toolbar-left{font-size:12px}
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="page-header">
+  <div class="header-inner">
+    <div class="header-badge"><span class="dot"></span>信息化建设管理系统</div>
+    <h1>信息化项目建设需求申请</h1>
+    <p>请填写以下信息提交项目建设需求，信息办将统一审核</p>
+  </div>
+</header>
+
+<!-- Progress -->
+<div class="progress-bar">
+  <div class="progress-track">
+    <div class="step active"><div class="step-num">1</div><span class="step-label">填写申请</span></div>
+    <div class="step"><div class="step-num">2</div><span class="step-label">单位审批</span></div>
+    <div class="step"><div class="step-num">3</div><span class="step-label">信息办审核</span></div>
+    <div class="step"><div class="step-num">4</div><span class="step-label">立项完成</span></div>
+  </div>
+</div>
+
+<!-- ★ Import Toolbar ★ -->
+<div class="import-toolbar">
+  <div class="toolbar-card">
+    <div class="toolbar-left">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+      <span>支持通过模板文件快速导入，自动识别并填充表单字段</span>
+    </div>
+    <div class="toolbar-right">
+      <button class="tb tb-download" onclick="downloadTemplate()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        下载模板
+      </button>
+      <div class="tb-divider"></div>
+      <button class="tb tb-import" onclick="openImportModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        文件导入
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ★ Import Modal ★ -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <div class="modal-hd">
+      <h3>📄 导入申请表文件</h3>
+      <button class="modal-x" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-bd">
+      <!-- Phase 1: Upload -->
+      <div id="phase-upload">
+        <div class="import-drop" id="importDrop">
+          <div class="di">📂</div>
+          <h4>选择模板文件</h4>
+          <p>拖拽文件到此处，或 <span class="bl">点击浏览</span></p>
+          <p class="fh">仅支持《西南大学信息化项目建设需求申请表》模板（.docx / .doc）</p>
+        </div>
+        <input type="file" id="importFileInput" hidden accept=".doc,.docx,.pdf,.xlsx,.txt">
+      </div>
+
+      <!-- Phase 2: Validation -->
+      <div id="phase-validate" class="val-flow">
+        <div class="file-selected" id="fileInfo">
+          <div class="fs-icon">📄</div>
+          <div class="fs-info">
+            <div class="fs-name" id="fileName">—</div>
+            <div class="fs-size" id="fileSize">—</div>
+          </div>
+          <button class="fs-remove" title="移除" onclick="resetImport()">✕</button>
+        </div>
+
+        <div class="vs" id="vs1">
+          <div class="vi pending" id="vi1">①</div>
+          <div class="vinfo">
+            <div class="vt">文件格式校验</div>
+            <div class="vd">检查文件类型是否为支持的 .docx / .doc 格式</div>
+            <div class="ve" id="ve1" style="display:none"></div>
+          </div>
+        </div>
+        <div class="vs" id="vs2">
+          <div class="vi pending" id="vi2">②</div>
+          <div class="vinfo">
+            <div class="vt">模板结构识别</div>
+            <div class="vd">校验表格结构是否符合标准《建设需求申请表》模板（7行表格、含项目名称/预算/单位等标准字段）</div>
+            <div class="ve" id="ve2" style="display:none"></div>
+          </div>
+        </div>
+        <div class="vs" id="vs3">
+          <div class="vi pending" id="vi3">③</div>
+          <div class="vinfo">
+            <div class="vt">字段内容提取</div>
+            <div class="vd">读取模板中已填写的各项字段数据</div>
+          </div>
+        </div>
+        <div class="vs" id="vs4">
+          <div class="vi pending" id="vi4">④</div>
+          <div class="vinfo">
+            <div class="vt">数据映射就绪</div>
+            <div class="vd">将提取内容映射到表单对应字段，准备自动填入</div>
+          </div>
+        </div>
+
+        <div class="fill-preview" id="fillPreview">
+          <h4>✅ 识别完成 — 以下内容将自动填入表单</h4>
+          <div class="fi"><span class="fl">项目名称</span><span class="fv" id="pv-name">—</span></div>
+          <div class="fi"><span class="fl">项目预算</span><span class="fv" id="pv-budget">—</span></div>
+          <div class="fi"><span class="fl">申请日期</span><span class="fv" id="pv-date">—</span></div>
+          <div class="fi"><span class="fl">用户单位</span><span class="fv" id="pv-unit">—</span></div>
+          <div class="fi"><span class="fl">单位负责人</span><span class="fv" id="pv-head">—</span></div>
+          <div class="fi"><span class="fl">负责人电话</span><span class="fv" id="pv-headtel">—</span></div>
+          <div class="fi"><span class="fl">联系人</span><span class="fv" id="pv-contact">—</span></div>
+          <div class="fi"><span class="fl">联系人电话</span><span class="fv" id="pv-contacttel">—</span></div>
+          <div class="fi"><span class="fl">需求简介</span><span class="fv" id="pv-desc">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-ft" id="modalFooter">
+      <button class="mbtn mbtn-cancel" onclick="closeModal()">取消</button>
+      <button class="mbtn mbtn-ok" id="btnConfirmFill" disabled onclick="confirmFill()">确认填入</button>
+    </div>
+  </div>
+</div>
+
+<!-- Form -->
+<main class="form-container">
+  <form class="form-card" id="appForm" onsubmit="return false;">
+    <div class="section">
+      <div class="section-title">
+        <div class="section-icon blue">📋</div>
+        <h2>项目基本信息</h2>
+        <span class="required-hint"><span style="color:var(--danger)">*</span> 为必填项</span>
+      </div>
+      <div class="field-grid">
+        <div class="field full">
+          <label><span class="req">*</span> 项目名称</label>
+          <input type="text" id="f-name" placeholder="请输入信息化项目名称" required>
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> 项目预算</label>
+          <div class="input-suffix">
+            <input type="number" id="f-budget" placeholder="请输入预算金额" min="0" step="0.01" required>
+            <span class="suffix">万元</span>
+          </div>
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> 申请日期</label>
+          <input type="date" id="f-date" required>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">
+        <div class="section-icon orange">🏢</div>
+        <h2>申请单位信息</h2>
+      </div>
+      <div class="field-grid">
+        <div class="field full">
+          <label><span class="req">*</span> 项目用户单位名称</label>
+          <input type="text" id="f-unit" placeholder="请输入单位全称" required>
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> 单位负责人</label>
+          <input type="text" id="f-head" placeholder="姓名" required>
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> 负责人联系方式</label>
+          <input type="tel" id="f-headtel" placeholder="手机号码" required>
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> 项目联系人</label>
+          <input type="text" id="f-contact" placeholder="姓名" required>
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> 联系人联系方式</label>
+          <input type="tel" id="f-contacttel" placeholder="手机号码" required>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">
+        <div class="section-icon green">📝</div>
+        <h2>项目概述及建设需求简介</h2>
+      </div>
+      <div class="field-grid">
+        <div class="field full">
+          <label><span class="req">*</span> 需求描述</label>
+
+          <!-- Writing Guide -->
+          <div class="write-guide" id="writeGuide">
+            <div class="guide-header">
+              <h4>💡 填写引导 — 不知道怎么写？按以下几个方面逐条描述即可</h4>
+              <button class="guide-toggle" id="guideExampleToggle" onclick="toggleExample()">查看填写范例 ↓</button>
+            </div>
+            <div class="guide-prompts">
+              <div class="guide-prompt">
+                <div class="gp-num">1</div>
+                <div class="gp-body">
+                  <div class="gp-title">现状与痛点</div>
+                  <div class="gp-hint">目前工作中遇到了什么问题？<br>例如：<em>"目前XX业务仍使用纸质审批，流转慢、易丢失"</em></div>
+                </div>
+              </div>
+              <div class="guide-prompt">
+                <div class="gp-num">2</div>
+                <div class="gp-body">
+                  <div class="gp-title">期望目标</div>
+                  <div class="gp-hint">希望通过信息化系统达到什么效果？<br>例如：<em>"实现线上审批，缩短流程至 2 个工作日内"</em></div>
+                </div>
+              </div>
+              <div class="guide-prompt">
+                <div class="gp-num">3</div>
+                <div class="gp-body">
+                  <div class="gp-title">主要使用场景</div>
+                  <div class="gp-hint">谁来用？在什么场景下使用？<br>例如：<em>"各学院教师提交、学院审批、信息办汇总"</em></div>
+                </div>
+              </div>
+              <div class="guide-prompt">
+                <div class="gp-num">4</div>
+                <div class="gp-body">
+                  <div class="gp-title">涉及范围与规模</div>
+                  <div class="gp-hint">覆盖多少人/单位？有无对接需求？<br>例如：<em>"覆盖全校 30+ 二级单位，需对接统一身份认证"</em></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Expandable example -->
+            <div class="guide-example" id="guideExample">
+              <div class="guide-example-label">📋 填写范例（可直接引用修改）</div>
+              <div class="guide-example-text">
+                <div class="ge-section"><span class="ge-label">【现状与痛点】</span>目前全校各单位的信息化建设需求通过纸质申请表提交，存在以下问题：表单填写不规范，关键信息缺失率高；纸质流转周期长（平均 7-10 个工作日）；历史需求无法检索和统计分析。</div>
+                <div class="ge-section"><span class="ge-label">【期望目标】</span>建设线上需求征集与管理系统，实现需求在线提交、自动校验、流程审批和数据统计，将需求提交到立项评审的周期缩短至 3 个工作日以内。</div>
+                <div class="ge-section"><span class="ge-label">【主要使用场景】</span>二级单位联系人在线填报需求 → 单位负责人线上审批 → 信息办统一受理、组织专家评审 → 反馈评审结果并跟踪实施。</div>
+                <div class="ge-section"><span class="ge-label">【涉及范围与规模】</span>覆盖全校 35 个二级单位，约 200 名填报和审批用户；系统需对接学校统一身份认证平台和 OA 消息通知接口。</div>
+              </div>
+              <button class="use-example-btn" onclick="useExample()">📝 引用此范例到输入框</button>
+            </div>
+          </div>
+
+          <textarea id="f-desc" placeholder="请参考上方引导，分条描述您的需求。如果不确定如何表述，可以先点击「查看填写范例」参考后修改。" required></textarea>
+          <span class="hint">提示：尽量用日常工作语言描述即可，不需要使用专业技术术语，信息办会协助您细化技术方案</span>
+        </div>
+        <div class="field full">
+          <label>附件材料</label>
+          <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📎</div>
+            <p>拖拽文件到此处，或 <span class="browse">点击上传</span></p>
+            <p style="font-size:11px;margin-top:4px;color:#bbb;">支持 .doc .docx .pdf .xls .xlsx，单个文件不超过 20MB</p>
+          </div>
+          <input type="file" id="fileInput" hidden multiple accept=".doc,.docx,.pdf,.xls,.xlsx">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <div class="form-note">备注：提交后信息办将进行审核，审核通过后将通知项目用户单位。</div>
+      <div class="btn-group">
+        <button type="button" class="btn btn-secondary" onclick="saveDraft()">💾 暂存草稿</button>
+        <button type="submit" class="btn btn-primary" onclick="submitForm()">提交申请 →</button>
+      </div>
+    </div>
+  </form>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════
+   Core Helpers
+   ═══════════════════════════════════════ */
+document.getElementById('f-date').valueAsDate = new Date();
+
+function showToast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color || 'var(--success)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ═══════════════════════════════════════
+   Template Download (demo)
+   ═══════════════════════════════════════ */
+function downloadTemplate() {
+  showToast('⬇ 正在下载模板：西南大学信息化项目建设需求申请表.docx', 'var(--primary-light)');
+  // In production: window.location.href = '/api/template/download/xxx.docx';
+}
+
+/* ═══════════════════════════════════════
+   Import Modal
+   ═══════════════════════════════════════ */
+function openImportModal() {
+  resetImport();
+  document.getElementById('importModal').classList.add('active');
+}
+function closeModal() {
+  document.getElementById('importModal').classList.remove('active');
+}
+
+/* Demo data — simulates content extracted from a filled template */
+const DEMO = {
+  name: '智慧校园一卡通升级改造项目',
+  budget: '186.5',
+  date: '2026-04-15',
+  unit: '信息化建设办公室',
+  head: '张明远',
+  headtel: '13812345678',
+  contact: '李思然',
+  contacttel: '13987654321',
+  desc: '为满足学校智慧校园建设总体规划要求，拟对现有一卡通系统进行全面升级改造。主要建设内容包括：\n1. 核心平台升级至云架构，支持多校区统一管理；\n2. 新增移动支付（微信/支付宝）和数字人民币支付通道；\n3. 部署人脸识别终端，覆盖食堂、图书馆、门禁等场景；\n4. 建设数据分析平台，实现消费行为分析和异常预警。\n预计覆盖全校 4 万余名师生，项目建设周期 12 个月。'
+};
+
+/* ── File select interaction ── */
+const importDrop = document.getElementById('importDrop');
+const importFileInput = document.getElementById('importFileInput');
+
+importDrop.addEventListener('click', () => importFileInput.click());
+importDrop.addEventListener('dragover', e => { e.preventDefault(); importDrop.classList.add('dragover'); });
+importDrop.addEventListener('dragleave', () => importDrop.classList.remove('dragover'));
+importDrop.addEventListener('drop', e => {
+  e.preventDefault(); importDrop.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) handleImportFile(e.dataTransfer.files[0]);
+});
+importFileInput.addEventListener('change', () => {
+  if (importFileInput.files[0]) handleImportFile(importFileInput.files[0]);
+});
+
+let isValidTemplate = false;
+
+function handleImportFile(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  const sizeKB = (file.size / 1024).toFixed(1);
+
+  /* Switch to validation view */
+  document.getElementById('phase-upload').style.display = 'none';
+  const vf = document.getElementById('phase-validate');
+  vf.classList.add('active');
+  document.getElementById('fileInfo').classList.add('active');
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileSize').textContent = sizeKB + ' KB';
+
+  /* Decide demo scenario based on file properties */
+  const isDocx = (ext === 'docx' || ext === 'doc');
+  const looksLikeTemplate = file.name.includes('申请') || file.name.includes('需求');
+
+  runValidation(isDocx, looksLikeTemplate);
+}
+
+/* ── Animated validation pipeline ── */
+function runValidation(isDocx, looksLikeTemplate) {
+  /* Reset everything */
+  ['vi1','vi2','vi3','vi4'].forEach(id => {
+    const el = document.getElementById(id);
+    el.className = 'vi pending';
+    el.textContent = {'vi1':'①','vi2':'②','vi3':'③','vi4':'④'}[id];
+  });
+  ['ve1','ve2'].forEach(id => { document.getElementById(id).style.display = 'none'; });
+  document.getElementById('fillPreview').classList.remove('active');
+  isValidTemplate = false;
+  resetFooter();
+
+  /* ── Step 1: File format check ── */
+  setTimeout(() => { document.getElementById('vi1').className = 'vi running'; }, 300);
+
+  setTimeout(() => {
+    if (!isDocx) {
+      fail('vi1', 've1', '文件格式不正确。系统仅支持 <b>.docx / .doc</b> 格式的模板文件，当前文件格式不符合要求。<br>请下载标准模板填写后重新导入。');
+      return;
+    }
+    pass('vi1');
+
+    /* ── Step 2: Template structure ── */
+    setTimeout(() => { document.getElementById('vi2').className = 'vi running'; }, 200);
+    setTimeout(() => {
+      if (!looksLikeTemplate) {
+        fail('vi2', 've2', '模板结构校验失败。未识别到标准《西南大学信息化项目建设需求申请表》的表格结构（需包含 7 行标准表格：项目名称、项目预算、用户单位、申请日期等字段）。<br>请确保上传的是通过 <b>"下载模板"</b> 获取的标准文件。');
+        return;
+      }
+      pass('vi2');
+
+      /* ── Step 3: Extract fields ── */
+      setTimeout(() => { document.getElementById('vi3').className = 'vi running'; }, 200);
+      setTimeout(() => {
+        pass('vi3');
+
+        /* ── Step 4: Mapping ── */
+        setTimeout(() => { document.getElementById('vi4').className = 'vi running'; }, 200);
+        setTimeout(() => {
+          pass('vi4');
+          isValidTemplate = true;
+
+          /* Show fill preview */
+          document.getElementById('pv-name').textContent = DEMO.name;
+          document.getElementById('pv-budget').textContent = DEMO.budget + ' 万元';
+          document.getElementById('pv-date').textContent = DEMO.date;
+          document.getElementById('pv-unit').textContent = DEMO.unit;
+          document.getElementById('pv-head').textContent = DEMO.head;
+          document.getElementById('pv-headtel').textContent = DEMO.headtel;
+          document.getElementById('pv-contact').textContent = DEMO.contact;
+          document.getElementById('pv-contacttel').textContent = DEMO.contacttel;
+          document.getElementById('pv-desc').textContent = DEMO.desc.length > 80 ? DEMO.desc.substring(0, 80) + '…' : DEMO.desc;
+          document.getElementById('fillPreview').classList.add('active');
+          document.getElementById('btnConfirmFill').disabled = false;
+        }, 600);
+      }, 700);
+    }, 900);
+  }, 900);
+}
+
+function pass(viId) {
+  const el = document.getElementById(viId);
+  el.className = 'vi pass';
+  el.textContent = '✓';
+}
+
+function fail(viId, veId, msg) {
+  const vi = document.getElementById(viId);
+  vi.className = 'vi fail';
+  vi.textContent = '✗';
+  const ve = document.getElementById(veId);
+  ve.innerHTML = msg;
+  ve.style.display = 'block';
+  showFailFooter();
+}
+
+function resetFooter() {
+  document.getElementById('modalFooter').innerHTML =
+    '<button class="mbtn mbtn-cancel" onclick="closeModal()">取消</button>' +
+    '<button class="mbtn mbtn-ok" id="btnConfirmFill" disabled onclick="confirmFill()">确认填入</button>';
+}
+
+function showFailFooter() {
+  document.getElementById('modalFooter').innerHTML =
+    '<button class="mbtn mbtn-cancel" onclick="closeModal()">关闭</button>' +
+    '<button class="mbtn mbtn-retry" onclick="resetImport()">🔄 重新选择文件</button>';
+}
+
+function resetImport() {
+  document.getElementById('phase-upload').style.display = '';
+  document.getElementById('phase-validate').classList.remove('active');
+  document.getElementById('fileInfo').classList.remove('active');
+  document.getElementById('fillPreview').classList.remove('active');
+  importFileInput.value = '';
+  isValidTemplate = false;
+  resetFooter();
+}
+
+/* ═══════════════════════════════════════
+   Confirm Fill — animate into form
+   ═══════════════════════════════════════ */
+function confirmFill() {
+  if (!isValidTemplate) return;
+  closeModal();
+
+  const fields = [
+    { id:'f-name',       val:DEMO.name,       delay:100 },
+    { id:'f-budget',     val:DEMO.budget,      delay:250 },
+    { id:'f-date',       val:DEMO.date,        delay:400 },
+    { id:'f-unit',       val:DEMO.unit,        delay:580 },
+    { id:'f-head',       val:DEMO.head,        delay:720 },
+    { id:'f-headtel',    val:DEMO.headtel,     delay:860 },
+    { id:'f-contact',    val:DEMO.contact,     delay:1000 },
+    { id:'f-contacttel', val:DEMO.contacttel,  delay:1140 },
+    { id:'f-desc',       val:DEMO.desc,        delay:1300 },
+  ];
+
+  fields.forEach(({ id, val, delay }) => {
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      el.value = val;
+      el.classList.remove('field-filled');
+      void el.offsetWidth;
+      el.classList.add('field-filled');
+    }, delay);
+  });
+
+  setTimeout(() => {
+    showToast('✅ 已从模板文件自动填入 9 个字段');
+    document.querySelector('.form-container').scrollIntoView({ behavior:'smooth', block:'start' });
+  }, 1500);
+}
+
+/* ═══════════════════════════════════════
+   Writing Guide
+   ═══════════════════════════════════════ */
+function toggleExample() {
+  const ex = document.getElementById('guideExample');
+  const btn = document.getElementById('guideExampleToggle');
+  if (ex.classList.contains('active')) {
+    ex.classList.remove('active');
+    btn.textContent = '查看填写范例 ↓';
+  } else {
+    ex.classList.add('active');
+    btn.textContent = '收起范例 ↑';
+  }
+}
+
+function useExample() {
+  const example =
+`【现状与痛点】目前全校各单位的信息化建设需求通过纸质申请表提交，存在以下问题：表单填写不规范，关键信息缺失率高；纸质流转周期长（平均 7-10 个工作日）；历史需求无法检索和统计分析。
+
+【期望目标】建设线上需求征集与管理系统，实现需求在线提交、自动校验、流程审批和数据统计，将需求提交到立项评审的周期缩短至 3 个工作日以内。
+
+【主要使用场景】二级单位联系人在线填报需求 → 单位负责人线上审批 → 信息办统一受理、组织专家评审 → 反馈评审结果并跟踪实施。
+
+【涉及范围与规模】覆盖全校 35 个二级单位，约 200 名填报和审批用户；系统需对接学校统一身份认证平台和 OA 消息通知接口。`;
+
+  const el = document.getElementById('f-desc');
+  el.value = example;
+  el.classList.remove('field-filled');
+  void el.offsetWidth;
+  el.classList.add('field-filled');
+  el.focus();
+  showToast('📝 范例已填入，请根据实际情况修改', 'var(--primary-light)');
+  // Scroll textarea into view
+  el.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+/* ═══════════════════════════════════════
+   Original form interactions
+   ═══════════════════════════════════════ */
+const uploadArea = document.getElementById('uploadArea');
+const fileInput = document.getElementById('fileInput');
+uploadArea.addEventListener('click', () => fileInput.click());
+uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.style.borderColor='var(--primary-light)'; uploadArea.style.background='var(--input-focus)'; });
+uploadArea.addEventListener('dragleave', () => { uploadArea.style.borderColor=''; uploadArea.style.background=''; });
+uploadArea.addEventListener('drop', e => { e.preventDefault(); uploadArea.style.borderColor=''; uploadArea.style.background=''; handleAttach(e.dataTransfer.files); });
+fileInput.addEventListener('change', () => handleAttach(fileInput.files));
+
+function handleAttach(files) {
+  if (!files.length) return;
+  const names = Array.from(files).map(f => f.name).join('、');
+  uploadArea.innerHTML = '<div class="upload-icon">✅</div><p style="color:var(--success);font-weight:500;">已选择 '+files.length+' 个文件</p><p style="font-size:12px;margin-top:4px;color:var(--text-secondary);">'+names+'</p>';
+}
+
+function saveDraft() { showToast('✓ 草稿已暂存', '#7f8c8d'); }
+
+function submitForm() {
+  const inputs = document.getElementById('appForm').querySelectorAll('[required]');
+  let valid = true;
+  inputs.forEach(inp => {
+    if (!inp.value.trim()) {
+      inp.style.borderColor='var(--danger)'; inp.style.background='#fef5f5'; valid=false;
+      inp.addEventListener('input', function f(){ inp.style.borderColor=''; inp.style.background=''; inp.removeEventListener('input',f); }, {once:true});
+    }
+  });
+  if (!valid) { showToast('⚠ 请填写所有必填项','var(--danger)'); return; }
+  document.querySelectorAll('.step')[0].classList.replace('active','done');
+  document.querySelectorAll('.step')[0].querySelector('.step-num').textContent = '✓';
+  document.querySelectorAll('.step')[1].classList.add('active');
+  showToast('✓ 申请已提交，等待单位审批');
+}
+</script>
+</body>
+</html>

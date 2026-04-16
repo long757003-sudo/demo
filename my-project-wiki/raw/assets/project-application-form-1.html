@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>信息化项目建设需求申请</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1a5276;
+    --primary-light: #2980b9;
+    --primary-pale: #d6eaf8;
+    --accent: #e67e22;
+    --accent-light: #f39c12;
+    --bg: #f0f3f7;
+    --card: #ffffff;
+    --text: #2c3e50;
+    --text-secondary: #7f8c8d;
+    --border: #dce1e8;
+    --input-bg: #f8f9fb;
+    --input-focus: #eaf2f8;
+    --success: #27ae60;
+    --danger: #e74c3c;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 16px rgba(26,82,118,0.10);
+    --shadow-lg: 0 8px 32px rgba(26,82,118,0.12);
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* === Header === */
+  .page-header {
+    background: linear-gradient(135deg, var(--primary) 0%, #1a6fa0 50%, var(--primary-light) 100%);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .page-header::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .header-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 36px 32px 32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 16px;
+    letter-spacing: 0.5px;
+  }
+
+  .header-badge .dot {
+    width: 6px;
+    height: 6px;
+    background: var(--accent-light);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .page-header h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+  }
+
+  .page-header p {
+    color: rgba(255,255,255,0.7);
+    font-size: 14px;
+    margin-top: 6px;
+  }
+
+  /* === Progress === */
+  .progress-bar {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+    transform: translateY(-18px);
+    position: relative;
+    z-index: 2;
+  }
+
+  .progress-track {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 16px 24px;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    position: relative;
+  }
+
+  .step:not(:last-child)::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: var(--border);
+    margin: 0 8px;
+    border-radius: 1px;
+    transition: background 0.4s;
+  }
+
+  .step.done:not(:last-child)::after {
+    background: var(--success);
+  }
+
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    border: 2px solid var(--border);
+    color: var(--text-secondary);
+    background: #fff;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+
+  .step.active .step-num {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #fff;
+  }
+
+  .step.done .step-num {
+    border-color: var(--success);
+    background: var(--success);
+    color: #fff;
+  }
+
+  .step-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    transition: color 0.3s;
+  }
+
+  .step.active .step-label { color: var(--primary); font-weight: 500; }
+  .step.done .step-label { color: var(--success); }
+
+  /* === Form Card === */
+  .form-container {
+    max-width: 860px;
+    margin: 8px auto 48px;
+    padding: 0 32px;
+  }
+
+  .form-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .section {
+    padding: 28px 32px;
+    border-bottom: 1px solid var(--border);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section:last-child { border-bottom: none; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section:nth-child(2) { animation-delay: 0.05s; }
+  .section:nth-child(3) { animation-delay: 0.1s; }
+  .section:nth-child(4) { animation-delay: 0.15s; }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .section-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .section-icon.blue { background: var(--primary-pale); color: var(--primary); }
+  .section-icon.orange { background: #fdebd0; color: var(--accent); }
+  .section-icon.green { background: #d5f5e3; color: var(--success); }
+
+  .section-title h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .section-title .required-hint {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    margin-left: auto;
+  }
+
+  /* === Form Fields === */
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 24px;
+  }
+
+  .field-grid .full { grid-column: 1 / -1; }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .field label .req {
+    color: var(--danger);
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 14px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--input-bg);
+    color: var(--text);
+    transition: all 0.2s;
+    outline: none;
+  }
+
+  .field input:hover, .field select:hover, .field textarea:hover {
+    border-color: #bdc3c7;
+  }
+
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--primary-light);
+    background: var(--input-focus);
+    box-shadow: 0 0 0 3px rgba(41,128,185,0.1);
+  }
+
+  .field input::placeholder, .field textarea::placeholder {
+    color: #b0b8c1;
+  }
+
+  .field textarea {
+    resize: vertical;
+    min-height: 140px;
+    line-height: 1.7;
+  }
+
+  .field .hint {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  /* Date input */
+  .field input[type="date"] {
+    cursor: pointer;
+  }
+
+  /* Budget input wrapper */
+  .input-suffix {
+    position: relative;
+  }
+
+  .input-suffix input {
+    width: 100%;
+    padding-right: 42px;
+  }
+
+  .input-suffix .suffix {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    color: var(--text-secondary);
+    pointer-events: none;
+  }
+
+  /* File upload */
+  .upload-area {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    background: var(--input-bg);
+  }
+
+  .upload-area:hover {
+    border-color: var(--primary-light);
+    background: var(--input-focus);
+  }
+
+  .upload-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+    opacity: 0.5;
+  }
+
+  .upload-area p {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .upload-area .browse {
+    color: var(--primary-light);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  /* === Signature === */
+  .signature-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .signature-box {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .signature-box label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .signature-pad {
+    height: 80px;
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--input-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .signature-pad:hover {
+    border-color: var(--primary-light);
+    background: var(--input-focus);
+  }
+
+  /* === Footer Actions === */
+  .form-actions {
+    padding: 24px 32px;
+    background: #fafbfc;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .form-note {
+    font-size: 12px;
+    color: var(--text-secondary);
+    max-width: 360px;
+    line-height: 1.5;
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 28px;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-secondary {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    color: var(--text);
+  }
+
+  .btn-secondary:hover {
+    border-color: #bdc3c7;
+    background: #f8f9fa;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(26,82,118,0.25);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 4px 16px rgba(26,82,118,0.35);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  /* === Toast === */
+  .toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    background: var(--success);
+    color: #fff;
+    padding: 14px 24px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 999;
+  }
+
+  .toast.show {
+    transform: translateX(0);
+  }
+
+  /* === Responsive === */
+  @media (max-width: 640px) {
+    .header-inner { padding: 24px 20px; }
+    .page-header h1 { font-size: 20px; }
+    .progress-bar { padding: 0 16px; }
+    .progress-track { padding: 12px 16px; }
+    .step-label { display: none; }
+    .form-container { padding: 0 16px; }
+    .section { padding: 20px; }
+    .field-grid { grid-template-columns: 1fr; gap: 14px; }
+    .form-actions { padding: 16px 20px; flex-direction: column; align-items: stretch; text-align: center; }
+    .btn-group { justify-content: center; }
+    .form-note { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="page-header">
+  <div class="header-inner">
+    <div class="header-badge">
+      <span class="dot"></span>
+      信息化建设管理系统
+    </div>
+    <h1>信息化项目建设需求申请</h1>
+    <p>请填写以下信息提交项目建设需求，信息办将统一审核</p>
+  </div>
+</header>
+
+<!-- Progress -->
+<div class="progress-bar">
+  <div class="progress-track">
+    <div class="step active">
+      <div class="step-num">1</div>
+      <span class="step-label">填写申请</span>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <span class="step-label">单位审批</span>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <span class="step-label">信息办审核</span>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <span class="step-label">立项完成</span>
+    </div>
+  </div>
+</div>
+
+<!-- Form -->
+<main class="form-container">
+  <form class="form-card" id="appForm" onsubmit="return false;">
+
+    <!-- Section 1: 项目基本信息 -->
+    <div class="section">
+      <div class="section-title">
+        <div class="section-icon blue">📋</div>
+        <h2>项目基本信息</h2>
+        <span class="required-hint"><span style="color:var(--danger)">*</span> 为必填项</span>
+      </div>
+      <div class="field-grid">
+        <div class="field full">
+          <label><span class="req">*</span> 项目名称</label>
+          <input type="text" placeholder="请输入信息化项目名称" required>
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> 项目预算</label>
+          <div class="input-suffix">
+            <input type="number" placeholder="请输入预算金额" min="0" step="0.01" required>
+            <span class="suffix">万元</span>
+          </div>
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> 申请日期</label>
+          <input type="date" id="applyDate" required>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: 申请单位信息 -->
+    <div class="section">
+      <div class="section-title">
+        <div class="section-icon orange">🏢</div>
+        <h2>申请单位信息</h2>
+      </div>
+      <div class="field-grid">
+        <div class="field full">
+          <label><span class="req">*</span> 项目用户单位名称</label>
+          <input type="text" placeholder="请输入单位全称" required>
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> 单位负责人</label>
+          <input type="text" placeholder="姓名" required>
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> 负责人联系方式</label>
+          <input type="tel" placeholder="手机号码" required>
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> 项目联系人</label>
+          <input type="text" placeholder="姓名" required>
+        </div>
+        <div class="field">
+          <label><span class="req">*</span> 联系人联系方式</label>
+          <input type="tel" placeholder="手机号码" required>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: 项目概述 -->
+    <div class="section">
+      <div class="section-title">
+        <div class="section-icon green">📝</div>
+        <h2>项目概述及建设需求简介</h2>
+      </div>
+      <div class="field-grid">
+        <div class="field full">
+          <label><span class="req">*</span> 需求描述</label>
+          <textarea placeholder="请详细描述项目的建设背景、目标、主要功能需求及预期效果……" required></textarea>
+          <span class="hint">建议从建设背景、建设目标、主要功能需求、预期效果等方面进行描述</span>
+        </div>
+        <div class="field full">
+          <label>附件材料</label>
+          <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📎</div>
+            <p>拖拽文件到此处，或 <span class="browse">点击上传</span></p>
+            <p style="font-size:11px;margin-top:4px;color:#bbb;">支持 .doc .docx .pdf .xls .xlsx，单个文件不超过 20MB</p>
+          </div>
+          <input type="file" id="fileInput" hidden multiple accept=".doc,.docx,.pdf,.xls,.xlsx">
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: 签章 -->
+    <div class="section">
+      <div class="section-title">
+        <div class="section-icon blue">✍️</div>
+        <h2>签字确认</h2>
+      </div>
+      <div class="signature-section">
+        <div class="signature-box">
+          <label>项目用户单位负责人签字 / 盖章</label>
+          <div class="signature-pad" id="sigPad">点击此处签名</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+      <div class="form-note">
+        备注：提交后信息办将进行审核，审核通过后将通知项目用户单位。
+      </div>
+      <div class="btn-group">
+        <button type="button" class="btn btn-secondary" onclick="saveDraft()">💾 暂存草稿</button>
+        <button type="submit" class="btn btn-primary" onclick="submitForm()">提交申请 →</button>
+      </div>
+    </div>
+  </form>
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // Set today as default date
+  document.getElementById('applyDate').valueAsDate = new Date();
+
+  // File upload interaction
+  const uploadArea = document.getElementById('uploadArea');
+  const fileInput = document.getElementById('fileInput');
+
+  uploadArea.addEventListener('click', () => fileInput.click());
+  uploadArea.addEventListener('dragover', e => {
+    e.preventDefault();
+    uploadArea.style.borderColor = 'var(--primary-light)';
+    uploadArea.style.background = 'var(--input-focus)';
+  });
+  uploadArea.addEventListener('dragleave', () => {
+    uploadArea.style.borderColor = '';
+    uploadArea.style.background = '';
+  });
+  uploadArea.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadArea.style.borderColor = '';
+    uploadArea.style.background = '';
+    handleFiles(e.dataTransfer.files);
+  });
+  fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+  function handleFiles(files) {
+    if (!files.length) return;
+    const names = Array.from(files).map(f => f.name).join('、');
+    uploadArea.innerHTML = `
+      <div class="upload-icon">✅</div>
+      <p style="color:var(--success);font-weight:500;">已选择 ${files.length} 个文件</p>
+      <p style="font-size:12px;margin-top:4px;color:var(--text-secondary);">${names}</p>
+    `;
+  }
+
+  // Signature pad placeholder
+  document.getElementById('sigPad').addEventListener('click', function() {
+    this.innerHTML = '<span style="font-family:cursive;font-size:20px;color:var(--primary);">已签名 ✓</span>';
+    this.style.borderColor = 'var(--success)';
+    this.style.background = '#f0faf4';
+  });
+
+  // Toast
+  function showToast(msg, color) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = color || 'var(--success)';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function saveDraft() {
+    showToast('✓ 草稿已暂存', '#7f8c8d');
+  }
+
+  function submitForm() {
+    const form = document.getElementById('appForm');
+    const inputs = form.querySelectorAll('[required]');
+    let valid = true;
+    inputs.forEach(inp => {
+      if (!inp.value.trim()) {
+        inp.style.borderColor = 'var(--danger)';
+        inp.style.background = '#fef5f5';
+        valid = false;
+        inp.addEventListener('input', function fix() {
+          inp.style.borderColor = '';
+          inp.style.background = '';
+          inp.removeEventListener('input', fix);
+        }, { once: true });
+      }
+    });
+    if (!valid) {
+      showToast('⚠ 请填写所有必填项', 'var(--danger)');
+      return;
+    }
+    // Advance progress
+    document.querySelectorAll('.step')[0].classList.remove('active');
+    document.querySelectorAll('.step')[0].classList.add('done');
+    document.querySelectorAll('.step')[0].querySelector('.step-num').textContent = '✓';
+    document.querySelectorAll('.step')[1].classList.add('active');
+    showToast('✓ 申请已提交，等待单位审批');
+  }
+</script>
+</body>
+</html>

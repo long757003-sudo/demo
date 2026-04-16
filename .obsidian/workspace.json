@@ -228,6 +228,8 @@
   },
   "active": "f907d8ff438d39e6",
   "lastOpenFiles": [
+    "demo/shared/nav.js",
+    "demo/app.html",
     "demo/shared/views/dashboard.js",
     "my-project-wiki/raw/docs/详细业务流程说明书-06-项目运维.md",
     "my-project-wiki/raw/docs/业务流程概要说明书.md",
@@ -254,9 +256,7 @@
     "my-project-wiki/raw/decisions/西南大学信息化项目管理办法.pdf",
     "my-project-wiki/raw/decisions/西南大学信息化项目管理办法.md",
     "my-project-wiki/raw/decisions/西南大学信息化项目立项通知书.md",
-    "my-project-wiki/raw/decisions/西南大学信息化项目立项通知书.docx",
     "my-project-wiki/raw/decisions/西南大学信息化项目建设申报书.md",
-    "my-project-wiki/raw/decisions/西南大学信息化项目建设申报书.docx",
     "my-project-wiki/raw/decisions/西南大学信息化建设项目验收阶段实施细则.md",
     "my-project-wiki/raw/decisions/本科生院-2026年信息化项目需求入库评审结果通知.md",
     "my-project-wiki/wiki/synthesis/通知矩阵.md",

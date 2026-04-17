@@ -1,17 +1,17 @@
 // shared/views/review.js  —  V2.1
 
-/* ====== 评审列表（融合：专家视角=评审任务 / 管理视角=评审列表） ====== */
+/* ====== 评审列表（专家/管理员统一视图，角色控制数据过滤与操作列） ====== */
 registerView('review-list', function() {
   const role       = getCurrentRole();
   const isExpert   = role === 'expert';
-  const canLaunch  = role === 'info-admin' || role === 'info-leader';
-  const pageTitle  = isExpert ? '评审任务' : '评审列表';
+  const isAdmin    = role === 'info-admin';
+  const isLeader   = role === 'info-leader';
+  const isOffice   = role === 'leadership-office';
+  const canLaunch  = isAdmin || isLeader;
+  const pageTitle  = '评审列表';
 
   const reviews    = DATA.reviews || [];
-  // 根据角色过滤样例数据：专家视角仅看自己待处理（进行中 / 退回修改中）的任务；管理视角看全量
-  const roleReviews = isExpert
-    ? reviews.filter(r => r.status === 'in-progress' || r.status === 'rework-pending')
-    : reviews;
+  const roleReviews = reviews;
 
   const currentTab = window._reviewTab || 0;  // 0 = 论证评审, 1 = 验收评审
   const approvalList   = roleReviews.filter(r => r.type === 'approval');
@@ -23,25 +23,70 @@ registerView('review-list', function() {
     if (r.status === 'passed')         return '<span class="tag tag-green">已通过</span>';
     if (r.status === 'rejected')       return '<span class="tag tag-red">未通过</span>';
     if (r.status === 'rework-pending') return '<span class="tag tag-orange">退回修改中</span>';
+    if (r.status === 'invitation-pending') return '<span class="tag tag-orange">邀请中</span>';
+    if (r.status === 'not-started')    return '<span class="tag tag-gray">未开始</span>';
     if (r.status === 'timeout-rejected') return '<span class="tag tag-red">不通过（超时未修改）</span>';
     return '<span class="tag tag-gray">' + r.status + '</span>';
   }
 
-  // 操作按钮：专家保留原评审任务按钮逻辑；管理员保留原评审列表按钮逻辑
+  // 操作按钮：按角色与状态分发
   function actionCell(r) {
     if (isExpert) {
+      if (r.status === 'invitation-pending') {
+        return '<a onclick="navigate(\'expert-respond\')">确认邀请</a>';
+      }
+      if (r.status === 'not-started') {
+        return '<span style="color:var(--text-secondary)">—</span>';
+      }
       if (r.status === 'in-progress') {
-        return '<a onclick="navigate(\'review-opinion\',{id:\'' + r.id + '\'})">填写评审意见</a>';
+        return '<a onclick="window.open(\'requirement-review.html?role=expert&id=' + r.id + '\',\'_blank\')">进入评审工作台</a>';
       }
       if (r.status === 'rework-pending') {
         return '<a onclick="navigate(\'review-rework\',{id:\'' + r.id + '\'})">查看修改要求</a>';
       }
+      if (r.status === 'passed' || r.status === 'rejected') {
+        return '<a onclick="navigate(\'review-launch\',{id:\'' + r.id + '\'})">查看评审结果</a>';
+      }
       return '<span style="color:var(--text-secondary)">—</span>';
     }
-    let html = '<a onclick="navigate(\'review-launch\',{id:\'' + r.id + '\'})">详情</a>';
-    if (r.status === 'in-progress')    html += ' | <a onclick="navigate(\'review-opinion\',{id:\'' + r.id + '\'})">填写意见</a>';
-    if (r.status === 'rework-pending') html += ' | <a onclick="navigate(\'review-rework\',{id:\'' + r.id + '\'})">查看退回</a>';
-    return html;
+    // 非专家分支：按角色 × 状态显式分发（管理员/信息办领导/领导小组办公室）
+    const dash = '<span style="color:var(--text-secondary)">—</span>';
+    if (r.status === 'passed' || r.status === 'rejected' || r.status === 'timeout-rejected') {
+      let html = '<a onclick="navigate(\'review-launch\',{id:\'' + r.id + '\'})">查看评审结果</a>';
+      if (isAdmin && r.status !== 'passed') {
+        html += ' | <a onclick="toast(\'已发起二次评审（演示）\',\'success\')">发起重评</a>';
+      }
+      return html;
+    }
+    if (r.status === 'in-progress') {
+      if (isAdmin || isLeader) {
+        return '<a onclick="window.open(\'requirement-review.html?role=owner&id=' + r.id + '\',\'_blank\')">进入工作台</a>';
+      }
+      return dash;
+    }
+    if (r.status === 'rework-pending') {
+      if (isAdmin) {
+        return '<a onclick="navigate(\'review-rework\',{id:\'' + r.id + '\'})">查看退回</a>'
+          + ' | <a onclick="toast(\'已通知项目负责人（演示）\',\'success\')">通知 PM</a>';
+      }
+      if (isLeader) {
+        return '<a onclick="navigate(\'review-rework\',{id:\'' + r.id + '\'})">查看退回</a>';
+      }
+      return dash;
+    }
+    if (r.status === 'invitation-pending') {
+      if (isAdmin) {
+        return '<a onclick="toast(\'催办通知已发送（演示）\',\'success\')">催办</a>';
+      }
+      return dash;
+    }
+    if (r.status === 'not-started') {
+      if (isAdmin) {
+        return '<a onclick="toast(\'已提醒专家准时参加（演示）\',\'success\')">提醒准时</a>';
+      }
+      return dash;
+    }
+    return dash;
   }
 
   const rows = displayList.map(r => `
@@ -56,7 +101,7 @@ registerView('review-list', function() {
       <td>${actionCell(r)}</td>
     </tr>`).join('');
 
-  // 专家特有的顶部区域：待回复邀请提示 + 需求方案评审入口
+  // 专家特有的顶部区域：待回复邀请提示
   let expertHeader = '';
   if (isExpert) {
     const pendingInvites = (DATA.expertInvites || []).reduce((n, inv) =>
@@ -66,24 +111,7 @@ registerView('review-list', function() {
         <strong>您有 ${pendingInvites} 条评审邀请待回复</strong> — 点击前往确认 →
       </div>` : '';
 
-    const planReviewCard = `
-      <div class="card" style="margin-bottom:12px;border-left:3px solid var(--primary)">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <span style="font-weight:600;font-size:15px">智慧校园综合信息管理平台二期建设需求方案</span>
-            <span class="tag tag-purple" style="margin-left:8px">需求方案评审</span>
-            <span class="tag tag-orange" style="margin-left:4px">待批注</span>
-          </div>
-          <button class="btn btn-primary" onclick="window.open('requirement-review.html?role=expert','_blank')">进入评审工作台 →</button>
-        </div>
-        <div style="margin-top:8px;font-size:12px;color:var(--text-secondary)">
-          编号：PROJECT · 2025-XQ-0087
-          &nbsp;|&nbsp; 负责人：李明华
-          &nbsp;|&nbsp; 评审截止：2026-04-20
-          &nbsp;|&nbsp; 可划词批注／提问／退回修改／提交评审意见
-        </div>
-      </div>`;
-    expertHeader = inviteBanner + planReviewCard;
+    expertHeader = inviteBanner;
   }
 
   return `
@@ -118,7 +146,7 @@ registerView('review-list', function() {
           <th>项目名称</th><th>评审类型</th><th>评审日期</th><th>专家人数</th><th>轮次</th>
           <th>状态</th><th>结论</th><th>操作</th>
         </tr></thead>
-        <tbody>${rows || '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-secondary)">' + (isExpert ? '暂无待处理评审任务' : '暂无评审记录') + '</td></tr>'}</tbody>
+        <tbody>${rows || '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-secondary)">暂无评审记录</td></tr>'}</tbody>
       </table>
       <div class="table-pagination"><span>共 ${displayList.length} 条记录</span></div>
     </div>`;
@@ -350,10 +378,86 @@ registerView('review-list', function() {
       + '</div>';
   }
 
+  function renderReviewResult(r) {
+    var experts = r.experts || [];
+    var expertNames = experts.map(function(eid) {
+      var e = (DATA.experts || []).find(function(x) { return x.id === eid; });
+      return e ? e.name : eid;
+    }).join('、');
+
+    var typeLabel = r.type === 'approval' ? '立项论证' : '项目验收';
+    var verdictHtml;
+    if (r.status === 'passed') {
+      verdictHtml = '<span class="tag tag-green" style="font-size:14px;padding:4px 12px">✓ 通过</span>';
+    } else if (r.status === 'rejected') {
+      verdictHtml = '<span class="tag tag-red" style="font-size:14px;padding:4px 12px">✕ 不通过</span>';
+    } else {
+      verdictHtml = '<span class="tag tag-red" style="font-size:14px;padding:4px 12px">✕ 不通过（超时未修改）</span>';
+    }
+
+    var breakdown = r.scoreBreakdown || [];
+    var breakdownRows = breakdown.length
+      ? breakdown.map(function(s) {
+          return '<tr>'
+            + '<td style="font-weight:500">' + s.name + '</td>'
+            + '<td style="color:var(--text-secondary);font-size:12px">' + s.desc + '</td>'
+            + '<td style="text-align:center">' + s.weight + '%</td>'
+            + '<td style="text-align:center;font-family:var(--font-mono,monospace);font-weight:600">' + s.value + '</td>'
+            + '</tr>';
+        }).join('')
+      : '<tr><td colspan="4" style="text-align:center;color:var(--text-secondary);padding:12px">— 评分明细数据缺失 —</td></tr>';
+
+    var conclusion = r.conclusion || '— 未填写 —';
+    var totalScore = (r.weightedScore != null) ? r.weightedScore : '—';
+
+    return '<div class="breadcrumb">首页 / 评审管理 / <span>评审结果 — ' + r.projectName + '</span></div>'
+      + '<div class="page-header">'
+      + '<div class="page-title">评审结果 — ' + r.projectName + '</div>'
+      + '<button class="btn" onclick="navigate(\'review-list\')">← 返回列表</button>'
+      + '</div>'
+      + '<div class="card">'
+      + '<div class="card-title">基本信息</div>'
+      + '<div class="detail-grid">'
+      + '<div class="detail-item"><span class="detail-label">项目名称</span><span class="detail-value">' + r.projectName + '</span></div>'
+      + '<div class="detail-item"><span class="detail-label">评审类型</span><span class="detail-value">' + typeLabel + '</span></div>'
+      + '<div class="detail-item"><span class="detail-label">评审日期</span><span class="detail-value">' + formatDate(r.date) + '</span></div>'
+      + '<div class="detail-item"><span class="detail-label">评审轮次</span><span class="detail-value">第 ' + (r.round || 1) + ' 轮</span></div>'
+      + '<div class="detail-item"><span class="detail-label">参评专家</span><span class="detail-value">' + experts.length + ' 名（' + expertNames + '）</span></div>'
+      + '</div>'
+      + '</div>'
+      + '<div class="card">'
+      + '<div class="card-title">综合评分</div>'
+      + '<div style="font-size:32px;font-weight:700;color:var(--text-primary);font-family:var(--font-mono,monospace)">'
+      + totalScore + '<small style="font-size:14px;color:var(--text-secondary);font-weight:400"> / 100</small>'
+      + '</div>'
+      + '</div>'
+      + '<div class="card">'
+      + '<div class="card-title">评分明细</div>'
+      + '<table class="data-table">'
+      + '<thead><tr><th>维度</th><th>说明</th><th style="width:80px;text-align:center">权重</th><th style="width:80px;text-align:center">分数</th></tr></thead>'
+      + '<tbody>' + breakdownRows + '</tbody>'
+      + '</table>'
+      + '</div>'
+      + '<div class="card">'
+      + '<div class="card-title">评审结论</div>'
+      + '<div style="padding:8px 0">' + verdictHtml + '</div>'
+      + '</div>'
+      + '<div class="card">'
+      + '<div class="card-title">综合意见</div>'
+      + '<div style="padding:8px 0;line-height:1.8;color:var(--text-primary);white-space:pre-wrap">' + conclusion + '</div>'
+      + '</div>';
+  }
+
   registerView('review-launch', function() {
     var params = getViewParams('review-launch');
     var rid = params && params.id;
     var existing = rid ? (DATA.reviews || []).find(function(r) { return r.id === rid; }) : null;
+
+    // 只读结果分支：已完成评审
+    if (existing && ['passed','rejected','timeout-rejected'].indexOf(existing.status) >= 0) {
+      return renderReviewResult(existing);
+    }
+
     var availableExperts = (DATA.experts || []).filter(function(e) { return e.status !== 'blacklisted'; });
     var blacklisted = (DATA.experts || []).filter(function(e) { return e.status === 'blacklisted'; });
     var proposals = DATA.proposals || [];
@@ -610,7 +714,7 @@ registerView('review-opinion', function() {
   if (!window._guidelinesConfirmed[review.id]) {
     var guideText = (DATA.reviewGuidelines || '').replace(/\n/g, '<br>');
     return `
-      <div class="breadcrumb">首页 / 评审管理 / <a onclick="navigate('review-list')">评审任务</a> / <span>评审须知确认</span></div>
+      <div class="breadcrumb">首页 / 评审管理 / <a onclick="navigate('review-list')">评审列表</a> / <span>评审须知确认</span></div>
       <div class="page-header"><div class="page-title">评审须知确认</div></div>
       <div class="card">
         <div class="card-title">专家评审须知</div>
@@ -664,7 +768,7 @@ registerView('review-opinion', function() {
   const failLabel = isApproval ? '不建议立项' : '验收不通过';
 
   return `
-    <div class="breadcrumb">首页 / 评审管理 / <a onclick="navigate('review-list')">评审任务</a> / <span>填写${typeLabel}意见</span></div>
+    <div class="breadcrumb">首页 / 评审管理 / <a onclick="navigate('review-list')">评审列表</a> / <span>填写${typeLabel}意见</span></div>
     <div class="page-header"><div class="page-title">填写${typeLabel}意见</div></div>
     <div class="card">
       <div class="card-title">${typeLabel}评审意见表</div>

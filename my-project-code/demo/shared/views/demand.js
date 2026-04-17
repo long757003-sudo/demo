@@ -1,6 +1,33 @@
 // shared/views/demand.js  — V2.1 需求管理模块（优化升级版）
 
 /* ════════════════════════════════════════════════════════════════
+   需求评审结论 helper：供 demand-select / demand-approve / collection-detail 复用
+   关联规则：review.demandId === demand.id（单条 review 反向挂靠到 demand）
+   ════════════════════════════════════════════════════════════════ */
+function _getDemandReview(did) {
+  return (DATA.reviews || []).find(function(r) { return r.demandId === did; });
+}
+function _reviewBadge(r) {
+  if (!r) return '<span style="color:var(--text-secondary)">—</span>';
+  var map = {
+    'passed':             { cls: 'tag-green',  text: '已通过' },
+    'rejected':           { cls: 'tag-red',    text: '不通过' },
+    'timeout-rejected':   { cls: 'tag-red',    text: '超时未改' },
+    'rework-pending':     { cls: 'tag-orange', text: '退回修改' },
+    'in-progress':        { cls: 'tag-blue',   text: '进行中' },
+    'invitation-pending': { cls: 'tag-gray',   text: '邀请中' },
+    'not-started':        { cls: 'tag-gray',   text: '未开始' },
+  };
+  var m = map[r.status] || { cls: 'tag-gray', text: r.status };
+  var score = (r.weightedScore != null) ? ' <b>' + r.weightedScore + '</b>' : '';
+  var linkable = ['passed','rejected','timeout-rejected'].indexOf(r.status) >= 0;
+  var view = linkable
+    ? ' <a onclick="navigate(\'review-launch\',{id:\'' + r.id + '\'})">查看</a>'
+    : '';
+  return '<span class="tag ' + m.cls + '">' + m.text + '</span>' + score + view;
+}
+
+/* ════════════════════════════════════════════════════════════════
    MODULE-LEVEL: collection-create Step 1 从模板导入助手
    数据引用 notification.js 中的 _notifImportTmplData（运行时读取）
    ════════════════════════════════════════════════════════════════ */
@@ -787,6 +814,7 @@ registerView('collection-detail', function() {
     { label: '需求提交统计', idx: 1, roles: ['info-leader', 'info-admin', 'unit-admin'] }, // 项目负责人不可见
     { label: '操作日志',     idx: 2, roles: ['info-leader', 'info-admin'] },                   // 仅信息办可见
     { label: '业务流程配置', idx: 3, roles: null },          // 所有角色可见
+    { label: '需求评审',     idx: 4, roles: ['info-leader', 'info-admin', 'leadership-office', 'unit-leader'] }, // 决策相关角色可见
   ];
   const visibleTabs = allTabs.filter(function(t) { return !t.roles || t.roles.includes(role); });
   const tabBar = '<div class="tab-bar" style="margin-bottom:16px">' +
@@ -977,6 +1005,46 @@ registerView('collection-detail', function() {
         '</div>' +
         '<div class="flow-diagram">' + nodesHtml + '</div>' +
         saveBtn +
+      '</div>'
+    );
+  }
+
+  /* ─ Tab 4: 需求评审（本批次所有需求评审任务汇总） ─ */
+  else if (tab === 4) {
+    const demandIds = (DATA.demands || [])
+      .filter(function(d) { return d.collectionId === plan.id; })
+      .map(function(d) { return d.id; });
+    const reviewsInBatch = (DATA.reviews || []).filter(function(r) {
+      return r.demandId && demandIds.indexOf(r.demandId) >= 0;
+    });
+
+    const reviewRows = reviewsInBatch.map(function(r) {
+      const demand = (DATA.demands || []).find(function(d) { return d.id === r.demandId; }) || {};
+      const linkable = ['passed','rejected','timeout-rejected'].indexOf(r.status) >= 0;
+      const opBtn = linkable
+        ? '<button class="btn btn-sm" onclick="navigate(\'review-launch\',{id:\'' + r.id + '\'})">查看评审结果</button>'
+        : '<span style="color:var(--text-secondary);font-size:12px">进行中</span>';
+      return '<tr>' +
+        '<td>' + r.id + '</td>' +
+        '<td>' + (demand.projectName || r.projectName || r.demandId) + '</td>' +
+        '<td>' + (demand.unitId || '—') + '</td>' +
+        '<td>' + (r.date || '—') + '</td>' +
+        '<td>' + _reviewBadge(r) + '</td>' +
+        '<td>' + opBtn + '</td>' +
+      '</tr>';
+    }).join('');
+
+    body = (
+      '<div class="card">' +
+        '<div class="card-title">本批次需求评审任务（' + reviewsInBatch.length + ' 条）</div>' +
+        '<div style="color:var(--text-secondary);font-size:12px;margin-bottom:12px">' +
+          '领导在需求遴选前可在此汇总查看专家评审结论，辅助"支持 / 不支持"决策。' +
+        '</div>' +
+        '<table class="data-table"><thead><tr>' +
+          '<th>评审编号</th><th>对应需求</th><th>申报单位</th><th>评审日期</th><th>状态 / 评分</th><th>操作</th>' +
+        '</tr></thead><tbody>' +
+        (reviewRows || '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-secondary)">本批次暂无需求评审任务</td></tr>') +
+        '</tbody></table>' +
       '</div>'
     );
   }
@@ -2067,6 +2135,7 @@ registerView('demand-select', function() {
       '<td>' + (d.submitter || d.submittedBy || '') + '</td>' +
       '<td>' + (d.budget || d.budgetEstimate || 0) + '万 ' + (typeof projectTypeTag === 'function' && typeof budgetToType === 'function' ? projectTypeTag(budgetToType(d.budget || d.budgetEstimate || 0).type || budgetToType(d.budget || d.budgetEstimate || 0)) : '') + '</td>' +
       '<td>' + badge + '</td>' +
+      '<td>' + _reviewBadge(_getDemandReview(d.id)) + '</td>' +
       '<td class="desc">' + ((d.summary || '').slice(0, 60)) + '</td>' +
       '<td>' +
         '<button class="btn btn-sm btn-primary" onclick="_dselSupport(\'' + d.id + '\')">支持</button> ' +
@@ -2074,7 +2143,7 @@ registerView('demand-select', function() {
       '</td>' +
     '</tr>';
   }).join('');
-  if (filtered.length === 0) rows = '<tr><td colspan="8" class="empty">当前批次暂无待遴选需求，请等待各单位完成审批后刷新。</td></tr>';
+  if (filtered.length === 0) rows = '<tr><td colspan="9" class="empty">当前批次暂无待遴选需求，请等待各单位完成审批后刷新。</td></tr>';
 
   return (
     breadcrumb('需求征集', '需求遴选') +
@@ -2087,7 +2156,7 @@ registerView('demand-select', function() {
         '<input id="dsel-kw" type="text" placeholder="搜索项目名称" oninput="_dselSetFilter(\'kw\',this.value)">' +
       '</div>' +
       '<table class="data-table"><thead><tr>' +
-        '<th>序号</th><th>项目名称</th><th>单位</th><th>负责人</th><th>预算</th><th>状态</th><th>摘要</th><th>操作</th>' +
+        '<th>序号</th><th>项目名称</th><th>单位</th><th>负责人</th><th>预算</th><th>状态</th><th>评审结论</th><th>摘要</th><th>操作</th>' +
       '</tr></thead><tbody>' + rows + '</tbody></table>' +
     '</div>' +
     '<div class="actions actions-footer">' +
@@ -2385,6 +2454,7 @@ function _daRenderContent(list) {
       '<td>' + (d.budget || d.budgetEstimate || 0) + ' 万元 ' +
         (typeof projectTypeTag === 'function' && typeof budgetToType === 'function'
           ? projectTypeTag(budgetToType(parseFloat(d.budget || d.budgetEstimate) || 0).type) : '') + '</td>' +
+      '<td>' + _reviewBadge(_getDemandReview(d.id)) + '</td>' +
       '<td>' + ((d.summary || d.description || '').slice(0, 40)) + '</td>' +
       '<td>' +
         '<button class="btn btn-sm" ' + (first ? 'disabled' : '') + ' onclick="_daMove(\'' + d.id + '\',\'up\')">↑</button> ' +
@@ -2392,12 +2462,12 @@ function _daRenderContent(list) {
       '</td>' +
     '</tr>';
   }).join('');
-  if (list.length === 0) rows = '<tr><td colspan="6" class="empty">本单位暂无待审批需求</td></tr>';
+  if (list.length === 0) rows = '<tr><td colspan="7" class="empty">本单位暂无待审批需求</td></tr>';
 
   return '<section class="card">' +
     '<h3>需求排序（可调整）</h3>' +
     '<table class="data-table"><thead><tr>' +
-      '<th>序号</th><th>项目名称</th><th>负责人</th><th>预算</th><th>摘要</th><th>操作</th>' +
+      '<th>序号</th><th>项目名称</th><th>负责人</th><th>预算</th><th>评审结论</th><th>摘要</th><th>操作</th>' +
     '</tr></thead><tbody>' + rows + '</tbody></table>' +
     '</section>' +
     '<section class="card">' +

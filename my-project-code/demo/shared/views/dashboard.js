@@ -5,13 +5,13 @@ registerView('dashboard', function() {
 
   // ── Stat cards (all 12 roles) ──────────────────────────────────────────────
   const stats = {
-    'project-manager':   { todo: 4, active: 1,  overdue: 0, pending: 0 },
-    'info-admin':        { todo: 5, active: 12, overdue: 1, pending: 3 },
-    'info-leader':       { todo: 4, active: 12, overdue: 1, pending: 5 },
+    'project-manager':   { todo: 5, active: 1,  overdue: 0, pending: 0 },
+    'info-admin':        { todo: 6, active: 12, overdue: 1, pending: 3 },
+    'info-leader':       { todo: 5, active: 12, overdue: 1, pending: 5 },
     'leadership-office':     { todo: 2, active: 12, overdue: 0, pending: 2 },
     'unit-leader':       { todo: 2, active: 2,  overdue: 0, pending: 2 },
     'unit-admin':     { todo: 3, active: 2,  overdue: 0, pending: 0 },
-    'expert':            { todo: 2, active: 0,  overdue: 0, pending: 2 },
+    'expert':            { todo: 3, active: 0,  overdue: 0, pending: 2 },
     'contract-admin':    { todo: 1, active: 2,  overdue: 0, pending: 1 },
     'finance-admin':     { todo: 0, active: 5,  overdue: 0, pending: 0 },
     'sys-admin':         { todo: 2, active: 0,  overdue: 0, pending: 0 },
@@ -58,7 +58,7 @@ registerView('dashboard', function() {
       { icon: '', label: '排序提交', desc: '提交本单位需求优先级', action: "navigate('demand-sort')" },
     ],
     'expert': [
-      { icon: '', label: '我的评审', desc: '查看待处理评审任务', action: "navigate('my-reviews')" },
+      { icon: '', label: '我的评审', desc: '查看待处理评审任务', action: "navigate('review-list')" },
       { icon: '', label: '填写意见', desc: '填写评审论证意见', action: "navigate('review-opinion')" },
     ],
     'contract-admin': [
@@ -87,6 +87,7 @@ registerView('dashboard', function() {
     'project-manager': [
       { level: 'urgent',   text: '【申报】2026年度需求征集通知 — 请填报需求', link: 'collection-detail', params: {id:'CP001'} },
       { level: 'urgent',   text: '【申报】本科教学质量分析平台立项申报通知 — 请填报申报书', link: 'proposal-fill', params: {id:'PR001'} },  // 2.1→2.2
+      { level: 'urgent',   text: '【方案】「智慧校园综合信息管理平台二期」需求方案专家评审中 — 请回应批注', external: 'requirement-review.html?role=owner' },
       { level: 'reminder', text: '【修改】心理健康预警系统申报书已退回 — 请修改后重新提交', link: 'proposal-fill', params: {id:'PR008'} },
       { level: 'normal',   text: '【需求】确认需求优先级排序', link: 'demand-sort' },
     ],
@@ -94,6 +95,7 @@ registerView('dashboard', function() {
       { level: 'urgent',   text: '【初审】智慧教室管理平台申报书待初审', link: 'preliminary-review', params: {id:'PR006'} },  // 2.3→2.4
       { level: 'urgent',   text: '【评审】选择论证专家（待领导确认）', link: 'review-launch' },
       { level: 'urgent',   text: '【审核】院系网站群模板升级微型项目自行论证材料确认', link: 'info-confirm' },  // 2.5m→2.6m
+      { level: 'reminder', text: '【方案】观摩「智慧校园综合信息管理平台二期」需求方案专家评审进展', external: 'requirement-review.html?role=expert' },
       { level: 'reminder', text: '【通知】本科教学质量分析平台立项通知书待发送', link: 'approval-notice', params: {id:'PR001'} },  // 2.7→2.8
       { level: 'normal',   text: '【合同】「招生系统」合同备案确认', link: 'contract-ledger' },
     ],
@@ -101,6 +103,7 @@ registerView('dashboard', function() {
       { level: 'urgent',   text: '【审批】2026年度需求征集通知 — 待审核', link: 'collection-detail', params: {id:'CP001'} },
       { level: 'urgent',   text: '【遴选】完成2026年度需求遴选', link: 'demand-select' },
       { level: 'urgent',   text: '【审批】本科教学质量分析平台评审专家名单确认', link: 'expert-confirm' },  // 2.5→领导确认
+      { level: 'reminder', text: '【方案】观摩「智慧校园综合信息管理平台二期」需求方案专家评审进展', external: 'requirement-review.html?role=expert' },
       { level: 'normal',   text: '【审批】审定「本科教学质量分析平台」立项', link: 'proposal-list' },
     ],
     'leadership-office': [
@@ -119,6 +122,7 @@ registerView('dashboard', function() {
     'expert': [
       { level: 'urgent',   text: '【评审】请确认参加「本科教学质量分析平台」论证评审邀请', link: 'expert-respond' },  // 2.5a
       { level: 'urgent',   text: '【评审】填写「本科教学质量分析平台」论证意见', link: 'review-opinion' },  // 2.5b
+      { level: 'urgent',   text: '【方案】「智慧校园综合信息管理平台二期」需求方案待批注评审', external: 'requirement-review.html?role=expert' },
     ],
     'contract-admin': [
       { level: 'urgent',   text: '【合同】「本科教学质量分析平台」合同待审定', link: 'contract-ledger' },
@@ -237,9 +241,11 @@ registerView('dashboard', function() {
     +       '</div>'
     +       (todos.length
           ? todos.map(function(t) {
-              var navCall = t.params
-                ? 'navigate(\'' + t.link + '\',' + JSON.stringify(t.params).replace(/"/g, '&quot;') + ')'
-                : 'navigate(\'' + t.link + '\')';
+              var navCall = t.external
+                ? 'window.open(\'' + t.external + '\',\'_blank\')'
+                : t.params
+                  ? 'navigate(\'' + t.link + '\',' + JSON.stringify(t.params).replace(/"/g, '&quot;') + ')'
+                  : 'navigate(\'' + t.link + '\')';
               return '<div style="padding:9px 0;border-bottom:1px solid #f4f4f5;display:flex;align-items:center;gap:8px;cursor:pointer" onclick="' + navCall + '">'
                 + urgencyDot(t.level)
                 + '<span style="font-size:13px;flex:1;' + urgencyTextStyle(t.level) + '">' + t.text + '</span>'

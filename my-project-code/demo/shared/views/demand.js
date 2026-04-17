@@ -138,6 +138,11 @@ registerView('demand-collect', function() {
       opBtns += '<button class="btn btn-sm" style="background:var(--primary);color:#fff;border-color:var(--primary)" onclick="navigate(\'demand-sort\',{collectionId:\'' + plan.id + '\'})">需求排序</button>';
     }
 
+    // 遴选完成后 info-admin 可直接创建评审任务
+    if (role === 'info-admin' && plan.status === 'selection-done') {
+      opBtns += '<button class="btn btn-sm" style="background:var(--primary);color:#fff;border-color:var(--primary);margin-left:4px" onclick="navigate(\'review-launch\')">创建评审任务</button>';
+    }
+
     var summaryCell = plan.summary
       ? (plan.summary.length > 40 ? plan.summary.slice(0,40) + '…' : plan.summary)
       : '—';

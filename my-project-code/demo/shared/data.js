@@ -503,6 +503,92 @@ window.DATA = {
       notification: { title: '2025年度需求征集通知', body: '已关闭', contactName: '张华', contactPhone: '023-68253188', contactEmail: 'zhanghua@swu.edu.cn', recipients: ['全部单位'], recipientCount: 38, sendTime: '2025-02-15 09:00' },
       workflowConfig: { templateId: 'TPL001', nodes: [] },
       submitStats: { totalUnits: 28, submittedUnits: 25, notSubmittedUnits: 3, totalDemands: 32, totalBudget: 2100, unitDetails: [] }
+    },
+    {
+      id: 'CP003', title: '2026年度科研专项信息化需求征集', year: 2026,
+      summary: '围绕科研数据治理、重点实验室信息化开展专项需求征集',
+      description: '为提升学校科研数字化能力，面向各科研单位开展 2026 年度科研专项信息化建设需求征集，已完成需求汇总与遴选。',
+      startDate: '2026-01-10', endDate: '2026-02-28',
+      attachments: [{name:'科研专项征集说明.pdf', size:'1.6MB'}],
+      status: 'selection-done', createdBy: '张华', createdAt: '2026-01-05',
+      contactName: '李敏', contactInfo: '023-68253162 / limin@swu.edu.cn',
+      scopeDesc: '科研处、各学院、重点实验室（共 16 家）',
+      notification: {
+        title: '关于开展 2026 年度科研专项信息化需求征集的通知',
+        body: '各科研单位：为推动科研数字化转型，现启动 2026 年度科研专项信息化需求征集，请于 2026 年 2 月 28 日前完成填报。',
+        contactName: '李敏', contactPhone: '023-68253162', contactEmail: 'limin@swu.edu.cn',
+        recipients: ['科研处','各学院','重点实验室'], recipientCount: 16,
+        sendTime: '2026-01-10 09:00'
+      },
+      workflowConfig: { templateId: 'TPL001', nodes: [] },
+      submitStats: {
+        totalUnits: 16, submittedUnits: 15, notSubmittedUnits: 1,
+        totalDemands: 12, totalBudget: 860, assignedCount: 12,
+        unitDetails: [
+          { unit: '科研处',             submitted: true,  count: 2, lastSubmit: '2026-02-18', budget: 180, assignedCount: 2 },
+          { unit: '计算机与信息科学学院', submitted: true,  count: 2, lastSubmit: '2026-02-20', budget: 150, assignedCount: 2 },
+          { unit: '生命科学学院',        submitted: true,  count: 2, lastSubmit: '2026-02-22', budget: 140, assignedCount: 2 },
+          { unit: '材料与能源学院',      submitted: true,  count: 1, lastSubmit: '2026-02-15', budget:  90, assignedCount: 1 },
+          { unit: '重点实验室办公室',    submitted: true,  count: 2, lastSubmit: '2026-02-24', budget: 160, assignedCount: 2 },
+          { unit: '农学与生物科技学院',  submitted: false, count: 0, lastSubmit: null,         budget:   0, assignedCount: 0 },
+        ]
+      }
+    },
+    {
+      id: 'CP004', title: '2027年度信息化项目需求征集（试编制）', year: 2027,
+      summary: '面向 2027 年度编制中的征集方案草稿',
+      description: '根据学校"十四五"信息化建设规划延伸安排，先行编制 2027 年度需求征集方案草稿，待审核后启动正式征集。',
+      startDate: '2026-11-01', endDate: '2026-12-15',
+      attachments: [], status: 'draft', createdBy: '张华', createdAt: '2026-04-10',
+      contactName: '张华', contactInfo: '023-68253188 / zhanghua@swu.edu.cn',
+      scopeDesc: '全部单位（待确认）',
+      notification: {
+        title: '2027年度信息化项目需求征集通知（草稿）',
+        body: '方案尚在编制中，通知正文待补充。',
+        contactName: '张华', contactPhone: '023-68253188', contactEmail: 'zhanghua@swu.edu.cn',
+        recipients: [], recipientCount: 0, sendTime: 'immediate'
+      },
+      workflowConfig: { templateId: 'TPL001', nodes: [] },
+      submitStats: { totalUnits: 0, submittedUnits: 0, notSubmittedUnits: 0, totalDemands: 0, totalBudget: 0, unitDetails: [] }
+    },
+    {
+      id: 'CP005', title: '2026年度民生服务信息化补充征集', year: 2026,
+      summary: '面向后勤、学工等民生服务单位开展补充征集',
+      description: '为弥补首轮征集中民生服务类需求不足的情况，开展补充征集，方案已提交信息办主任审核。',
+      startDate: '2026-05-10', endDate: '2026-06-20',
+      attachments: [{name:'民生服务补充征集说明.pdf', size:'0.9MB'}],
+      status: 'pending-review', createdBy: '张华', createdAt: '2026-04-12',
+      contactName: '张华', contactInfo: '023-68253188 / zhanghua@swu.edu.cn',
+      scopeDesc: '后勤管理处、学生工作处、图书馆、校医院（共 4 家）',
+      notification: {
+        title: '关于开展 2026 年度民生服务信息化补充征集的通知',
+        body: '各相关单位：为强化民生服务数字化能力，现拟开展补充征集，请于 2026 年 6 月 20 日前完成填报。',
+        contactName: '张华', contactPhone: '023-68253188', contactEmail: 'zhanghua@swu.edu.cn',
+        recipients: ['后勤管理处','学生工作处','图书馆','校医院'], recipientCount: 4,
+        sendTime: 'immediate'
+      },
+      workflowConfig: { templateId: 'TPL001', nodes: [] },
+      submitStats: { totalUnits: 4, submittedUnits: 0, notSubmittedUnits: 4, totalDemands: 0, totalBudget: 0, unitDetails: [] }
+    },
+    {
+      id: 'CP006', title: '2026年度教学专项需求征集', year: 2026,
+      summary: '教学信息化专项征集方案（被退回）',
+      description: '该征集方案在征集范围界定上存在问题，信息办主任已退回，待修订后重新提交。',
+      startDate: '2026-04-05', endDate: '2026-05-20',
+      attachments: [{name:'教学专项征集说明_v1.pdf', size:'1.2MB'}],
+      status: 'returned', createdBy: '张华', createdAt: '2026-03-28',
+      contactName: '王芳', contactInfo: '023-68253175 / wangfang@swu.edu.cn',
+      scopeDesc: '教务处、各学院教学副院长办公室',
+      returnReason: '征集范围未覆盖继续教育学院，请补充后重新提交。',
+      notification: {
+        title: '关于开展 2026 年度教学专项信息化需求征集的通知（草稿）',
+        body: '各教学单位：为推进教学信息化，现拟开展教学专项需求征集，具体通知正文正在修订。',
+        contactName: '王芳', contactPhone: '023-68253175', contactEmail: 'wangfang@swu.edu.cn',
+        recipients: ['教务处','各学院'], recipientCount: 22,
+        sendTime: 'immediate'
+      },
+      workflowConfig: { templateId: 'TPL001', nodes: [] },
+      submitStats: { totalUnits: 0, submittedUnits: 0, notSubmittedUnits: 0, totalDemands: 0, totalBudget: 0, unitDetails: [] }
     }
   ],
 

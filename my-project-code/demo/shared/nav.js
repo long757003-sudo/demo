@@ -33,10 +33,9 @@ const NAV_GROUPS = [
     { id: 'expert-invitations', label: '专家邀请记录', icon: 'mail', roles: ['info-admin','info-leader'] },
   ]},
   { label: '评审管理', items: [
-    { id: 'review-list', label: '评审列表', icon: 'clipboard-list', roles: ['info-admin','info-leader','leadership-office'] },
+    { id: 'review-list', label: '评审列表', icon: 'clipboard-list', roles: ['info-admin','info-leader','leadership-office','expert'] },
     { id: 'review-launch', label: '创建评审任务', icon: 'plus-circle', roles: ['info-admin'] },
     // expert-confirm: 仅通过工作台待办跳转，不在菜单展示
-    { id: 'my-reviews', label: '评审任务', icon: 'clipboard-check', roles: ['expert'] },
   ]},
   { label: '运维管理', items: [
     { id: 'acceptance-list', label: '验收管理', icon: 'badge-check', roles: [], hideRoles: ['expert'] },
@@ -94,9 +93,9 @@ function highlightNav(viewId) {
     'notification-template': 'notification-template',
     'notification-template-create': 'notification-template',
     'notification-template-edit':   'notification-template',
-    'review-opinion': 'my-reviews',
+    'review-opinion': 'review-list',
     'review-rework': 'review-list',
-    'expert-respond': 'my-reviews',
+    'expert-respond': 'review-list',
     'expert-confirm': 'review-list',
     'internal-check': 'acceptance-list', 'formal-acceptance': 'acceptance-list',
     'log-detail': 'audit-log',

@@ -1,12 +1,21 @@
 // shared/views/review.js  —  V2.1
 
-/* ====== 评审列表 ====== */
+/* ====== 评审列表（融合：专家视角=评审任务 / 管理视角=评审列表） ====== */
 registerView('review-list', function() {
-  const reviews    = DATA.reviews || [];
-  const currentTab = window._reviewTab || 0;  // 0 = 论证评审, 1 = 验收评审
+  const role       = getCurrentRole();
+  const isExpert   = role === 'expert';
+  const canLaunch  = role === 'info-admin' || role === 'info-leader';
+  const pageTitle  = isExpert ? '评审任务' : '评审列表';
 
-  const approvalList   = reviews.filter(r => r.type === 'approval');
-  const acceptanceList = reviews.filter(r => r.type === 'acceptance');
+  const reviews    = DATA.reviews || [];
+  // 根据角色过滤样例数据：专家视角仅看自己待处理（进行中 / 退回修改中）的任务；管理视角看全量
+  const roleReviews = isExpert
+    ? reviews.filter(r => r.status === 'in-progress' || r.status === 'rework-pending')
+    : reviews;
+
+  const currentTab = window._reviewTab || 0;  // 0 = 论证评审, 1 = 验收评审
+  const approvalList   = roleReviews.filter(r => r.type === 'approval');
+  const acceptanceList = roleReviews.filter(r => r.type === 'acceptance');
   const displayList    = currentTab === 0 ? approvalList : acceptanceList;
 
   function statusTag(r) {
@@ -18,6 +27,23 @@ registerView('review-list', function() {
     return '<span class="tag tag-gray">' + r.status + '</span>';
   }
 
+  // 操作按钮：专家保留原评审任务按钮逻辑；管理员保留原评审列表按钮逻辑
+  function actionCell(r) {
+    if (isExpert) {
+      if (r.status === 'in-progress') {
+        return '<a onclick="navigate(\'review-opinion\',{id:\'' + r.id + '\'})">填写评审意见</a>';
+      }
+      if (r.status === 'rework-pending') {
+        return '<a onclick="navigate(\'review-rework\',{id:\'' + r.id + '\'})">查看修改要求</a>';
+      }
+      return '<span style="color:var(--text-secondary)">—</span>';
+    }
+    let html = '<a onclick="navigate(\'review-launch\',{id:\'' + r.id + '\'})">详情</a>';
+    if (r.status === 'in-progress')    html += ' | <a onclick="navigate(\'review-opinion\',{id:\'' + r.id + '\'})">填写意见</a>';
+    if (r.status === 'rework-pending') html += ' | <a onclick="navigate(\'review-rework\',{id:\'' + r.id + '\'})">查看退回</a>';
+    return html;
+  }
+
   const rows = displayList.map(r => `
     <tr>
       <td style="font-weight:500">${r.projectName}</td>
@@ -27,22 +53,47 @@ registerView('review-list', function() {
       <td>${r.round ? '第' + r.round + '轮' : '—'}</td>
       <td>${statusTag(r)}</td>
       <td style="font-size:12px;color:var(--text-secondary);max-width:180px">${r.weightedScore ? '<b>' + r.weightedScore + '</b>分 · ' : ''}${r.conclusion || '—'}</td>
-      <td>
-        <a onclick="navigate('review-launch',{id:'${r.id}'})">详情</a>
-        ${r.status === 'in-progress' ? ' | <a onclick="navigate(\'review-opinion\',{id:\'' + r.id + '\'})">填写意见</a>' : ''}
-        ${r.status === 'rework-pending' ? ' | <a onclick="navigate(\'review-rework\',{id:\'' + r.id + '\'})">查看退回</a>' : ''}
-      </td>
+      <td>${actionCell(r)}</td>
     </tr>`).join('');
 
-  const role = getCurrentRole();
-  const canLaunch = role === 'info-admin' || role === 'info-leader';
+  // 专家特有的顶部区域：待回复邀请提示 + 需求方案评审入口
+  let expertHeader = '';
+  if (isExpert) {
+    const pendingInvites = (DATA.expertInvites || []).reduce((n, inv) =>
+      n + inv.invites.filter(e => e.status === '待回复').length, 0);
+    const inviteBanner = pendingInvites > 0 ? `
+      <div class="notice-item warning" style="margin-bottom:12px;cursor:pointer" onclick="navigate('expert-respond')">
+        <strong>您有 ${pendingInvites} 条评审邀请待回复</strong> — 点击前往确认 →
+      </div>` : '';
+
+    const planReviewCard = `
+      <div class="card" style="margin-bottom:12px;border-left:3px solid var(--primary)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <span style="font-weight:600;font-size:15px">智慧校园综合信息管理平台二期建设需求方案</span>
+            <span class="tag tag-purple" style="margin-left:8px">需求方案评审</span>
+            <span class="tag tag-orange" style="margin-left:4px">待批注</span>
+          </div>
+          <button class="btn btn-primary" onclick="window.open('requirement-review.html?role=expert','_blank')">进入评审工作台 →</button>
+        </div>
+        <div style="margin-top:8px;font-size:12px;color:var(--text-secondary)">
+          编号：PROJECT · 2025-XQ-0087
+          &nbsp;|&nbsp; 负责人：李明华
+          &nbsp;|&nbsp; 评审截止：2026-04-20
+          &nbsp;|&nbsp; 可划词批注／提问／退回修改／提交评审意见
+        </div>
+      </div>`;
+    expertHeader = inviteBanner + planReviewCard;
+  }
 
   return `
-    <div class="breadcrumb">首页 / 评审管理 / <span>评审列表</span></div>
+    <div class="breadcrumb">首页 / 评审管理 / <span>${pageTitle}</span></div>
     <div class="page-header">
-      <div class="page-title">评审列表</div>
+      <div class="page-title">${pageTitle}</div>
       ${canLaunch ? '<button class="btn btn-primary" onclick="navigate(\'review-launch\')">+ 发起评审</button>' : ''}
     </div>
+
+    ${expertHeader}
 
     <div style="display:flex;border-bottom:2px solid #f0f0f0;margin-bottom:16px">
       <div onclick="window._reviewTab=0;renderView('review-list')" style="padding:8px 24px;cursor:pointer;font-size:14px;
@@ -67,7 +118,7 @@ registerView('review-list', function() {
           <th>项目名称</th><th>评审类型</th><th>评审日期</th><th>专家人数</th><th>轮次</th>
           <th>状态</th><th>结论</th><th>操作</th>
         </tr></thead>
-        <tbody>${rows || '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-secondary)">暂无评审记录</td></tr>'}</tbody>
+        <tbody>${rows || '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-secondary)">' + (isExpert ? '暂无待处理评审任务' : '暂无评审记录') + '</td></tr>'}</tbody>
       </table>
       <div class="table-pagination"><span>共 ${displayList.length} 条记录</span></div>
     </div>`;
@@ -536,63 +587,12 @@ registerView('expert-confirm', function() {
 });
 
 
-/* ====== 我的评审任务 ====== */
+/* ====== 兼容旧链接：my-reviews 已融合到 review-list ====== */
 registerView('my-reviews', function() {
-  const role = getCurrentRole();
-  const myTasks = (DATA.reviews || []).filter(r => r.status === 'in-progress');
-  const reworkTasks = (DATA.reviews || []).filter(r => r.status === 'rework-pending');
-
-  const taskCards = myTasks.map(r => `
-    <div class="card" style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <span style="font-weight:600;font-size:15px">${r.projectName}</span>
-          <span class="tag tag-purple" style="margin-left:8px">${r.type === 'approval' ? '立项论证' : '验收评审'}</span>
-          <span class="tag tag-orange" style="margin-left:4px">待填写意见</span>
-        </div>
-        <button class="btn btn-primary" onclick="navigate('review-opinion',{id:'${r.id}'})">填写评审意见 →</button>
-      </div>
-      <div style="margin-top:8px;font-size:12px;color:var(--text-secondary)">
-        评审日期：${formatDate(r.date)}
-        &nbsp;|&nbsp; 参与专家：${Object.keys(r.inviteStatus || {}).slice(0, 3).join('、') || '待确认'}
-        &nbsp;|&nbsp; 请于评审日前完成意见填写
-      </div>
-    </div>`).join('');
-
-  const reworkCards = reworkTasks.map(r => `
-    <div class="card" style="margin-bottom:12px;border-left:3px solid var(--warning)">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <span style="font-weight:600;font-size:15px">${r.projectName}</span>
-          <span class="tag tag-purple" style="margin-left:8px">${r.type === 'approval' ? '立项论证' : '验收评审'}</span>
-          <span class="tag tag-orange" style="margin-left:4px">退回修改中</span>
-        </div>
-        <button class="btn btn-warning" onclick="navigate('review-rework',{id:'${r.id}'})">查看修改要求 →</button>
-      </div>
-      <div style="margin-top:8px;font-size:12px;color:var(--text-secondary)">
-        修改截止：${r.reworkDeadline || '—'}
-        &nbsp;|&nbsp; 评审结论：退回修改（BR-E04）
-        &nbsp;|&nbsp; 超时将自动标记为不通过
-      </div>
-    </div>`).join('');
-
-  // 待回复的评审邀请数
-  const pendingInvites = (DATA.expertInvites || []).reduce((n, inv) =>
-    n + inv.invites.filter(e => e.status === '待回复').length, 0);
-  const inviteBanner = pendingInvites > 0 ? `
-    <div class="notice-item warning" style="margin-bottom:12px;cursor:pointer" onclick="navigate('expert-respond')">
-      <strong>您有 ${pendingInvites} 条评审邀请待回复</strong> — 点击前往确认 →
-    </div>` : '';
-
-  return `
-    <div class="breadcrumb">首页 / 评审管理 / <span>我的评审任务</span></div>
-    <div class="page-header"><div class="page-title">我的评审任务</div></div>
-    ${inviteBanner}
-    ${reworkCards}
-    ${myTasks.length === 0 && reworkTasks.length === 0
-      ? '<div class="card" style="text-align:center;color:var(--text-secondary);padding:40px">暂无待处理评审任务</div>'
-      : taskCards}`;
+  setTimeout(function() { navigate('review-list'); }, 0);
+  return '';
 });
+
 
 
 /* ====== 填写评审意见 ====== */
@@ -610,7 +610,7 @@ registerView('review-opinion', function() {
   if (!window._guidelinesConfirmed[review.id]) {
     var guideText = (DATA.reviewGuidelines || '').replace(/\n/g, '<br>');
     return `
-      <div class="breadcrumb">首页 / 评审管理 / <a onclick="navigate('my-reviews')">我的评审任务</a> / <span>评审须知确认</span></div>
+      <div class="breadcrumb">首页 / 评审管理 / <a onclick="navigate('review-list')">评审任务</a> / <span>评审须知确认</span></div>
       <div class="page-header"><div class="page-title">评审须知确认</div></div>
       <div class="card">
         <div class="card-title">专家评审须知</div>
@@ -627,7 +627,7 @@ registerView('review-opinion', function() {
           </label>
         </div>
         <div class="form-footer">
-          <button class="btn" onclick="navigate('my-reviews')">返回</button>
+          <button class="btn" onclick="navigate('review-list')">返回</button>
           <button class="btn btn-primary" onclick="
             if(!document.getElementById('guide-confirm-cb').checked){ toast('请先勾选确认已阅读评审须知','warning'); return; }
             window._guidelinesConfirmed = window._guidelinesConfirmed || {};
@@ -664,7 +664,7 @@ registerView('review-opinion', function() {
   const failLabel = isApproval ? '不建议立项' : '验收不通过';
 
   return `
-    <div class="breadcrumb">首页 / 评审管理 / <a onclick="navigate('my-reviews')">我的评审任务</a> / <span>填写${typeLabel}意见</span></div>
+    <div class="breadcrumb">首页 / 评审管理 / <a onclick="navigate('review-list')">评审任务</a> / <span>填写${typeLabel}意见</span></div>
     <div class="page-header"><div class="page-title">填写${typeLabel}意见</div></div>
     <div class="card">
       <div class="card-title">${typeLabel}评审意见表</div>
@@ -716,7 +716,7 @@ registerView('review-opinion', function() {
       </div>
 
       <div class="form-footer">
-        <button class="btn" onclick="navigate('my-reviews')">返回</button>
+        <button class="btn" onclick="navigate('review-list')">返回</button>
         <button class="btn btn-primary" onclick="
           const main = document.getElementById('ro-main').value;
           if(!main || !main.trim()){ toast('请填写主要意见','warning'); return; }
@@ -731,7 +731,7 @@ registerView('review-opinion', function() {
             logOperation('评审管理','提交${typeLabel}意见','${review.id}','${review.projectName}','结论：'+conclusion,null);
           }
           toast('评审意见已提交，感谢您的专业评审','success');
-          setTimeout(()=>navigate('my-reviews'),1500);
+          setTimeout(()=>navigate('review-list'),1500);
         ">提交${typeLabel}意见</button>
       </div>
     </div>`;

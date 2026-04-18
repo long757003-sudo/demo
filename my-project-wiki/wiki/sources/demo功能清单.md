@@ -1,6 +1,6 @@
 ---
 title: Demo 功能清单（demo-0408）
-type: source
+type: synthesis
 created: 2026-04-10
 updated: 2026-04-10
 sources: [raw/docs/demo-0408/index.html, raw/docs/demo-0408/app.html, raw/docs/demo-0408/shared/]

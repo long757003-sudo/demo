@@ -1,6 +1,6 @@
 ---
 title: Demo 设计规格（2026-03-26）
-type: source
+type: decision
 created: 2026-04-10
 updated: 2026-04-10
 sources: [raw/docs/2026-03-26-信息化项目全生命周期管理系统-demo-design.md]

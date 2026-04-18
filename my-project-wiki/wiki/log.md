@@ -3,6 +3,90 @@
 > 格式：`## [YYYY-MM-DD] 操作类型 | 标题`
 > 查看最近10条：`grep "^## \[" wiki/log.md | tail -10`
 
+## [2026-04-18] fix | C5 项目分级规则 重大项目预算边界明确
+
+- `wiki/concepts/项目分级规则.md` 重大：`>200万` → `≥200万`；中型：`100-200万` → `100万（含）–200万（不含）`
+- 用户决策：200万归重大，与 core.js budgetToType `>= 200` 对齐
+- 来源：cross-repo audit 20260418 C5
+
+## [2026-04-18] fix | C4 项目分级规则 重大项目专家数对齐
+
+- `wiki/concepts/项目分级规则.md` 重大项目论证专家数：≥5 → ≥7（含校外，须为奇数，校外≥1/3）
+- 来源：cross-repo audit 20260418 C4；对照 concepts/专家评审规则.md BR-05
+
+## [2026-04-18] fix | C3 立项论证模块 BR-11 评审维度更新
+
+- `wiki/concepts/立项论证模块.md` BR-11：8维度→4维度，列出具体维度及权重，保留原8维度历史注记
+- 来源：cross-repo audit 20260418 C3；对照 data.js reviewDimensions.approval
+
+## [2026-04-18] fix | C2 completed 状态显示名称对齐
+
+- `code/demo/shared/core.js` — `completed → '已验收'` 改为 `completed → '已完成'`，与 glossary 规范名一致
+- 来源：cross-repo audit 20260418 C2
+
+## [2026-04-18] fix | C1 BR-06→BR-13 编号对齐（code + wiki）
+
+- `code/demo/shared/views/approval.js` — 3处 BR-06 → BR-13（行778、885、886）
+- `code/demo/shared/data.js` — P005 frozenReason BR-06 → BR-13
+- `wiki/concepts/系统视图规范.md` — 第17行 BR-06→BR-13，顺手修正"五维度"→"四维度"（C3遗留）
+- 来源：cross-repo audit 20260418 C1
+
+## [2026-04-17] update | 业务流程状态机图.md — 专家评审子流程 A 同步
+
+- 子流程 A 补充 BR-05 专家人数要求表（微型/小型3名，中型5名，重大7名）
+- A3 新增：邀请卡利益冲突声明必填、3天提醒/5天超时自动拒绝机制
+- A9 分支拆分：新增退回修改路径（rework-pending → A10）
+- A10 新增：项目负责人修改提交流程，超时→timeout-rejected（BR-E05）
+- 新增专家邀请状态机和评审状态全集（5个 status 值）
+- 来源：_audit-20260417.md § D.2（过时 synthesis）；对照 concepts/专家评审规则.md Demo 实现流程
+
+## [2026-04-17] propagate | 新建 concepts/项目锁定与解锁规则.md
+
+- 创建 `wiki/concepts/项目锁定与解锁规则.md`（论证锁定1年/验收锁定6个月，两种触发路径，project_lock 实现建议）
+- 更新 `concepts/立项论证模块.md` — BR-13 行补 [[项目锁定与解锁规则]] 引用
+- 更新 `concepts/项目验收模块.md` — BR-29 行补 [[项目锁定与解锁规则]] 引用
+- 来源：_audit-20260417.md § B.2（概念散落）
+
+## [2026-04-17] propagate | 新建 concepts/钉钉集成规范.md
+
+- 创建 `wiki/concepts/钉钉集成规范.md`（三大集成点：SSO、消息通知、微应用；TBD-D01~D03 待确认接口）
+- 更新 `concepts/技术架构.md` — 原内容改为 [[钉钉集成规范]] 引用
+- 更新 `concepts/申报书技术规范.md` — 原内容改为 [[钉钉集成规范]] 引用
+- 更新 `entities/全生命周期管理系统.md` — 对接系统表钉钉行补链接
+- 来源：_audit-20260417.md § B.1（概念散落）
+
+## [2026-04-17] fix | AI 标签粒度矛盾解决
+
+- `concepts/专家评审规则.md` — 新增"AI 标签层级说明"：人工智能为父标签，机器学习/计算机视觉/迁移学习为子标签，四者并列保留
+- 决策依据：选项 A（2026-04-17 用户确认），匹配时不要求层级对齐，任意一个涵盖即满足条件
+- 来源：_audit-20260417.md § F（矛盾标记第 3 条）
+
+## [2026-04-17] fix | 类型误用修正（3个页面）
+
+- `sources/业务流程说明书V1.1.md`：source → synthesis（整合8份来源，含跨文档推理）
+- `sources/demo设计规格.md`：source → decision（含技术方案决策内容）
+- `sources/demo功能清单.md`：source → synthesis（代码级分析汇总产出）
+- 来源：_audit-20260417.md § C（类型误用）
+
+## [2026-04-17] update | 系统规则表.md — BR 编号全量同步
+
+- 新增第十节：专家评审独立流程（BR-E01~E09，软规则）
+- 全部 R 规则表新增"BR 对应"列，标注与 concepts 页 BR 编号的对应关系
+- 第二节添加注释，明确"论证专家配置（硬规则）"与"专家评审独立流程（软规则）"的边界
+- 架构决策：2026-04-17 确认专家评审为软规则（选项 A），结果仅作参考，不阻断主流程
+- sources 字段补入 7 个 concepts 页路径
+
+## [2026-04-17] audit | Wiki 全面体检 _audit-20260417.md
+
+- 执行 `/audit`，生成 `wiki/_audit-20260417.md`
+- 扫描 41 个页面，总体评分 7.8/10
+- 关键发现：6 个高频术语未入 glossary（P0）、BR 编号待同步（P0）、2 个 synthesis 过时、3 处类型误用
+
+## [2026-04-17] glossary | 新增"机构与参与方术语"分区
+
+- 新增 6 个术语：二级单位、信息化建设办公室、数智化建设领导小组、承建方、工作小组、运维团队
+- 来源：_audit-20260417.md § G.1（glossary 漂移 — 高频术语未收录）
+
 ## [2026-04-17] update | 专家评审规则.md — 补充 demo 实现流程
 
 - 更新 `wiki/concepts/专家评审规则.md`（新增"Demo 实现流程"章节）

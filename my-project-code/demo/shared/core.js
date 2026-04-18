@@ -59,7 +59,7 @@ function projectTypeTag(type) {
   return '<span class="tag ' + cls + '">' + label + '</span>';
 }
 function projectStatusTag(status) {
-  const map = { demand: ['需求征集', 'tag-gray'], reviewing: ['立项论证', 'tag-orange'], procurement: ['采购中', 'tag-cyan'], implementing: ['实施中', 'tag-blue'], acceptance: ['验收中', 'tag-purple'], completed: ['已验收', 'tag-green'], ops: ['运维中', 'tag-green'], frozen: ['冻结', 'tag-red'], terminated: ['已终止', 'tag-gray'] };
+  const map = { demand: ['需求征集', 'tag-gray'], reviewing: ['立项论证', 'tag-orange'], procurement: ['采购中', 'tag-cyan'], implementing: ['实施中', 'tag-blue'], acceptance: ['验收中', 'tag-purple'], completed: ['已完成', 'tag-green'], ops: ['运维中', 'tag-green'], frozen: ['冻结', 'tag-red'], terminated: ['已终止', 'tag-gray'] };
   const [label, cls] = map[status] || ['未知', 'tag-gray'];
   return '<span class="tag ' + cls + '">' + label + '</span>';
 }
@@ -83,7 +83,7 @@ function logOperation(module, action, targetId, targetName, detail, changes) {
 }
 function roleDisplayName(roleId) {
   // D-10: 演示账号映射（260409 会议确认：唐明-20053964、林已杰-20054379、王一凡-50240014）
-  const names = { 'project-manager': '王一凡', 'info-admin': '林已杰', 'info-leader': '唐明', 'unit-leader': '唐明', 'unit-admin': '林已杰', 'unit-sysadmin': '林已杰', 'expert': '张国强', 'leadership-office': '赵主任', 'contract-admin': '周合同', 'finance-admin': '吴财务', 'sys-admin': '系统管理员', 'leadership-group': '领导小组' };
+  const names = { 'project-manager': '王一凡', 'info-admin': '林已杰', 'info-leader': '唐明', 'unit-leader': '唐明', 'unit-admin': '林已杰','expert': '张国强', 'leadership-office': '赵主任', 'contract-admin': '周合同', 'finance-admin': '吴财务', 'sys-admin': '系统管理员', 'leadership-group': '领导小组' };
   return names[roleId] || roleId;
 }
 function renderTable(columns, rows) {

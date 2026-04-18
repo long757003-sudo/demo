@@ -1119,7 +1119,7 @@ function _dlOpBtns(role, d) {
     if (s === 'unit-rejected') return edit + ' ' + resubmit;
     return view;
   }
-  if (role === 'unit-admin' || role === 'unit-sysadmin') {
+  if (role === 'unit-admin') {
     if (s === 'submitted') return sortBtn + ' ' + submitToLeader;
     if (s === 'sorted')    return submitToLeader;
     return view;
@@ -1844,7 +1844,7 @@ window._dfConfirmFill = function() {
 
 
 /* ════════════════════════════════════════════════════════════════
-   6. demand-assign — 指派填报人 (unit-sysadmin)  D-10/D-11
+   6. demand-assign — 指派填报人 (unit-admin)  D-10/D-11
    ════════════════════════════════════════════════════════════════ */
 
 if (typeof window._daCandidates === 'undefined') window._daCandidates = [];
@@ -1981,12 +1981,12 @@ window._daConfirmSubmit = function() {
 
 
 /* ════════════════════════════════════════════════════════════════
-   7. demand-sort — 单位需求排序 (unit-sysadmin 专属，DEM-04 / D-13)
+   7. demand-sort — 单位需求排序 (unit-admin 专属，DEM-04 / D-13)
    ════════════════════════════════════════════════════════════════ */
 
 function _dsGetList() {
   var user = (DATA.demandUsers || []).find(function(u) {
-    return u.roles && u.roles.indexOf('unit-sysadmin') >= 0;
+    return u.roles && u.roles.indexOf('unit-admin') >= 0;
   });
   var unitId = user ? user.unitId : 'unit-edu';
   return DATA.demands
@@ -2030,7 +2030,7 @@ function _dsConfirmSubmit() {
 
 registerView('demand-sort', function() {
   var role = getCurrentRole();
-  if (role !== 'unit-sysadmin' && role !== 'unit-admin') {
+  if (role !== 'unit-admin') {
     return '<div class="empty">请切换到单位系统管理员角色</div>';
   }
 
@@ -2218,7 +2218,7 @@ function _dselConfirmSubmit() {
 
 /* ════════════════════════════════════════════════════════════════
    tag-library — 标签库管理视图（D-09）
-   角色：info-admin、unit-sysadmin（通过菜单 nav.js 控制入口可见性）
+   角色：info-admin、unit-admin（通过菜单 nav.js 控制入口可见性）
    ════════════════════════════════════════════════════════════════ */
 
 function _tlRender() { renderView('tag-library'); }

@@ -775,7 +775,7 @@ registerView('proposal-approve', function() {
           <div class="notice-item warning" style="margin-bottom:10px">
             申报书已被退回，请根据退回意见修改后重新提交。
             ${s === '初审退回' ? '<br><span style="font-size:11px;color:var(--text-secondary)">注：重新提交后需经单位领导重新审核。</span>' : ''}
-            ${s === '论证不通过' ? '<br><span style="font-size:11px;color:var(--text-secondary)">注：可修改后重新论证（上限 2 轮，BR-06）。当前第 ' + (prop.reviewRound || 1) + ' 轮。</span>' : ''}
+            ${s === '论证不通过' ? '<br><span style="font-size:11px;color:var(--text-secondary)">注：可修改后重新论证（上限 2 轮，BR-13）。当前第 ' + (prop.reviewRound || 1) + ' 轮。</span>' : ''}
           </div>
           <button class="btn btn-primary" onclick="navigate('proposal-fill',{id:'${prop.id}'})">修改申报书 →</button>`;
       }
@@ -882,8 +882,8 @@ registerView('proposal-approve', function() {
         <tr><td>7</td><td>初审退回</td><td>修改重新提交</td><td>待单位审核</td><td>项目负责人</td><td>需单位领导重新审核</td></tr>
         <tr><td>8</td><td>专家论证中</td><td>评审通过</td><td>审定中</td><td>信息办管理员归档</td><td>—</td></tr>
         <tr><td>9</td><td>专家论证中</td><td>评审不通过</td><td>论证不通过</td><td>信息办管理员归档</td><td>—</td></tr>
-        <tr><td>10</td><td>论证不通过</td><td>修改重新论证</td><td>专家论证中</td><td>项目负责人</td><td>上限 2 轮（BR-06）</td></tr>
-        <tr><td>11</td><td>论证不通过</td><td>二次论证仍不通过</td><td>已冻结</td><td>系统自动</td><td>冻结一年（BR-06）</td></tr>
+        <tr><td>10</td><td>论证不通过</td><td>修改重新论证</td><td>专家论证中</td><td>项目负责人</td><td>上限 2 轮（BR-13）</td></tr>
+        <tr><td>11</td><td>论证不通过</td><td>二次论证仍不通过</td><td>已冻结</td><td>系统自动</td><td>冻结一年（BR-13）</td></tr>
         <tr><td>12</td><td>审定中</td><td>审定通过</td><td>已立项</td><td>领导小组办公室/领导小组</td><td>—</td></tr>
         <tr><td>13</td><td>审定中</td><td>审定不通过</td><td>审定不通过</td><td>领导小组办公室/领导小组</td><td>—</td></tr>
         <tr><td>14</td><td>审定不通过</td><td>需新建 ProjectProposal</td><td>—</td><td>项目负责人</td><td>不可在原申报书上修改</td></tr>

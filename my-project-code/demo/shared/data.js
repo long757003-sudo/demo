@@ -19,7 +19,7 @@ window.DATA = {
     { id: 'P002', name: '招生系统升级改造', unit: '招生处', manager: '王芳', type: 'small', budget: 60, status: 'implementing', phase: 4, startDate: '2025-01-15', deadline: '2025-09-30', background: '现有招生系统建设于2018年，接口标准落后，无法与新版国家招生平台对接。', goal: '完成系统接口改造，实现与国家招生平台的数据互通。', progress: 55, demandId: 'D002', proposalId: 'PR002', contractId: 'C001', contact: '13900139001', vendor: '成都华信软件有限公司', techReviewPassed: true, procurementStatus: '已签合同' },
     { id: 'P003', name: 'OA协同办公平台升级', unit: '党政办公室', manager: '赵磊', type: 'mid', budget: 150, status: 'completed', phase: 7, startDate: '2024-06-01', deadline: '2025-01-31', background: '现有OA系统版本过旧，移动端体验差，无法满足日常办公需求。', goal: '升级OA平台至最新版本，完善移动端功能，提升协同办公效率。', progress: 100, demandId: 'D003', proposalId: 'PR003', contractId: 'C002', contact: '13600136001', vendor: '北京泛微网络科技股份有限公司', techReviewPassed: true, procurementStatus: '已签合同' },
     { id: 'P004', name: '学生资助管理系统', unit: '学生工作处', manager: '陈静', type: 'small', budget: 45, status: 'demand', phase: 1, startDate: '2025-03-01', deadline: '2025-05-31', background: '资助管理工作目前依赖Excel手工操作，数据统计耗时且易出错。', goal: '建设学生资助全流程管理系统，实现申请、审核、发放的线上化管理。', progress: 10, demandId: 'D004', proposalId: null, contractId: null, contact: '13700137001', vendor: '', techReviewPassed: false, procurementStatus: '未开始' },
-    { id: 'P005', name: '科研项目全程管理平台', unit: '科研处', manager: '刘洋', type: 'mid', budget: 180, status: 'frozen', phase: 2, startDate: '2025-02-01', deadline: null, background: '科研项目管理分散，缺乏统一平台。', goal: '建设科研项目全流程管理平台。', progress: 15, demandId: 'D005', proposalId: 'PR004', contractId: null, frozenUntil: '2026-02-01', frozenReason: '二次论证未通过，项目冻结一年（BR-06）', contact: '13700137005', vendor: '', techReviewPassed: false, procurementStatus: '未开始' },
+    { id: 'P005', name: '科研项目全程管理平台', unit: '科研处', manager: '刘洋', type: 'mid', budget: 180, status: 'frozen', phase: 2, startDate: '2025-02-01', deadline: null, background: '科研项目管理分散，缺乏统一平台。', goal: '建设科研项目全流程管理平台。', progress: 15, demandId: 'D005', proposalId: 'PR004', contractId: null, frozenUntil: '2026-02-01', frozenReason: '二次论证未通过，项目冻结一年（BR-13）', contact: '13700137005', vendor: '', techReviewPassed: false, procurementStatus: '未开始' },
     { id: 'P006', name: '院系网站群模板升级', unit: '宣传部', manager: '吴小明', type: 'micro', budget: 15, status: 'implementing', phase: 4, startDate: '2025-04-15', deadline: '2025-08-30', background: '院系网站模板陈旧，移动端适配差。', goal: '升级院系网站群模板，支持响应式布局。', progress: 40, demandId: 'D006', proposalId: 'PR005', contractId: null, contact: '13500135001', vendor: '', techReviewPassed: true, procurementStatus: '自行采购' },
     { id: 'P007', name: '图书馆智能检索系统', unit: '图书馆', manager: '孙明华', type: 'small', budget: 68, status: 'procurement', phase: 3, startDate: '2025-05-01', deadline: '2025-12-31', background: '现有检索系统功能单一，不支持跨库检索。', goal: '建设统一智能检索平台，支持跨库联合检索和AI推荐。', progress: 20, demandId: null, proposalId: 'PR006', contractId: null, contact: '13600136007', vendor: '', techReviewPassed: true, procurementStatus: '招标中' },
     { id: 'P008', name: '校园一卡通系统升级', unit: '后勤管理处', manager: '张伟', type: 'mid', budget: 120, status: 'acceptance', phase: 6, startDate: '2024-09-01', deadline: '2025-06-30', background: '一卡通系统使用超过8年，硬件老化，需整体升级。', goal: '完成一卡通系统软硬件全面升级，支持虚拟卡和移动支付。', progress: 95, demandId: null, proposalId: 'PR007', contractId: 'C003', contact: '13800138008', vendor: '深圳新开普电子有限公司', techReviewPassed: true, procurementStatus: '已签合同' },
@@ -671,7 +671,7 @@ window.DATA = {
   demandUsers: [
     // 三个核心演示账号（260409 会议确认）
     {id:'u-tangming',  name:'唐明',   empNo:'20053964', unitId:'unit-info', roles:['info-leader','unit-leader']},
-    {id:'u-linyijie',  name:'林已杰', empNo:'20054379', unitId:'unit-info', roles:['info-admin','unit-sysadmin']},
+    {id:'u-linyijie',  name:'林已杰', empNo:'20054379', unitId:'unit-info', roles:['info-admin','unit-admin']},
     {id:'u-wangyifan', name:'王一凡', empNo:'50240014', unitId:'unit-edu',  roles:['project-manager']},
     // 其他 Mock 用户（供指派/选人列表筛选）
     {id:'u-m01', name:'李小雨', empNo:'50240021', unitId:'unit-edu', roles:['project-manager']},
@@ -679,8 +679,8 @@ window.DATA = {
     {id:'u-m03', name:'赵慧敏', empNo:'50240048', unitId:'unit-stu', roles:['project-manager']},
     {id:'u-m04', name:'周涛',   empNo:'50240056', unitId:'unit-hr',  roles:['project-manager']},
     {id:'u-m05', name:'孙丽',   empNo:'50240063', unitId:'unit-lib', roles:['project-manager']},
-    {id:'u-m06', name:'黄志强', empNo:'20054421', unitId:'unit-edu', roles:['unit-sysadmin']},
-    {id:'u-m07', name:'吴芳',   empNo:'20054438', unitId:'unit-sci', roles:['unit-sysadmin','unit-leader']},
+    {id:'u-m06', name:'黄志强', empNo:'20054421', unitId:'unit-edu', roles:['unit-admin']},
+    {id:'u-m07', name:'吴芳',   empNo:'20054438', unitId:'unit-sci', roles:['unit-admin','unit-leader']},
   ],
 
   /* ====== 通知类型定义 ====== */

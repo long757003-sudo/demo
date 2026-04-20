@@ -161,6 +161,36 @@ cp -r openspec/changes/[变更名] ../my-project-wiki/raw/openspec/
 
 ---
 
+## OpenSpec × GSD 工作流协议
+
+项目同时使用 GSD（`.planning/`）和 OpenSpec（`openspec/changes/`）两套工作流，必须严格 1:1 映射。这条协议是 2026-04-20 工作流对齐时踩过坑后定死的（ROADMAP 列的 change 名和 openspec 实际目录全部对不上、plan 的 files_modified 指向根本不存在的 wiki 路径）。
+
+### 硬规则
+
+1. **一 plan ↔ 一 change**
+   每个 `.planning/phases/NN-*/NN-MM-PLAN.md` 对应 `openspec/changes/<name>/` 下唯一的 change；ROADMAP 中该 plan 登记的 change 名必须 == openspec 下文件夹名。
+
+2. **files_modified 必须指向真实存在的路径**
+   GSD plan 的 `files_modified` 只允许写 `my-project-code/demo/...`（代码产物）或 `my-project-wiki/...`（wiki 真实存在的文件）。禁止写虚构路径——历史踩过的坑：`my-project-wiki/raw/docs/demo-0408/`（那个目录从未存在）。
+
+3. **ROADMAP 完整登记**
+   每个 Phase 的 `OpenSpec Changes:` 列表条目数必须 == 该 Phase 实际 plan 数。ROADMAP 列的 change 名必须在 `openspec/changes/` 下能找到实体，反之 `openspec/changes/` 下的 active change 也必须在 ROADMAP 有登记（例外见规则 4）。
+
+4. **post-launch patch 允许但必须标注**
+   Phase 执行完成后如需追加小补丁（UI 打磨、字段补全等），可在 openspec 新建独立 change 且不占新 plan 编号。但该 change 的 `proposal.md` 必须在「为什么做」段明示「Phase X 的 post-launch patch」并引用上游 plan 编号，便于追溯。
+
+5. **废弃 change 不删文件夹**
+   在 `proposal.md` frontmatter 打 `status: deprecated`，正文写明废弃理由。符合主 CLAUDE.md「原始资料永远只增不删」元原则。
+
+### 交付前自检（触发场景：改动 `.planning/` 或 `openspec/changes/` 之一时）
+
+- [ ] ROADMAP 列的 change 名在 `openspec/changes/` 下都能找到实体
+- [ ] `openspec/changes/` 下的 active change 在 ROADMAP 都有登记（或明确标为 post-launch patch / deprecated）
+- [ ] 新建或修改 plan 的 `files_modified` 全部指向真实存在的文件（`ls` 能看到）
+- [ ] 新建 change 的 `proposal.md` frontmatter 完整（含 `status` 字段）
+
+---
+
 ## UI 规范
 详见 `doce/ui-spec.md`，执行 `/opsx:apply` 时必须读取该文件。
 

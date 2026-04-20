@@ -45,6 +45,12 @@ const NAV_GROUPS = [
     { id: 'contract-ledger', label: '合同台账', icon: 'book-open', roles: ['contract-admin','info-leader','info-admin'] },
     { id: 'finance-overview', label: '经费管理', icon: 'wallet', roles: ['finance-admin','info-leader'] },
   ]},
+  { label: '项目全景', items: [
+    { id: 'project-overview-board',  label: '生命周期看板', icon: 'kanban-square',
+      roles: ['info-admin','info-leader','leadership-office','leadership-group','project-manager','unit-admin'] },
+    { id: 'project-overview-detail', label: '项目全景详情', icon: 'telescope',
+      roles: ['info-admin','info-leader','leadership-office','leadership-group','project-manager','unit-admin'] },
+  ]},
   { label: '系统管理', items: [
     { id: 'user-permissions', label: '用户与权限', icon: 'shield', roles: ['sys-admin'] },
     { id: 'flow-config', label: '流程配置', icon: 'git-branch', roles: ['sys-admin'] },

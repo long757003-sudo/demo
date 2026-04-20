@@ -123,10 +123,141 @@ registerView('project-overview-board', function() {
     '</div>';
 });
 
-/* ====== 视图：项目全景详情（占位，T8+ 填充） ====== */
+/* ====== 视图：项目全景详情 ====== */
+// status → 默认展开的块序号（块 3/6/10 始终默认折叠）
+const OV_STATUS_TO_BLOCK = {
+  demand: 1, reviewing: 2, procurement: 4, implementing: 5,
+  acceptance: 7, ops: 8, completed: 9, frozen: 9, terminated: 9,
+};
+
 registerView('project-overview-detail', function() {
-  return '<div class="page-header"><h2>项目全景详情</h2></div><div class="card">视图建设中…</div>';
+  var params = getViewParams('project-overview-detail') || {};
+  var visible = _ovFilterProjects(DATA.projects || []);
+  var project = params.id
+    ? (DATA.projects.find(function(p){ return p.id === params.id; }) || null)
+    : (visible[0] || null);
+
+  if (!project) {
+    return '<div>' +
+      breadcrumb('项目全景', '项目全景详情') +
+      '<div class="page-header"><div class="page-title">项目全景详情</div></div>' +
+      '<div class="card" style="text-align:center;padding:48px;color:var(--text-secondary)">' +
+        '无可查看的项目（您当前角色 <strong>' + getCurrentRole() + '</strong> 无可见项目数据）' +
+      '</div></div>';
+  }
+
+  // 角色权限二次校验：避免 project-manager/unit-admin 通过 URL 直接访问其它项目
+  var role = getCurrentRole();
+  var me = DATA.currentUser || {};
+  if (role === 'project-manager' && project.manager !== me.name) {
+    return '<div>' + breadcrumb('项目全景', '项目全景详情') +
+      '<div class="card" style="text-align:center;padding:48px;color:var(--text-secondary)">无权查看该项目</div></div>';
+  }
+  if (role === 'unit-admin' && project.unit !== me.unit) {
+    return '<div>' + breadcrumb('项目全景', '项目全景详情') +
+      '<div class="card" style="text-align:center;padding:48px;color:var(--text-secondary)">无权查看该项目</div></div>';
+  }
+
+  var activeBlock = OV_STATUS_TO_BLOCK[project.status] || 0;
+
+  // 基本信息 card
+  var infoCard =
+    '<div class="card" style="margin-bottom:16px">' +
+      '<div class="detail-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px 20px">' +
+        '<div class="detail-item"><span class="detail-label">项目编号</span><span class="detail-value"><strong>' + project.id + '</strong></span></div>' +
+        '<div class="detail-item"><span class="detail-label">项目名称</span><span class="detail-value">' + project.name + '</span></div>' +
+        '<div class="detail-item"><span class="detail-label">申报单位</span><span class="detail-value">' + (project.unit || '—') + '</span></div>' +
+        '<div class="detail-item"><span class="detail-label">负责人</span><span class="detail-value">' + (project.manager || '—') + '</span></div>' +
+        '<div class="detail-item"><span class="detail-label">类型</span><span class="detail-value">' + _ovTypeLabel(project.type) + '</span></div>' +
+        '<div class="detail-item"><span class="detail-label">预算</span><span class="detail-value">' + (project.budget != null ? project.budget + ' 万' : '—') + '</span></div>' +
+        '<div class="detail-item"><span class="detail-label">当前阶段</span><span class="detail-value">' + _ovStatusBadge(project.status) + '</span></div>' +
+        '<div class="detail-item"><span class="detail-label">整体进度</span><span class="detail-value">' + _ovProgressBar(project.progress || 0) + '</span></div>' +
+      '</div>' +
+    '</div>';
+
+  // 8 阶段时间线条（只显示，不可交互）
+  var lcHtml = _ovLifecycleBar(project.status);
+
+  // 10 个聚合块
+  var blocks = [
+    _ovBlockShell(1,  '需求征集',       _ovBlock1Demand(project),     _ovJumpBtn('demand-detail',    project.demandId   ? { id: project.demandId }   : null), activeBlock === 1),
+    _ovBlockShell(2,  '立项论证',       _ovBlock2Proposal(project),   _ovJumpBtn('proposal-fill',    project.proposalId ? { id: project.proposalId } : null), activeBlock === 2),
+    _ovBlockShell(3,  '专家评审记录',   _ovBlock3Reviews(project),    _ovJumpBtn('review-list',      { projectId: project.id }), false),
+    _ovBlockShell(4,  '合同采购',       _ovBlock4Contracts(project),  _ovJumpBtn('contract-ledger',  { projectId: project.id }), activeBlock === 4),
+    _ovBlockShell(5,  '项目实施',       _ovBlock5Implement(project),  _ovJumpBtn('implement',        { id: project.id }), activeBlock === 5),
+    _ovBlockShell(6,  '延期/变更',      _ovBlock6Changes(project),    _ovJumpBtn('delay-change',     { id: project.id }), false),
+    _ovBlockShell(7,  '验收',           _ovBlock7Acceptance(project), _ovJumpBtn('acceptance-list',  { projectId: project.id }), activeBlock === 7),
+    _ovBlockShell(8,  '运维',           _ovBlock8Ops(project),        _ovJumpBtn('ops-records',      { projectId: project.id }), activeBlock === 8),
+    _ovBlockShell(9,  '终止/完成',      _ovBlock9Terminal(project),   project.status === 'completed' ? '' : _ovJumpBtn('terminate', { id: project.id }), activeBlock === 9),
+    _ovBlockShell(10, '项目日志',       _ovBlock10Logs(project),      '', false), // 块 10 不提供跳转，始终默认折叠
+  ].join('');
+
+  return '<div>' +
+    breadcrumb('项目全景', '生命周期看板', project.name) +
+    '<div class="page-header"><div class="page-title">项目全景详情 · ' + project.name + '</div></div>' +
+    infoCard +
+    '<div class="card" style="margin-bottom:16px;padding:12px 16px">' + lcHtml + '</div>' +
+    blocks +
+    '</div>';
 });
+
+/* ====== 详情页辅助组件 ====== */
+function _ovProgressBar(pct) {
+  if (!pct) return '—';
+  return '<div style="display:flex;align-items:center;gap:6px"><div class="progress-bar-wrap" style="width:100px"><div class="progress-bar" style="width:' + pct + '%"></div></div><span style="font-size:11px;color:#666">' + pct + '%</span></div>';
+}
+
+function _ovLifecycleBar(status) {
+  var phases = ['需求征集','立项论证','采购','实施','验收','运维','已完成/终止'];
+  var idxMap = { demand:0, reviewing:1, procurement:2, implementing:3, acceptance:4, ops:5, completed:6, terminated:6, frozen:6 };
+  var cur = idxMap[status] !== undefined ? idxMap[status] : 0;
+  var html = '<div class="lifecycle-bar" style="display:flex;align-items:center;flex-wrap:nowrap;overflow-x:auto;padding:4px 0">';
+  phases.forEach(function(label, i){
+    var done = i < cur, active = i === cur;
+    var dot = done
+      ? '<div style="width:24px;height:24px;border-radius:50%;background:var(--success);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;flex-shrink:0">✓</div>'
+      : active
+        ? '<div style="width:24px;height:24px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0">' + (i+1) + '</div>'
+        : '<div style="width:24px;height:24px;border-radius:50%;background:#d9d9d9;display:flex;align-items:center;justify-content:center;color:#999;font-size:11px;flex-shrink:0">' + (i+1) + '</div>';
+    var labelStyle = done ? 'color:var(--success);font-size:11px;margin-top:3px' : active ? 'color:var(--primary);font-size:11px;font-weight:600;margin-top:3px' : 'color:#bbb;font-size:11px;margin-top:3px';
+    html += '<div style="display:flex;flex-direction:column;align-items:center;min-width:56px">' + dot + '<div style="' + labelStyle + '">' + label + '</div></div>';
+    if (i < phases.length - 1) {
+      var lineColor = i < cur ? 'var(--success)' : '#d9d9d9';
+      html += '<div style="flex:1;height:2px;background:' + lineColor + ';min-width:12px;margin:0 2px;margin-bottom:14px"></div>';
+    }
+  });
+  html += '</div>';
+  return html;
+}
+
+function _ovBlockShell(seq, title, bodyHtml, jumpHtml, defaultOpen) {
+  var isEmpty = !bodyHtml || /本阶段暂无记录|无相关数据/.test(bodyHtml);
+  return '<details class="card" id="ov-stage-' + seq + '" style="margin-bottom:12px;padding:0"' + (defaultOpen ? ' open' : '') + '>' +
+    '<summary style="cursor:pointer;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;list-style:none;user-select:none">' +
+      '<span style="font-size:14px;font-weight:600">第 ' + seq + ' 阶段 · ' + title + '</span>' +
+      '<span style="display:flex;align-items:center;gap:8px">' + (isEmpty ? '' : (jumpHtml || '')) + '</span>' +
+    '</summary>' +
+    '<div style="padding:12px 16px 16px;border-top:1px solid #f0f0f0">' + (bodyHtml || '本阶段暂无记录') + '</div>' +
+    '</details>';
+}
+
+function _ovJumpBtn(viewId, params) {
+  if (!viewId) return '';
+  var paramStr = params ? JSON.stringify(params) : 'null';
+  return '<a class="link" style="font-size:12px" onclick="event.stopPropagation();event.preventDefault();navigate(\'' + viewId + '\',' + paramStr.replace(/"/g,'&quot;') + ')">打开完整视图 →</a>';
+}
+
+/* ====== 10 个聚合块的实现（T9-T13 填充，T8 先给空占位） ====== */
+function _ovBlock1Demand(project)     { return '本阶段暂无记录'; }
+function _ovBlock2Proposal(project)   { return '本阶段暂无记录'; }
+function _ovBlock3Reviews(project)    { return '本阶段暂无记录'; }
+function _ovBlock4Contracts(project)  { return '本阶段暂无记录'; }
+function _ovBlock5Implement(project)  { return '本阶段暂无记录'; }
+function _ovBlock6Changes(project)    { return '本阶段暂无记录'; }
+function _ovBlock7Acceptance(project) { return '本阶段暂无记录'; }
+function _ovBlock8Ops(project)        { return '本阶段暂无记录'; }
+function _ovBlock9Terminal(project)   { return '本阶段暂无记录'; }
+function _ovBlock10Logs(project)      { return '本阶段暂无记录'; }
 
 /* ====== Board 渲染（T6 占位版，T7 补完过滤/排序/导出/分页） ====== */
 window._ovBoardRender = function() {

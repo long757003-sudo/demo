@@ -22,11 +22,12 @@
 **Goal**: 演示从信息办发起需求征集、单位填报需求、排序审批，到信息办遴选的完整闭环
 **Depends on**: Phase 0 (已完成)
 **Requirements**: DEM-01, DEM-02, DEM-03, DEM-04, DEM-05, DEM-06, DEM-07
-**OpenSpec Changes**:
-  - `demand-collection-launch` — 信息办管理员发起征集配置页 + 跳转通知页预填联动
-  - `demand-form-fill` — 单位系统管理员授权指派页 + 项目负责人需求申请表（T3，暂存/提交）
-  - `demand-sort-review` — 单位拖拽排序页 + 单位领导审批详情页（T4，含审批意见）
-  - `demand-selection` — 信息办遴选页（支持/不支持标记，BR-04 六类不予支持提示）+ 需求列表（T2）
+**OpenSpec Changes** (1 plan ↔ 1 change，命名以 GSD plan 为权威):
+  - `demand-data-foundation` (01-01) — DATA.tagLibrary / DATA.demandUsers / roleDisplayName 建立 + tag-library 视图（标签库管理）
+  - `demand-collection-launch` (01-02) — 信息办管理员发起征集配置页 + 跳 notification-create 预填联动（DEM-01）
+  - `demand-form-fill` (01-03) — 单位系统管理员授权指派页 + 项目负责人需求申请表（DEM-02, DEM-03；T3 含暂存/提交）
+  - `demand-sort-review` (01-04) — 单位上下移排序 + 单位领导 T4 审批详情页（DEM-04, DEM-05，不用拖拽库）
+  - `demand-selection` (01-05) — 信息办遴选（Drawer 展示 BR-04 六类不予支持原因）+ 需求列表 T2（DEM-06, DEM-07）
 **Success Criteria** (what must be TRUE):
   1. 切换到「信息办管理员」角色，可进入发起需求征集页面，配置时间范围和通知范围后提交，页面自动跳转到通知预填页
   2. 切换到「单位系统管理员」角色，可看到征集通知并为本单位指派填报人
@@ -35,7 +36,7 @@
   5. 切换到「单位领导」角色，可在 T4 详情页查看需求排序并填写审批意见通过或退回
   6. 切换到「信息办管理员」角色，可在遴选页对每条需求标记支持/不支持，选择不支持时显示 BR-04 六类原因提示
   7. 需求列表（T2）可按状态和单位筛选，反映各需求的当前处理状态
-**Plans**: TBD
+**Plans**: 01-01, 01-02, 01-03, 01-04, 01-05（执行结果见 .planning/phases/01-需求征集模块/01-0x-SUMMARY.md）
 **UI hint**: yes
 
 ### Phase 2: 立项论证模块

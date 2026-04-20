@@ -76,50 +76,85 @@ function _ovProjectRow(p) {
   };
 }
 
+/* ====== Board 状态 globals（默认值） ====== */
+function _ovBoardState() {
+  if (!window._ovBoardS) {
+    window._ovBoardS = { unit: '', type: '', stage: '', kw: '', sortKey: 'updatedAt', sortDir: 'desc', page: 1, pageSize: 20 };
+  }
+  return window._ovBoardS;
+}
+
 /* ====== 视图：生命周期看板（表格列表） ====== */
 registerView('project-overview-board', function() {
+  var st = _ovBoardState();
   var visible = _ovFilterProjects(DATA.projects || []);
-  var rows = visible.map(_ovProjectRow);
-  // 默认排序：updatedAt 降序
-  rows.sort(function(a,b){ return (a.updatedAt < b.updatedAt) ? 1 : (a.updatedAt > b.updatedAt ? -1 : 0); });
+  var allRows = visible.map(_ovProjectRow);
+
+  // 应用过滤
+  var kw = (st.kw || '').toLowerCase();
+  var filtered = allRows.filter(function(r){
+    if (st.unit && r.unit !== st.unit)      return false;
+    if (st.type && r.type !== st.type)      return false;
+    if (st.stage && r.status !== st.stage)  return false;
+    if (kw) {
+      var hay = (r.id + ' ' + r.name + ' ' + r.manager).toLowerCase();
+      if (hay.indexOf(kw) < 0) return false;
+    }
+    return true;
+  });
+
+  // 应用排序
+  var dir = st.sortDir === 'asc' ? 1 : -1;
+  var key = st.sortKey || 'updatedAt';
+  filtered.sort(function(a,b){
+    var av = a[key], bv = b[key];
+    if (av === bv) return 0;
+    return (av < bv ? -1 : 1) * dir;
+  });
+
+  // 应用分页
+  var total = filtered.length;
+  var pageSize = st.pageSize || 20;
+  var totalPages = Math.max(1, Math.ceil(total / pageSize));
+  if (st.page > totalPages) st.page = totalPages;
+  if (st.page < 1)          st.page = 1;
+  var pageRows = filtered.slice((st.page - 1) * pageSize, st.page * pageSize);
 
   // 单位下拉选项（从 visible 去重）
-  var units = Array.from(new Set(rows.map(function(r){ return r.unit; }))).filter(Boolean).sort();
-  var unitOpts = '<option value="">全部单位</option>' + units.map(function(u){ return '<option value="' + u + '">' + u + '</option>'; }).join('');
+  var units = Array.from(new Set(allRows.map(function(r){ return r.unit; }))).filter(Boolean).sort();
+  var unitOpts = '<option value="">全部单位</option>' + units.map(function(u){
+    return '<option value="' + u + '"' + (st.unit === u ? ' selected' : '') + '>' + u + '</option>';
+  }).join('');
 
-  var stageOpts = '<option value="">全部阶段</option>' + OV_STAGES.map(function(s){ return '<option value="' + s.status + '">' + s.label + '</option>'; }).join('');
+  var stageOpts = '<option value="">全部阶段</option>' + OV_STAGES.map(function(s){
+    return '<option value="' + s.status + '"' + (st.stage === s.status ? ' selected' : '') + '>' + s.label + '</option>';
+  }).join('');
 
-  var typeOpts = '<option value="">全部类型</option>' +
-    '<option value="major">重大</option>' +
-    '<option value="mid">中型</option>' +
-    '<option value="small">小型</option>' +
-    '<option value="micro">微型</option>';
+  var typeList = [['major','重大'],['mid','中型'],['small','小型'],['micro','微型']];
+  var typeOpts = '<option value="">全部类型</option>' + typeList.map(function(t){
+    return '<option value="' + t[0] + '"' + (st.type === t[0] ? ' selected' : '') + '>' + t[1] + '</option>';
+  }).join('');
 
-  // 存全量到 window 供后续过滤/排序/导出使用
-  var rowsJson = JSON.stringify(rows);
+  // 全量 rows 存 window（给导出 CSV 用，导出范围=当前过滤+排序后全量，不受分页限制）
+  window._ovBoardFiltered = filtered;
 
   return '<div>' +
     breadcrumb('项目全景', '生命周期看板') +
     '<div class="page-header" style="display:flex;align-items:center;justify-content:space-between">' +
-      '<div class="page-title">生命周期看板 <span id="ov-count" style="font-size:12px;color:var(--text-secondary);font-weight:normal;margin-left:8px">共 ' + rows.length + ' 个项目</span></div>' +
-      '<button class="btn btn-primary" id="ov-export-csv" onclick="_ovExportCSV()"><i data-lucide="download" style="width:14px;height:14px;margin-right:4px"></i>导出 CSV</button>' +
+      '<div class="page-title">生命周期看板 <span style="font-size:12px;color:var(--text-secondary);font-weight:normal;margin-left:8px">共 ' + total + ' 个项目</span></div>' +
+      '<button class="btn btn-primary" onclick="_ovExportCSV()">&#128229; 导出 CSV</button>' +
     '</div>' +
     '<div class="card">' +
       '<div class="filter-bar" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px">' +
-        '<select id="ov-filter-unit" class="select" style="width:150px" onchange="_ovBoardFilter()">' + unitOpts + '</select>' +
-        '<select id="ov-filter-type" class="select" style="width:110px" onchange="_ovBoardFilter()">' + typeOpts + '</select>' +
-        '<select id="ov-filter-stage" class="select" style="width:130px" onchange="_ovBoardFilter()">' + stageOpts + '</select>' +
-        '<input id="ov-filter-kw" class="input" placeholder="编号/名称/负责人" style="width:200px" oninput="_ovBoardFilter()">' +
-        '<button class="btn" id="ov-filter-reset" onclick="_ovBoardReset()">重置</button>' +
+        '<select id="ov-filter-unit" class="select" style="width:150px" onchange="_ovBoardSet(\'unit\', this.value)">' + unitOpts + '</select>' +
+        '<select id="ov-filter-type" class="select" style="width:110px" onchange="_ovBoardSet(\'type\', this.value)">' + typeOpts + '</select>' +
+        '<select id="ov-filter-stage" class="select" style="width:130px" onchange="_ovBoardSet(\'stage\', this.value)">' + stageOpts + '</select>' +
+        '<input id="ov-filter-kw" class="input" placeholder="编号/名称/负责人" style="width:200px" value="' + _ovEsc(st.kw || '') + '" oninput="_ovBoardSet(\'kw\', this.value)">' +
+        '<button class="btn" onclick="_ovBoardReset()">重置</button>' +
       '</div>' +
-      '<div id="ov-board-table-wrap"></div>' +
-      '<div id="ov-board-pagination" style="margin-top:12px;display:flex;justify-content:center;gap:4px"></div>' +
+      '<div>' + _ovBoardRenderTable(pageRows) + '</div>' +
+      '<div style="margin-top:12px;display:flex;justify-content:center;gap:4px">' + _ovBoardRenderPagination(total, st.page, pageSize) + '</div>' +
     '</div>' +
-    '<script>(function(){' +
-      'window._ovBoardState = { rows: ' + rowsJson + ', sortKey: "updatedAt", sortDir: "desc", page: 1, pageSize: 20 };' +
-      '_ovBoardRender();' +
-      'if (window.lucide) lucide.createIcons();' +
-    '})();</script>' +
     '</div>';
 });
 
@@ -634,32 +669,6 @@ function _ovBlock10Logs(project) {
     '</tr></thead><tbody>' + rows + '</tbody></table>';
 }
 
-/* ====== Board 渲染（T6 占位版，T7 补完过滤/排序/导出/分页） ====== */
-window._ovBoardRender = function() {
-  var st = window._ovBoardState || {};
-  var rows = (st.rows || []).slice();
-  // 简单排序（T7 会扩展为按列排序）
-  var dir = st.sortDir === 'asc' ? 1 : -1;
-  var key = st.sortKey || 'updatedAt';
-  rows.sort(function(a,b){
-    var av = a[key], bv = b[key];
-    if (av === bv) return 0;
-    return (av < bv ? -1 : 1) * dir;
-  });
-  var total = rows.length;
-  var pageSize = st.pageSize || 20;
-  var page = st.page || 1;
-  var slice = rows.slice((page - 1) * pageSize, page * pageSize);
-
-  var wrap = document.getElementById('ov-board-table-wrap');
-  if (!wrap) return;
-  var countEl = document.getElementById('ov-count');
-  if (countEl) countEl.textContent = '共 ' + total + ' 个项目';
-
-  wrap.innerHTML = _ovBoardRenderTable(slice);
-  document.getElementById('ov-board-pagination').innerHTML = _ovBoardRenderPagination(total, page, pageSize);
-};
-
 function _ovBoardRenderTable(rows) {
   var cols = [
     { label: '项目编号',   key: 'id',        width: '80px'  },
@@ -726,41 +735,21 @@ function _ovBoardRenderPagination(total, page, pageSize) {
   return html;
 }
 
-/* ====== Board 联动：过滤 / 重置 / 排序 / 翻页 ====== */
-window._ovBoardFilter = function() {
-  var st = window._ovBoardState;
-  if (!st) return;
-  // 从全部 rows（存在 st._allRows 或首次从 st.rows 拷贝）过滤
-  if (!st._allRows) st._allRows = st.rows.slice();
-  var u  = (document.getElementById('ov-filter-unit')  || {}).value || '';
-  var t  = (document.getElementById('ov-filter-type')  || {}).value || '';
-  var s  = (document.getElementById('ov-filter-stage') || {}).value || '';
-  var kw = ((document.getElementById('ov-filter-kw')   || {}).value || '').trim().toLowerCase();
-  st.rows = st._allRows.filter(function(r){
-    if (u && r.unit !== u)   return false;
-    if (t && r.type !== t)   return false;
-    if (s && r.status !== s) return false;
-    if (kw) {
-      var hay = (r.id + ' ' + r.name + ' ' + r.manager).toLowerCase();
-      if (hay.indexOf(kw) < 0) return false;
-    }
-    return true;
-  });
+/* ====== Board 联动：全部走 state-update + renderView 重绘模式 ====== */
+window._ovBoardSet = function(field, value) {
+  var st = _ovBoardState();
+  st[field] = value;
   st.page = 1;
-  _ovBoardRender();
+  renderView('project-overview-board');
 };
 
 window._ovBoardReset = function() {
-  ['ov-filter-unit','ov-filter-type','ov-filter-stage','ov-filter-kw'].forEach(function(id){
-    var el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-  _ovBoardFilter();
+  window._ovBoardS = { unit: '', type: '', stage: '', kw: '', sortKey: 'updatedAt', sortDir: 'desc', page: 1, pageSize: 20 };
+  renderView('project-overview-board');
 };
 
 window._ovBoardSort = function(key) {
-  var st = window._ovBoardState;
-  if (!st) return;
+  var st = _ovBoardState();
   if (st.sortKey === key) {
     st.sortDir = (st.sortDir === 'asc') ? 'desc' : 'asc';
   } else {
@@ -768,31 +757,22 @@ window._ovBoardSort = function(key) {
     st.sortDir = (key === 'updatedAt' || key === 'budget' || key === 'progress') ? 'desc' : 'asc';
   }
   st.page = 1;
-  _ovBoardRender();
+  renderView('project-overview-board');
 };
 
 window._ovBoardGoPage = function(p) {
-  var st = window._ovBoardState;
-  if (!st) return;
-  var totalPages = Math.ceil(st.rows.length / (st.pageSize || 20));
+  var st = _ovBoardState();
+  var total = (window._ovBoardFiltered || []).length;
+  var totalPages = Math.max(1, Math.ceil(total / (st.pageSize || 20)));
   if (p < 1 || p > totalPages) return;
   st.page = p;
-  _ovBoardRender();
+  renderView('project-overview-board');
 };
 
 /* ====== 导出 CSV ====== */
 window._ovExportCSV = function() {
-  var st = window._ovBoardState;
-  if (!st) return;
-  var rows = (st.rows || []).slice();
-  // 当前排序下全部导出（不限制当前页）
-  var dir = st.sortDir === 'asc' ? 1 : -1;
-  var key = st.sortKey || 'updatedAt';
-  rows.sort(function(a,b){
-    var av = a[key], bv = b[key];
-    if (av === bv) return 0;
-    return (av < bv ? -1 : 1) * dir;
-  });
+  var rows = (window._ovBoardFiltered || []).slice();
+  if (!rows.length) { if (typeof toast === 'function') toast('无可导出的数据', 'warning'); return; }
 
   var headers = ['项目编号','项目名称','单位','负责人','类型','预算（万）','当前阶段','进度','最近更新'];
   var csvEscape = function(v) {

@@ -341,8 +341,82 @@ function _ovBlock2Proposal(project) {
     _ovKv('经费核定',   funding)
   );
 }
-function _ovBlock3Reviews(project)    { return '本阶段暂无记录'; }
-function _ovBlock4Contracts(project)  { return '本阶段暂无记录'; }
+/* --- 块 3 专家评审记录 --- */
+function _ovBlock3Reviews(project) {
+  var reviews = (DATA.reviews || []).filter(function(r){
+    return (project.id && r.projectId === project.id) || (project.demandId && r.demandId === project.demandId);
+  });
+  if (!reviews.length) return '本阶段暂无记录';
+  reviews.sort(function(a,b){ return (a.date || '') < (b.date || '') ? -1 : 1; });
+
+  var expertName = function(eid){
+    var e = (DATA.experts || []).find(function(x){ return x.id === eid; });
+    return e ? e.name : eid;
+  };
+
+  var conclusionTag = function(fc){
+    if (!fc) return '<span class="tag">进行中</span>';
+    if (fc === '通过')  return '<span class="tag tag-success">通过</span>';
+    if (fc === '不通过') return '<span class="tag tag-danger">不通过</span>';
+    if (fc === '退回修改') return '<span class="tag tag-warning">退回修改</span>';
+    return '<span class="tag">' + _ovEsc(fc) + '</span>';
+  };
+
+  var rows = reviews.map(function(r){
+    var exps = (r.experts || []).map(expertName).join('、');
+    var rework = r.reworkRequirement
+      ? '<div style="margin-top:4px;font-size:11px;color:var(--text-secondary);white-space:pre-wrap">退回修改要求：' + _ovEsc(r.reworkRequirement) + '</div>'
+      : '';
+    return '<tr>' +
+      '<td>' + _ovEsc(r.triggerScene || '—') + '</td>' +
+      '<td>' + _ovEsc(r.date || '—') + '</td>' +
+      '<td>第 ' + (r.round != null ? r.round : 1) + ' 轮</td>' +
+      '<td style="font-size:11px">' + _ovEsc(exps) + '</td>' +
+      '<td style="text-align:right">' + (r.weightedScore != null ? r.weightedScore : '—') + '</td>' +
+      '<td>' + conclusionTag(r.finalConclusion) + rework + '</td>' +
+    '</tr>';
+  }).join('');
+
+  return '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px">共 ' + reviews.length + ' 条评审记录（按时间升序）</div>' +
+    '<table class="data-table" style="font-size:12px"><thead><tr>' +
+      '<th>触发场景</th><th style="width:100px">时间</th><th style="width:70px">轮次</th><th>专家</th><th style="width:80px;text-align:right">加权分</th><th style="width:140px">结论</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>';
+}
+
+/* --- 块 4 合同采购 --- */
+function _ovBlock4Contracts(project) {
+  var contracts = (DATA.contracts || []).filter(function(c){ return c.projectId === project.id; });
+  if (!contracts.length) return '本阶段暂无记录';
+
+  return contracts.map(function(c){
+    var statusTag = c.status === 'completed'
+      ? '<span class="tag tag-success">已完成</span>'
+      : c.status === 'active' ? '<span class="tag tag-blue">履行中</span>' : '<span class="tag">' + _ovEsc(c.status || '—') + '</span>';
+
+    var payRows = (c.payments || []).map(function(p){
+      var payTag = p.status === 'paid'
+        ? '<span class="tag tag-success">已支付</span>'
+        : '<span class="tag tag-warning">待支付</span>';
+      return '<tr>' +
+        '<td>' + _ovEsc(p.node || '—') + '</td>' +
+        '<td style="text-align:right">' + (p.ratio != null ? p.ratio + '%' : '—') + '</td>' +
+        '<td style="text-align:right">' + (p.amount != null ? p.amount + ' 万' : '—') + '</td>' +
+        '<td>' + payTag + '</td>' +
+        '<td>' + _ovEsc(p.date || '—') + '</td>' +
+      '</tr>';
+    }).join('');
+
+    return '<div style="padding:8px 0;border-bottom:1px dashed #eee;margin-bottom:8px">' +
+      _ovKv('合同编号', '<strong>' + c.id + '</strong> · ' + statusTag) +
+      _ovKv('供应商',   _ovEsc(c.vendor || '—')) +
+      _ovKv('合同金额', (c.amount != null ? c.amount + ' 万' : '—')) +
+      _ovKv('签订日期', _ovEsc(c.signDate || '—')) +
+      _ovKv('结束日期', _ovEsc(c.endDate || '—') + (c.warrantyYears ? ' · 保修 ' + c.warrantyYears + ' 年' : '')) +
+      (payRows ? '<div style="margin-top:8px"><div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">付款节点</div>' +
+        '<table class="data-table" style="font-size:11px"><thead><tr><th>节点</th><th style="width:60px;text-align:right">比例</th><th style="width:90px;text-align:right">金额</th><th style="width:80px">状态</th><th style="width:100px">日期</th></tr></thead><tbody>' + payRows + '</tbody></table></div>' : '') +
+    '</div>';
+  }).join('');
+}
 function _ovBlock5Implement(project)  { return '本阶段暂无记录'; }
 function _ovBlock6Changes(project)    { return '本阶段暂无记录'; }
 function _ovBlock7Acceptance(project) { return '本阶段暂无记录'; }

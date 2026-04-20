@@ -15,6 +15,7 @@
 - [ ] **Phase 4: 项目招采&实施模块** - 采购管理、合同台账、实施进展及变更终止的完整流程
 - [ ] **Phase 5: 项目验收&运维模块** - 内部初验、正式验收、运维记录和故障工单的完整流程
 - [ ] **Phase 6: 通知&日志&系统管理模块** - 通知全链路、操作日志、用户权限及流程配置
+- [ ] **Phase 7: 项目全景模块** - 跨模块纵向追溯视图（生命周期看板 + 项目全景详情，纯只读）
 
 ## Phase Details
 
@@ -125,10 +126,25 @@
 **Plans**: TBD
 **UI hint**: yes
 
+### Phase 7: 项目全景模块
+**Goal**: 演示信息办/领导可按项目纵览 demand→proposal→review→contract→acceptance→ops 全生命周期的跨模块只读视图
+**Depends on**: Phase 6（跨表聚合需各子表 DATA 就位）
+**Requirements**: 待从 project-overview/spec.md 提取为 OVW-xx 号（/gsd-plan-phase 时补齐）
+**OpenSpec Changes** (1 plan ↔ 1 change):
+  - `project-overview` — 新增顶级菜单「项目全景」，含 project-overview-board（生命周期看板表格列表，10 列 + CSV 导出）+ project-overview-detail（单项目纵向时间线），跨表聚合 demands/proposals/reviews/contracts/acceptances/opsRecords，仅 info-*/leadership-*/project-manager/unit-admin 可见，纯只读
+**Success Criteria** (what must be TRUE):
+  1. 侧边栏新分组「项目全景」下可见两个菜单项（生命周期看板 + 项目全景详情），expert 角色完全不可见
+  2. info-admin/info-leader/leadership-* 看全量项目；project-manager 只看自己负责的；unit-admin 只看本单位的
+  3. 看板表格支持单位/类型/阶段/关键字过滤 + 列排序 + 导出 CSV
+  4. 项目全景详情以单项目为主语按阶段纵向铺开时间线，聚合各子表数据，所有入口均为跳原页面的只读链接
+  5. 不修改 project-detail 管理操作面板；仅在 DATA.demands 扩 `tags`/`attachments` 字段并为 5 条代表性 demand 填 mock，不引入新的 DATA 顶层数组
+**Plans**: TBD（change 的 proposal/spec/design/tasks 已备齐于 my-project-code/openspec/changes/project-overview/，未走 /gsd-plan-phase）
+**UI hint**: yes
+
 ## Dependencies
 
 ```
-Phase 0 (完成) → Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6
+Phase 0 (完成) → Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7
 ```
 
 - Phase 1 依赖 Phase 0：需要基础框架（12 角色切换、页面模板、工作台）和通知模板结构
@@ -137,6 +153,7 @@ Phase 0 (完成) → Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 →
 - Phase 4 依赖 Phase 3：招采流程在项目论证通过后启动；变更申请（IMPL-03）触发的专家论证复用 Phase 3 的评审流程
 - Phase 5 依赖 Phase 4：验收以实施完成为前提，运维以验收通过为前提
 - Phase 6 可并行开发部分内容（通知模板已完成），但完整通知链路需等各模块业务操作确定后联调
+- Phase 7 依赖 Phase 1-6：跨表聚合需各阶段 DATA 结构就位；菜单与视图骨架可先行但展示数据依赖前序阶段产物
 
 ## Progress
 
@@ -148,6 +165,7 @@ Phase 0 (完成) → Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 →
 | 4. 项目招采&实施模块 | 0/TBD | Not started | - |
 | 5. 项目验收&运维模块 | 0/TBD | Not started | - |
 | 6. 通知&日志&系统管理模块 | 0/TBD | Not started | - |
+| 7. 项目全景模块 | 0/TBD | Not started | - |
 
 ## Out of Scope for v1
 

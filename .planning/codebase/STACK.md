@@ -7,7 +7,7 @@
 - **Markdown (.md)** — All documentation, wiki pages, OpenSpec planning files, CLAUDE.md instructions
 - **YAML (.yaml)** — OpenSpec project configuration (`my-project-code/openspec/config.yaml`)
 - **HTML** — Deliverable output: local-runnable demo files generated into `my-project-code/pages/`
-- **JavaScript (vanilla, no modules)** — Embedded in HTML demo files; also shared JS modules in `my-project-wiki/raw/docs/demo-0408/shared/`
+- **JavaScript (vanilla, no modules)** — Embedded in HTML demo files; also shared JS modules in `my-project-code/demo/shared/`
 
 ## Languages & Formats
 
@@ -16,7 +16,7 @@
 | `.md` | All repos | Primary authoring format for all wiki, spec, and instruction files |
 | `.yaml` | `my-project-code/openspec/config.yaml` | OpenSpec project configuration ("基础宪法") |
 | `.html` | `my-project-code/pages/` | Output: browser-openable demo files |
-| `.js` | `my-project-wiki/raw/docs/demo-0408/shared/` | Shared view modules (core.js, data.js, nav.js, views/*.js) |
+| `.js` | `my-project-code/demo/shared/` | Shared view modules (core.js, data.js, nav.js, views/*.js) |
 | `.json` | `graphify-out/`, `.obsidian/` | Graph output, Obsidian workspace config |
 | `.pdf` | `my-project-wiki/raw/decisions/` | Original policy/contract source documents |
 

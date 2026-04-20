@@ -83,7 +83,7 @@
 - Contains: PDF/DOCX 原件及其 Markdown 转写版本、会议纪要、OpenSpec 同步文件
 - Key files:
   - `my-project-wiki/raw/decisions/西南大学信息化项目管理办法.md`（制度蓝本）
-  - `my-project-wiki/raw/docs/demo-0408/shared/views/`（11个视图 JS 文件）
+  - `my-project-code/demo/shared/views/`（11个视图 JS 文件）
 
 **`my-project-wiki/wiki/`**
 - Purpose: AI 维护的结构化知识库，是项目知识的权威来源
@@ -111,8 +111,8 @@
 - `my-project-wiki/wiki/index.md` — wiki 所有页面的导航总索引
 
 **演示原型：**
-- `my-project-wiki/raw/docs/demo-0408/index.html` — 0408 Demo 主入口
-- `my-project-wiki/raw/docs/demo-0408/shared/views/` — 各视图实现（11个 JS 文件）
+- `my-project-code/demo/index.html` — 0408 Demo 主入口
+- `my-project-code/demo/shared/views/` — 各视图实现（11个 JS 文件）
 
 **变更管理：**
 - `my-project-code/openspec/changes/[变更名]/proposal.md` — 变更提案

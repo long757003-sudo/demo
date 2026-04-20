@@ -248,8 +248,99 @@ function _ovJumpBtn(viewId, params) {
 }
 
 /* ====== 10 个聚合块的实现（T9-T13 填充，T8 先给空占位） ====== */
-function _ovBlock1Demand(project)     { return '本阶段暂无记录'; }
-function _ovBlock2Proposal(project)   { return '本阶段暂无记录'; }
+/* --- 通用工具 --- */
+function _ovEsc(s) { return (s == null ? '' : String(s)).replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function _ovTrunc(s, n) { if (!s) return ''; s = String(s); return s.length > n ? s.slice(0, n) + '…' : s; }
+function _ovKv(label, value) {
+  return '<div style="display:flex;margin-bottom:6px"><span style="min-width:90px;color:var(--text-secondary);font-size:12px">' + label + '</span><span style="flex:1;font-size:12px">' + (value != null && value !== '' ? value : '—') + '</span></div>';
+}
+function _ovDemandStatusBadge(s) {
+  var m = {
+    draft: ['草稿', 'tag'],
+    submitted: ['已提交', 'tag-blue'],
+    sorted: ['已排序', 'tag-blue'],
+    'unit-pending': ['单位待审批', 'tag-warning'],
+    'unit-approved': ['单位已批准', 'tag-success'],
+    'unit-rejected': ['单位已驳回', 'tag-danger'],
+    'in-selection': ['信办筛选中', 'tag-warning'],
+    'supported': ['已支持', 'tag-success'],
+    'not-supported': ['不支持', 'tag-danger'],
+  };
+  var it = m[s] || [s || '—', 'tag'];
+  return '<span class="tag ' + it[1] + '">' + it[0] + '</span>';
+}
+
+/* --- 块 1 需求征集 --- */
+function _ovBlock1Demand(project) {
+  if (!project.demandId) return '本阶段暂无记录';
+  var demand = (DATA.demands || []).find(function(d){ return d.id === project.demandId; });
+  if (!demand) return '本阶段暂无记录（关联需求 ' + project.demandId + ' 未找到）';
+  var plan = (DATA.collectionPlans || []).find(function(cp){ return cp.id === demand.collectionId; });
+
+  var summary = demand.summary || demand.background || project.background || '';
+  var summaryHtml = summary ? _ovEsc(_ovTrunc(summary, 200)) : '—';
+
+  var tags = Array.isArray(demand.tags) ? demand.tags : [];
+  var tagsHtml = tags.length
+    ? tags.map(function(t){ return '<span class="tag tag-blue" style="margin-right:4px">' + _ovEsc(t) + '</span>'; }).join('')
+    : '<span style="color:var(--text-secondary);font-size:12px">暂未打标签</span>';
+
+  var attachments = Array.isArray(demand.attachments) ? demand.attachments : [];
+  var attachmentsHtml = attachments.length
+    ? attachments.map(function(a){
+        return '<a class="link" style="font-size:12px;margin-right:12px" onclick="toast(\'Demo 不支持下载\',\'info\')"><i data-lucide="paperclip" style="width:12px;height:12px;margin-right:2px"></i>' + _ovEsc(a.name) + ' <span style="color:var(--text-secondary)">(' + _ovEsc(a.size || '') + ')</span></a>';
+      }).join('')
+    : '<span style="color:var(--text-secondary);font-size:12px">无附件</span>';
+
+  var rejection = demand.unitRejectionReason || demand.rejectionCategory;
+
+  return (
+    _ovKv('征集名称', plan ? (_ovEsc(plan.title) + ' <span style="color:var(--text-secondary);font-size:11px">(' + demand.collectionId + ')</span>') : demand.collectionId || '—') +
+    _ovKv('项目摘要', summaryHtml) +
+    _ovKv('标签',     tagsHtml) +
+    _ovKv('附件',     attachmentsHtml) +
+    _ovKv('申报单位', _ovEsc(demand.unitId || '')) +
+    _ovKv('填报人',   _ovEsc(demand.submittedBy || '')) +
+    _ovKv('预算估算', (demand.budgetEstimate != null ? demand.budgetEstimate + ' 万' : '—')) +
+    _ovKv('排序',     (demand.sortOrder != null ? String(demand.sortOrder) : '—')) +
+    _ovKv('申报状态', _ovDemandStatusBadge(demand.status)) +
+    (rejection ? _ovKv('驳回原因', '<span style="color:var(--danger)">' + _ovEsc(rejection) + '</span>') : '')
+  );
+}
+
+/* --- 块 2 立项论证 --- */
+function _ovBlock2Proposal(project) {
+  if (!project.proposalId) return '本阶段暂无记录';
+  var pr = (DATA.proposals || []).find(function(p){ return p.id === project.proposalId; });
+  if (!pr) return '本阶段暂无记录（关联申报书 ' + project.proposalId + ' 未找到）';
+
+  var reviewPathLabel = { 'standard-review': '标准评审', 'self-organized': '自组织评审', 'exempt': '免评审' }[pr.reviewPath] || pr.reviewPath || '—';
+
+  var approval = '—';
+  if (pr.approvalDecision) {
+    var a = pr.approvalDecision;
+    var resultTag = a.result === 'approved'
+      ? '<span class="tag tag-success">同意立项</span>'
+      : a.result === 'rejected' ? '<span class="tag tag-danger">不予立项</span>' : '<span class="tag">' + (a.result || '—') + '</span>';
+    approval = resultTag + ' · ' + _ovEsc(a.approvedBy || '') + ' · ' + _ovEsc(a.approvedAt || '') + (a.comment ? '<div style="margin-top:4px;color:var(--text-secondary);font-size:11px">' + _ovEsc(a.comment) + '</div>' : '');
+  }
+
+  var funding = '—';
+  if (pr.fundingAllocation) {
+    var f = pr.fundingAllocation;
+    funding = (f.confirmedAmount != null ? f.confirmedAmount + ' 万' : '—') + ' · ' + _ovEsc(f.confirmedBy || '') + ' · ' + _ovEsc(f.confirmedAt || '');
+  }
+
+  return (
+    _ovKv('申报书编号', '<strong>' + pr.id + '</strong>') +
+    _ovKv('申报书状态', '<span class="tag tag-blue">' + _ovEsc(pr.status || '—') + '</span>') +
+    _ovKv('提交时间',   _ovEsc(pr.submittedAt || '')) +
+    _ovKv('建设目标',   _ovEsc(_ovTrunc(pr.goal || '', 120))) +
+    _ovKv('评审路径',   _ovEsc(reviewPathLabel) + ' · 第 ' + (pr.reviewRound != null ? pr.reviewRound : 1) + ' 轮') +
+    _ovKv('审定决策',   approval) +
+    _ovKv('经费核定',   funding)
+  );
+}
 function _ovBlock3Reviews(project)    { return '本阶段暂无记录'; }
 function _ovBlock4Contracts(project)  { return '本阶段暂无记录'; }
 function _ovBlock5Implement(project)  { return '本阶段暂无记录'; }

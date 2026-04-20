@@ -24,10 +24,10 @@ tech_stack:
 key_files:
   created: []
   modified:
-    - my-project-wiki/raw/docs/demo-0408/shared/data.js
-    - my-project-wiki/raw/docs/demo-0408/shared/core.js
-    - my-project-wiki/raw/docs/demo-0408/shared/views/demand.js
-    - my-project-wiki/raw/docs/demo-0408/shared/nav.js
+    - my-project-code/demo/shared/data.js
+    - my-project-code/demo/shared/core.js
+    - my-project-code/demo/shared/views/demand.js
+    - my-project-code/demo/shared/nav.js
 decisions:
   - "tagLibrary 和 demandUsers 作为 DATA 对象的属性内联在 data.js，维持全局赋值风格，不新建文件"
   - "roleDisplayName 映射在 core.js 修改（函数定义在 core.js），而非 data.js"
@@ -103,7 +103,7 @@ metrics:
 
 ## 菜单注入位置
 
-- **文件：** `my-project-wiki/raw/docs/demo-0408/shared/nav.js`
+- **文件：** `my-project-code/demo/shared/nav.js`
 - **分组：** 「系统管理」组，追加在 audit-log 之后
 - **角色：** `roles: ['info-admin', 'unit-admin']`（对应信息办管理员和单位系统管理员）
 
@@ -154,9 +154,9 @@ metrics:
 
 | Check | Result |
 |-------|--------|
-| my-project-wiki/raw/docs/demo-0408/shared/data.js | FOUND |
-| my-project-wiki/raw/docs/demo-0408/shared/core.js | FOUND |
-| my-project-wiki/raw/docs/demo-0408/shared/views/demand.js | FOUND |
-| my-project-wiki/raw/docs/demo-0408/shared/nav.js | FOUND |
+| my-project-code/demo/shared/data.js | FOUND |
+| my-project-code/demo/shared/core.js | FOUND |
+| my-project-code/demo/shared/views/demand.js | FOUND |
+| my-project-code/demo/shared/nav.js | FOUND |
 | commit 6bf0ed0 (Task 1) | FOUND |
 | commit 88a9146 (Task 2) | FOUND |

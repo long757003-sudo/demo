@@ -26,7 +26,7 @@ tech_stack:
 key_files:
   created: []
   modified:
-    - my-project-wiki/raw/docs/demo-0408/shared/views/demand.js
+    - my-project-code/demo/shared/views/demand.js
 decisions:
   - "demand-select 完整替换旧实现（旧版 Modal 选原因 → 新版 Drawer 仅展示原文），符合 D-15 精确描述"
   - "demand-list 完整替换旧实现（旧版带批量勾选/排序 → 新版 _dlSetFilter 实时 re-render），符合 Claude's Discretion 允许简化筛选逻辑"
@@ -204,7 +204,7 @@ var BR04_REASONS = [
 
 | Check | Result |
 |-------|--------|
-| my-project-wiki/raw/docs/demo-0408/shared/views/demand.js | FOUND |
+| my-project-code/demo/shared/views/demand.js | FOUND |
 | BR04_REASONS（line 1680，6条） | FOUND |
 | registerView('demand-select')（line 1689） | FOUND |
 | _dselSetFilter/_dselSupport/_dselReject/_dselSubmitSelection/_dselConfirmSubmit（12 matches） | FOUND |

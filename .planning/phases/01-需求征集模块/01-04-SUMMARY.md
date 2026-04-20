@@ -25,8 +25,8 @@ tech_stack:
 key_files:
   created: []
   modified:
-    - my-project-wiki/raw/docs/demo-0408/shared/views/demand.js
-    - my-project-wiki/raw/docs/demo-0408/shared/nav.js
+    - my-project-code/demo/shared/views/demand.js
+    - my-project-code/demo/shared/nav.js
 decisions:
   - "demand-sort 入口检查兼容 unit-sysadmin 和 unit-admin，因 DATA.roles 使用 unit-admin 作为角色 ID"
   - "_renderLifecycleBar 生命周期进度条样式通过 demand-approve 视图头部 <style> 标签注入（非 style.css 修改）"
@@ -176,8 +176,8 @@ if (role !== 'unit-sysadmin' && role !== 'unit-admin') { ... }
 
 | Check | Result |
 |-------|--------|
-| my-project-wiki/raw/docs/demo-0408/shared/views/demand.js | FOUND |
-| my-project-wiki/raw/docs/demo-0408/shared/nav.js | FOUND |
+| my-project-code/demo/shared/views/demand.js | FOUND |
+| my-project-code/demo/shared/nav.js | FOUND |
 | _dsGetList/_dsMove/_dsSave/_dsSubmitForApproval/_dsConfirmSubmit（5函数，15 matches） | FOUND |
 | demand-sort 无 isLeader（0 matches） | FOUND |
 | demand-sort 无 draggable（0 matches） | FOUND |

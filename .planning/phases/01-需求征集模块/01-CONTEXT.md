@@ -73,8 +73,8 @@
 - `my-project-wiki/wiki/concepts/系统视图规范.md` — 40个视图清单，T1/T2/T3/T4 页面模板说明
 
 ### 现有代码参考
-- `my-project-wiki/raw/docs/demo-0408/shared/views/demand.js` — 现有需求模块视图实现（demand-collect、collection-detail、demand-list 等），改造基础
-- `my-project-wiki/raw/docs/demo-0408/shared/` — 共享模块（core.js、data.js、nav.js）的现有模式
+- `my-project-code/demo/shared/views/demand.js` — 现有需求模块视图实现（demand-collect、collection-detail、demand-list 等），改造基础
+- `my-project-code/demo/shared/` — 共享模块（core.js、data.js、nav.js）的现有模式
 
 ### 规划文档
 - `.planning/ROADMAP.md` — Phase 1 的 4 个 OpenSpec 变更定义及 Success Criteria

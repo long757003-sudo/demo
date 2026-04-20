@@ -28,7 +28,7 @@ tech_stack:
 key_files:
   created: []
   modified:
-    - my-project-wiki/raw/docs/demo-0408/shared/views/demand.js
+    - my-project-code/demo/shared/views/demand.js
 decisions:
   - "demand-fill 改为四步向导替代旧单页表单，renderStepWizard + window._demandFormStep 实现步骤切换"
   - "草稿恢复仅在 _demandFormData 为空时触发，避免 _dfStartNew 后重新进入时回带旧数据"
@@ -203,7 +203,7 @@ var steps = ['基本信息', '需求描述', '技术要求', '附件上传'];
 
 | Check | Result |
 |-------|--------|
-| my-project-wiki/raw/docs/demo-0408/shared/views/demand.js | FOUND |
+| my-project-code/demo/shared/views/demand.js | FOUND |
 | registerView('demand-assign') 存在（line 1538） | FOUND |
 | registerView('demand-fill') 存在（line 1248） | FOUND |
 | _daSearch / _daAddCandidate / _daRemoveCandidate / _daSubmit / _daConfirmSubmit | FOUND (11 matches) |

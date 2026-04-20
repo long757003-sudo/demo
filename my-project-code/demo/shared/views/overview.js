@@ -566,8 +566,73 @@ function _ovBlock8Ops(project) {
 
   return recsHtml + faultsHtml;
 }
-function _ovBlock9Terminal(project)   { return '本阶段暂无记录'; }
-function _ovBlock10Logs(project)      { return '本阶段暂无记录'; }
+/* --- 块 9 终止/完成 --- */
+function _ovBlock9Terminal(project) {
+  var s = project.status;
+  if (s !== 'terminated' && s !== 'completed' && s !== 'frozen') {
+    return '<div style="color:var(--text-secondary);font-size:12px">项目尚未进入终止/完成阶段（当前阶段：' + _ovStatusLabel(s) + '）</div>';
+  }
+
+  var rows = [_ovKv('当前状态', _ovStatusBadge(s))];
+
+  if (s === 'frozen') {
+    rows.push(_ovKv('冻结原因', _ovEsc(project.frozenReason || '—')));
+    rows.push(_ovKv('冻结期限至', _ovEsc(project.frozenUntil || '—')));
+  }
+  if (s === 'completed') {
+    rows.push(_ovKv('归档完成日期', _ovEsc(project.deadline || '—')));
+    rows.push(_ovKv('最终进度', _ovProgressBar(project.progress || 100)));
+  }
+  if (s === 'terminated') {
+    rows.push(_ovKv('终止时间', _ovEsc(project.terminatedAt || project.deadline || '—')));
+    rows.push(_ovKv('终止原因', _ovEsc(project.terminationReason || '—')));
+  }
+
+  return rows.join('');
+}
+
+/* --- 块 10 项目日志 --- */
+function _ovBlock10Logs(project) {
+  var ids = [project.id, project.demandId, project.proposalId, project.contractId].filter(Boolean);
+  var logs = (DATA.operationLogs || []).filter(function(l){ return ids.indexOf(l.targetId) >= 0; });
+  if (!logs.length) return '本阶段暂无记录';
+  logs.sort(function(a,b){ return (a.time || '') < (b.time || '') ? -1 : 1; });
+
+  var actionTag = function(a){
+    if (!a) return '<span class="tag">—</span>';
+    if (/提交|通过|发送|备案|完成|确认/.test(a))  return '<span class="tag tag-success">' + _ovEsc(a) + '</span>';
+    if (/退回|驳回|冻结|终止|停用|不通过/.test(a)) return '<span class="tag tag-danger">'  + _ovEsc(a) + '</span>';
+    if (/黑名单|延期|变更/.test(a))                return '<span class="tag tag-warning">' + _ovEsc(a) + '</span>';
+    return '<span class="tag tag-blue">' + _ovEsc(a) + '</span>';
+  };
+
+  var rows = logs.map(function(l){
+    var changes = '';
+    if (Array.isArray(l.changes) && l.changes.length) {
+      changes = '<div style="font-size:10px;color:var(--text-secondary);margin-top:2px">' +
+        l.changes.map(function(c){
+          return _ovEsc(c.field) + '：' + _ovEsc(c.before) + ' → <span style="color:var(--primary)">' + _ovEsc(c.after) + '</span>';
+        }).join('<br>') +
+      '</div>';
+    }
+    return '<tr>' +
+      '<td style="white-space:nowrap">' + _ovEsc(l.time || '—') + '</td>' +
+      '<td>' + _ovEsc(l.operator || '—') + '<div style="font-size:10px;color:var(--text-secondary)">' + _ovEsc(l.role || '') + '</div></td>' +
+      '<td>' + _ovEsc(l.module || '—') + '</td>' +
+      '<td>' + actionTag(l.action) + '</td>' +
+      '<td style="font-size:11px">' + _ovEsc(l.targetName || l.targetId || '—') + '</td>' +
+      '<td style="font-size:11px">' + _ovEsc(l.detail || '—') + changes + '</td>' +
+    '</tr>';
+  }).join('');
+
+  return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
+      '<div style="font-size:12px;color:var(--text-secondary)">完整操作时间线（关联 ' + ids.join('/') + '，按时间升序）</div>' +
+      '<div style="font-size:12px;color:var(--text-secondary)">共 ' + logs.length + ' 条</div>' +
+    '</div>' +
+    '<table class="data-table" style="font-size:12px"><thead><tr>' +
+      '<th style="width:130px">时间</th><th style="width:100px">操作人</th><th style="width:100px">模块</th><th style="width:110px">动作</th><th style="width:140px">目标</th><th>明细</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>';
+}
 
 /* ====== Board 渲染（T6 占位版，T7 补完过滤/排序/导出/分页） ====== */
 window._ovBoardRender = function() {

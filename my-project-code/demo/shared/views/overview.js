@@ -417,8 +417,65 @@ function _ovBlock4Contracts(project) {
     '</div>';
   }).join('');
 }
-function _ovBlock5Implement(project)  { return '本阶段暂无记录'; }
-function _ovBlock6Changes(project)    { return '本阶段暂无记录'; }
+/* --- 块 5 项目实施 --- */
+function _ovBlock5Implement(project) {
+  var history = (DATA.progressHistory || []).filter(function(h){ return h.projectId === project.id; });
+  history.sort(function(a,b){ return (a.period || '') < (b.period || '') ? 1 : -1; });
+
+  var currentBar = '<div style="margin-bottom:12px">' +
+    '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">当前进度</div>' +
+    _ovProgressBar(project.progress || 0) +
+    '</div>';
+
+  if (!history.length) return currentBar + '<div style="color:var(--text-secondary);font-size:12px">无分期汇报历史</div>';
+
+  var rows = history.map(function(h){
+    return '<tr>' +
+      '<td>' + _ovEsc(h.period || '—') + '</td>' +
+      '<td>' + _ovProgressBar(h.pct || 0) + '</td>' +
+      '<td>' + _ovEsc(h.submittedBy || '—') + '</td>' +
+      '<td>' + _ovEsc(h.submittedAt || '—') + '</td>' +
+    '</tr>';
+  }).join('');
+
+  return currentBar +
+    '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">分期汇报历史（按周期倒序，共 ' + history.length + ' 期）</div>' +
+    '<table class="data-table" style="font-size:12px"><thead><tr>' +
+      '<th style="width:100px">周期</th><th>进度</th><th style="width:100px">提交人</th><th style="width:120px">提交时间</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>';
+}
+
+/* --- 块 6 延期/变更 --- */
+function _ovBlock6Changes(project) {
+  var ids = [project.id, project.proposalId].filter(Boolean);
+  var logs = (DATA.operationLogs || []).filter(function(l){
+    if (ids.indexOf(l.targetId) < 0) return false;
+    var a = l.action || '';
+    return /变更|延期|驳回/.test(a);
+  });
+  if (!logs.length) return '本阶段暂无记录';
+  logs.sort(function(a,b){ return (a.time || '') < (b.time || '') ? -1 : 1; });
+
+  var rows = logs.map(function(l){
+    var changes = '';
+    if (Array.isArray(l.changes) && l.changes.length) {
+      changes = '<div style="font-size:11px;color:var(--text-secondary);margin-top:4px">' +
+        l.changes.map(function(c){ return _ovEsc(c.field) + '：' + _ovEsc(c.before) + ' → <span style="color:var(--primary)">' + _ovEsc(c.after) + '</span>'; }).join('<br>') +
+      '</div>';
+    }
+    return '<tr>' +
+      '<td style="white-space:nowrap">' + _ovEsc(l.time || '—') + '</td>' +
+      '<td>' + _ovEsc(l.operator || '—') + '<div style="font-size:10px;color:var(--text-secondary)">' + _ovEsc(l.role || '') + '</div></td>' +
+      '<td><span class="tag tag-warning">' + _ovEsc(l.action || '—') + '</span></td>' +
+      '<td style="font-size:11px">' + _ovEsc(l.detail || '—') + changes + '</td>' +
+    '</tr>';
+  }).join('');
+
+  return '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">共 ' + logs.length + ' 条变更/延期/驳回记录</div>' +
+    '<table class="data-table" style="font-size:12px"><thead><tr>' +
+      '<th style="width:130px">时间</th><th style="width:100px">操作人</th><th style="width:110px">动作</th><th>说明</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>';
+}
 function _ovBlock7Acceptance(project) { return '本阶段暂无记录'; }
 function _ovBlock8Ops(project)        { return '本阶段暂无记录'; }
 function _ovBlock9Terminal(project)   { return '本阶段暂无记录'; }

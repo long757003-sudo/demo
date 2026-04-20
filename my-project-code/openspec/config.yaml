@@ -1,6 +1,11 @@
 # OpenSpec 项目配置文件
 # 说明：这是 AI 生成代码时的"基础宪法"，填写越准确，AI 生成的结果越贴合你的项目
 # 带 * 的为必填项，其余可根据实际情况填写
+#
+# 重要（2026-04-20 工作流重定位后）：
+# - 本文件的 rules.apply / rules.archive 段对 GSD 执行器（/gsd-execute-phase 等）同样生效
+# - /opsx:propose / /opsx:apply / /opsx:explore / /opsx:continue / /opsx:ff / /opsx:verify 指令已废弃，不再使用
+# - 本文件作用降为"产物归档格式规范 + AI 行为硬约束"，执行流由 GSD 承担
 
 # ═══════════════════════════════════════
 # 项目基本信息 *

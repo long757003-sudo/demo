@@ -117,47 +117,48 @@
 
 ---
 
-## OpenSpec 工作流
+## 工作流：GSD 规划执行 + OpenSpec 归档
+
+> 2026-04-20 工作流重定位：OpenSpec 从独立工作流降为 GSD 的产物归档格式。
+> `/opsx:propose` / `/opsx:apply` / `/opsx:explore` / `/opsx:continue` / `/opsx:ff` / `/opsx:verify` **全部废弃**，不再使用。
+
+### 角色划分
+
+- **GSD（`.planning/`）是唯一执行流程** —— `/gsd-discuss-phase` → `/gsd-plan-phase` → `/gsd-execute-phase` / `/gsd-quick` / `/gsd-fast` → `/gsd-verify-work` / `/gsd-code-review` / `/gsd-audit-uat`
+- **OpenSpec（`openspec/changes/`）只负责最终产物的标准化归档** —— 作为 wiki 同步源与决策痕迹
+- **`openspec/config.yaml` 是 AI 生成时的基础宪法** —— GSD 执行器执行时必须遵守其 `tech_stack` / `workflow` / `rules` 定义的约束（Tailwind CDN、Lucide、mock、相对路径跳转、禁 npm、禁内联 style），这条不因流程重定位而废止
 
 ### 核心原则
-- 严禁直接让 AI 写完整页面，必须先走 propose 流程
-- 每个 propose 只对应一个页面或一个功能模块
-- tasks.md 控制在 15 项以内，超出则拆分为多个变更
+
+- 严禁直接让 AI 写完整页面，必须先走 GSD 规划
+- 每个 GSD plan 只对应一个页面或一个小功能模块；tasks 控制在 15 项以内，超出则拆分为多个 plan
+- plan 执行完毕后必须在 `openspec/changes/` 下归档对应 change（见下文）
 
 ### 标准流程
 
-**Step 1：提出变更**
-```
-/opsx:propose [变更描述]
-```
-生成规划文档后，重点 Review design.md 中的页面布局描述是否准确
+**Step 1：规划 + 执行（GSD）**
 
-**Step 2：执行生成**
 ```
-/opsx:apply [变更名称]
+/gsd-plan-phase        # 生成 .planning/phases/NN-*/PLAN.md
+/gsd-execute-phase     # 执行生成 HTML 并 commit
 ```
-AI 生成 HTML 文件，在浏览器双击打开验证效果
 
-**Step 3：归档**
-```
-/opsx:archive [变更名称]
-```
-MR 确认后执行
+**Step 2：归档为 OpenSpec change（每个 plan 完成后）**
 
-**Step 4：同步 wiki**
+在 `openspec/changes/<change-name>/` 下建立 3 个归档文件（从 GSD plan 产物提炼，非独立规划）：
+- `proposal.md` —— "做什么 / 不做什么" 摘要（来自 plan 的 objective / must_haves）
+- `design.md` —— 页面布局、数据字段、交互行为（与 `.planning/phases/*/UI-SPEC.md` 同源）
+- `tasks.md` —— 执行后的任务清单（含勾选状态）
+
+change 名 = ROADMAP 中登记的该 plan 的 change 名（命名一致，见下一节「OpenSpec × GSD 工作流协议」规则 #1）。
+
+**Step 3：同步 wiki**
+
 ```bash
 cp -r openspec/changes/[变更名] ../my-project-wiki/raw/openspec/
 ```
+
 同步后进入 wiki 仓库执行 `/ingest`，让决策背景沉淀进知识库。
-
-### 扩展指令
-
-| 指令               | 用途                           |
-| ---------------- | ---------------------------- |
-| `/opsx:explore`  | 需求不清晰时先和 AI 讨论，不生成文件         |
-| `/opsx:continue` | 逐步生成，先审查 proposal 再生成 design |
-| `/opsx:ff`       | 需求明确时一次性补全所有规划               |
-| `/opsx:verify`   | 生成完成后让 AI 自查是否符合 design.md   |
 
 ---
 
@@ -167,16 +168,17 @@ cp -r openspec/changes/[变更名] ../my-project-wiki/raw/openspec/
 
 ### 硬规则
 
-1. **一 plan ↔ 一 change**
-   每个 `.planning/phases/NN-*/NN-MM-PLAN.md` 对应 `openspec/changes/<name>/` 下唯一的 change；ROADMAP 中该 plan 登记的 change 名必须 == openspec 下文件夹名。
+1. **一 plan ↔ 一 change（归档关系，非并行工作流）**
+   每个 `.planning/phases/NN-*/NN-MM-PLAN.md` 执行完毕后，必须在 `openspec/changes/<name>/` 下归档对应 change（含 proposal/design/tasks 三件套）。ROADMAP 中该 plan 登记的 change 名必须 == openspec 下文件夹名。归档是 GSD 执行后的产物标准化，不是独立工作流。
 
 2. **files_modified 必须指向真实存在的路径**
    GSD plan 的 `files_modified` 只允许写 `my-project-code/demo/...`（代码产物）或 `my-project-wiki/...`（wiki 真实存在的文件）。禁止写虚构路径——历史踩过的坑：`my-project-wiki/raw/docs/demo-0408/`（那个目录从未存在）。
 
 3. **ROADMAP 完整登记**
    - 每个 Phase 的 `OpenSpec Changes:` 列表条目数必须 == 该 Phase 实际 plan 数。
-   - 对**已开始执行**的 Phase：ROADMAP 列的 change 名必须在 `openspec/changes/` 下能找到实体；`/gsd-plan-phase` 时必须同步创建对应 openspec change 并保证命名一致。
+   - 对**已执行且完成归档**的 Phase：ROADMAP 列的 change 名必须在 `openspec/changes/` 下能找到实体。
    - 对**未开始**的 Phase：ROADMAP 列的 change 名是规划占位，允许 openspec 下暂无对应文件夹。
+   - **Phase 1 legacy**：归档缺失属于历史债务，豁免本条（见规则 7）。
    - **反方向**：`openspec/changes/` 下所有 active change（非 archived / 非 deprecated）必须在 ROADMAP 能找到归属——要么作为某 Phase 的主 change，要么作为 post-launch patch 挂到某个 Phase（见规则 4）。
 
 4. **post-launch patch 允许但必须标注**
@@ -184,6 +186,12 @@ cp -r openspec/changes/[变更名] ../my-project-wiki/raw/openspec/
 
 5. **废弃 change 不删文件夹**
    在 `proposal.md` frontmatter 打 `status: deprecated`，正文写明废弃理由。符合主 CLAUDE.md「原始资料永远只增不删」元原则。
+
+6. **`openspec/config.yaml` 的 AI 生成硬约束对 GSD 执行器同样生效**
+   `config.yaml` 的 `rules.propose/apply/archive` 三段定义的约束（Tailwind CDN、Lucide、mock 数据内联、相对路径跳转、禁 npm 包、禁内联 style、色彩主题 neutral 等）不因流程重定位而废止。GSD 执行器（`/gsd-execute-phase` 等）生成 HTML 时必须遵守这些规则。
+
+7. **Phase 1 legacy 豁免**
+   Phase 1 五个 plan（01-01 ~ 01-05）在本协议建立（2026-04-20）之前已完成实现，其 `openspec/changes/` 归档缺失属于历史债务，**不追溯补建**。未来从 Phase 2 起严格执行本协议。
 
 ### 交付前自检（触发场景：改动 `.planning/` 或 `openspec/changes/` 之一时）
 

@@ -174,7 +174,10 @@ cp -r openspec/changes/[变更名] ../my-project-wiki/raw/openspec/
    GSD plan 的 `files_modified` 只允许写 `my-project-code/demo/...`（代码产物）或 `my-project-wiki/...`（wiki 真实存在的文件）。禁止写虚构路径——历史踩过的坑：`my-project-wiki/raw/docs/demo-0408/`（那个目录从未存在）。
 
 3. **ROADMAP 完整登记**
-   每个 Phase 的 `OpenSpec Changes:` 列表条目数必须 == 该 Phase 实际 plan 数。ROADMAP 列的 change 名必须在 `openspec/changes/` 下能找到实体，反之 `openspec/changes/` 下的 active change 也必须在 ROADMAP 有登记（例外见规则 4）。
+   - 每个 Phase 的 `OpenSpec Changes:` 列表条目数必须 == 该 Phase 实际 plan 数。
+   - 对**已开始执行**的 Phase：ROADMAP 列的 change 名必须在 `openspec/changes/` 下能找到实体；`/gsd-plan-phase` 时必须同步创建对应 openspec change 并保证命名一致。
+   - 对**未开始**的 Phase：ROADMAP 列的 change 名是规划占位，允许 openspec 下暂无对应文件夹。
+   - **反方向**：`openspec/changes/` 下所有 active change（非 archived / 非 deprecated）必须在 ROADMAP 能找到归属——要么作为某 Phase 的主 change，要么作为 post-launch patch 挂到某个 Phase（见规则 4）。
 
 4. **post-launch patch 允许但必须标注**
    Phase 执行完成后如需追加小补丁（UI 打磨、字段补全等），可在 openspec 新建独立 change 且不占新 plan 编号。但该 change 的 `proposal.md` 必须在「为什么做」段明示「Phase X 的 post-launch patch」并引用上游 plan 编号，便于追溯。

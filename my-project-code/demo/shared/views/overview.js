@@ -476,8 +476,96 @@ function _ovBlock6Changes(project) {
       '<th style="width:130px">时间</th><th style="width:100px">操作人</th><th style="width:110px">动作</th><th>说明</th>' +
     '</tr></thead><tbody>' + rows + '</tbody></table>';
 }
-function _ovBlock7Acceptance(project) { return '本阶段暂无记录'; }
-function _ovBlock8Ops(project)        { return '本阶段暂无记录'; }
+/* --- 块 7 验收 --- */
+function _ovBlock7Acceptance(project) {
+  var acs = (DATA.acceptances || []).filter(function(a){ return a.projectId === project.id; });
+  if (!acs.length) return '本阶段暂无记录';
+
+  return acs.map(function(a){
+    var formalTag = a.formalStatus === '已通过'
+      ? '<span class="tag tag-success">已通过</span>'
+      : a.formalStatus === '不通过'
+        ? '<span class="tag tag-danger">不通过</span>'
+        : '<span class="tag tag-warning">' + _ovEsc(a.formalStatus || '待组织') + '</span>';
+
+    var report = a.reportFile
+      ? '<a class="link" onclick="toast(\'Demo 不支持下载\',\'info\')"><i data-lucide="file-text" style="width:12px;height:12px;margin-right:2px"></i>' + _ovEsc(a.reportFile) + '</a>'
+      : '<span style="color:var(--text-secondary)">暂无</span>';
+
+    return '<div style="padding:8px 0;border-bottom:1px dashed #eee;margin-bottom:8px">' +
+      _ovKv('验收编号',   '<strong>' + a.id + '</strong>') +
+      _ovKv('初验通过',   _ovEsc(a.internalPassedAt || '—')) +
+      _ovKv('试运行起止', (a.trialStartAt ? _ovEsc(a.trialStartAt) : '—') + (a.trialMonths ? ' · ' + a.trialMonths + ' 个月' : '')) +
+      _ovKv('正式验收',   formalTag + (a.formalPassedAt ? ' · ' + _ovEsc(a.formalPassedAt) : '')) +
+      _ovKv('验收结论',   _ovEsc(a.conclusion || '—')) +
+      _ovKv('验收报告',   report) +
+    '</div>';
+  }).join('');
+}
+
+/* --- 块 8 运维 --- */
+function _ovBlock8Ops(project) {
+  var recs = (DATA.opsRecords || []).filter(function(r){ return r.projectId === project.id; });
+  var faults = (DATA.faultTickets || []).filter(function(f){ return f.projectId === project.id; });
+  if (!recs.length && !faults.length) return '本阶段暂无记录';
+
+  var recTypeLabel = { inspection: '巡检', backup: '备份', incident: '事件', patch: '补丁' };
+  var recStatusTag = function(s){
+    if (s === 'normal')   return '<span class="tag tag-success">正常</span>';
+    if (s === 'abnormal') return '<span class="tag tag-danger">异常</span>';
+    return '<span class="tag">' + _ovEsc(s || '—') + '</span>';
+  };
+
+  var recsHtml = '';
+  if (recs.length) {
+    var rows = recs.map(function(r){
+      return '<tr>' +
+        '<td>' + _ovEsc(r.date || '—') + '</td>' +
+        '<td>' + _ovEsc(recTypeLabel[r.type] || r.type || '—') + '</td>' +
+        '<td>' + _ovEsc(r.operator || '—') + '</td>' +
+        '<td style="font-size:11px">' + _ovEsc(r.content || '—') + '</td>' +
+        '<td>' + recStatusTag(r.status) + '</td>' +
+      '</tr>';
+    }).join('');
+    recsHtml =
+      '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">运维记录（共 ' + recs.length + ' 条）</div>' +
+      '<table class="data-table" style="font-size:12px;margin-bottom:12px"><thead><tr>' +
+        '<th style="width:110px">日期</th><th style="width:70px">类型</th><th style="width:80px">操作人</th><th>内容</th><th style="width:70px">状态</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+
+  var faultsHtml = '';
+  if (faults.length) {
+    var levelTag = function(l){
+      if (l === 'major')    return '<span class="tag tag-danger">重大</span>';
+      if (l === 'critical') return '<span class="tag tag-danger">严重</span>';
+      if (l === 'normal')   return '<span class="tag tag-warning">一般</span>';
+      return '<span class="tag">' + _ovEsc(l || '—') + '</span>';
+    };
+    var statusTag = function(s){
+      if (s === 'resolved')     return '<span class="tag tag-success">已解决</span>';
+      if (s === 'in-progress')  return '<span class="tag tag-warning">处理中</span>';
+      if (s === 'open')         return '<span class="tag tag-danger">待处理</span>';
+      return '<span class="tag">' + _ovEsc(s || '—') + '</span>';
+    };
+    var rows = faults.map(function(f){
+      return '<tr>' +
+        '<td>' + levelTag(f.level) + '</td>' +
+        '<td style="font-size:11px">' + _ovEsc(f.title || '—') + '</td>' +
+        '<td>' + _ovEsc(f.reportTime || '—') + '<div style="font-size:10px;color:var(--text-secondary)">' + _ovEsc(f.reporter || '') + '</div></td>' +
+        '<td>' + statusTag(f.status) + '</td>' +
+        '<td style="font-size:11px">' + _ovEsc(f.resolveTime || '—') + (f.resolution ? '<div style="font-size:10px;color:var(--text-secondary)">' + _ovEsc(f.resolution) + '</div>' : '') + '</td>' +
+      '</tr>';
+    }).join('');
+    faultsHtml =
+      '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">故障工单（共 ' + faults.length + ' 条）</div>' +
+      '<table class="data-table" style="font-size:12px"><thead><tr>' +
+        '<th style="width:60px">级别</th><th>标题</th><th style="width:130px">上报</th><th style="width:80px">状态</th><th>解决</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+
+  return recsHtml + faultsHtml;
+}
 function _ovBlock9Terminal(project)   { return '本阶段暂无记录'; }
 function _ovBlock10Logs(project)      { return '本阶段暂无记录'; }
 

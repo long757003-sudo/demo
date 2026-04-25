@@ -172,7 +172,7 @@ window.filterProposalList = function(reset) {
 
 
 /* ============================================================
-   2. proposal-fill — 填报申报书（7章 38字段）
+   2. proposal-fill — 填报申报书（6章，对齐申报书原件）
    ============================================================ */
 registerView('proposal-fill', function() {
   const role   = getCurrentRole();
@@ -184,7 +184,7 @@ registerView('proposal-fill', function() {
   if (window._proposalChapter === undefined) window._proposalChapter = 0;
   const ch = window._proposalChapter;
 
-  const chapters = ['基本信息','必要性论证','建设方案','资源规划','数据治理','采购预算','实施计划'];
+  const chapters = ['项目基本情况','必要性及建设目标','项目建设方案','配置清单及预算','项目实施计划','建设单位意见'];
 
   // ---- helpers ----
   const ro = isReadOnly ? 'readonly' : '';
@@ -203,13 +203,11 @@ registerView('proposal-fill', function() {
   function textArea(name, val, rows) {
     return `<textarea class="form-control" name="${name}" rows="${rows || 4}" ${dis}>${val || ''}</textarea>`;
   }
-  function selectInput(name, options, val) {
-    return `<select class="form-control" name="${name}" ${dis}>` +
-      options.map(o => `<option value="${o}" ${val === o ? 'selected' : ''}>${o}</option>`).join('') +
-      '</select>';
+  function cb(name, label, checked) {
+    return `<label style="display:inline-flex;align-items:center;gap:5px;margin-right:14px;cursor:pointer"><input type="checkbox" name="${name}" ${checked ? 'checked' : ''} ${dis}> ${label}</label>`;
   }
 
-  // ---- Chapter renderers ----
+  // ---- Chapter 0: 一、项目基本情况 ----
   function renderChapter0() {
     const bt = prop.budget ? budgetToType(prop.budget) : null;
     const btTag = bt ? `<span class="tag ${{ micro:'tag-gray', small:'tag-blue', mid:'tag-orange', major:'tag-red' }[bt.type]}" id="budget-type-tag">${bt.label}</span>` : `<span class="tag tag-gray" id="budget-type-tag" style="display:none"></span>`;
@@ -221,246 +219,285 @@ registerView('proposal-fill', function() {
       + assistantTags
       + (!isReadOnly ? ' <button type="button" class="btn" style="padding:2px 10px;font-size:12px;margin-left:4px" onclick="openAssistantModal()">选择</button>' : '')
       + '</div>';
+
+    const projectTypes = ['基础设施','硬件设备','信息系统','运维服务','数字资源'];
+    const selectedTypes = prop.projectTypes || ['信息系统'];
+    const typeCheckboxes = projectTypes.map(t => cb('projectType_' + t, t, selectedTypes.includes(t))).join('');
+
+    const deployHtml = `
+      <div style="margin-bottom:8px">
+        <span style="font-size:12px;color:var(--text-secondary);margin-right:6px">信息系统：</span>
+        ${cb('deploy_sys_center','学校数据中心',true)}
+        ${cb('deploy_sys_other','其他',false)}
+        <input class="form-control" style="display:inline-block;width:130px;margin-left:2px" placeholder="请说明" ${ro}>
+      </div>
+      <div>
+        <span style="font-size:12px;color:var(--text-secondary);margin-right:6px">硬件设备：</span>
+        ${cb('deploy_hw_center','学校数据中心',false)}
+        ${cb('deploy_hw_other','其他',false)}
+        <input class="form-control" style="display:inline-block;width:130px;margin-left:2px" placeholder="请说明" ${ro}>
+      </div>`;
+
+    const serviceHtml = `
+      <div style="margin-bottom:6px">
+        <span style="font-size:12px;color:var(--text-secondary);margin-right:6px">用户范围：</span>
+        ${cb('user_staff','教职员工',true)}
+        ${cb('user_student','学生',false)}
+        ${cb('user_other','其他',false)}
+      </div>
+      <div>
+        <span style="font-size:12px;color:var(--text-secondary);margin-right:6px">访问范围：</span>
+        ${cb('access_campus','校园网',true)}
+        ${cb('access_internet','互联网',false)}
+        ${cb('access_intranet','内网',false)}
+      </div>`;
+
+    const fundingHtml = `
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:4px 0">
+        ${cb('fund_sci','科研经费',false)}
+        ${cb('fund_unit','单位自筹经费',false)}
+        ${cb('fund_school','校统筹经费',true)}
+        <span style="font-size:12px;color:var(--text-secondary)">（如：信息化建设办公室、实验设备管理处、本科生院等）</span>
+      </div>`;
+
     return `
       <div class="form-grid cols-3">
+        ${field('申请编号', `<input class="form-control" value="${prop.id || '（提交后自动生成）'}" readonly style="color:var(--text-secondary)">`, false)}
         ${field('项目名称', textInput('projectName', prop.projectName), true)}
-        ${field('牵头建设单位', `<input class="form-control" name="unit" value="${prop.unit || '教务处'}" ${ro}>`, true)}
-        ${field('协作建设单位', textInput('coUnit', prop.coUnit))}
-        ${field('项目负责人', `<input class="form-control" name="manager" value="${prop.manager || '李明'}" ${ro}>`, true)}
-        ${field('项目协助人', assistantField, false, '点击"选择"按钮可多选协助人')}
-        ${field('联系电话', textInput('contact', prop.contact || '13800138001'), true)}
-        ${field('电子邮件', `<input class="form-control" name="email" type="email" value="${prop.email || 'liming@swu.edu.cn'}" ${ro}>`, true)}
+        ${field('申报日期', `<input class="form-control" type="date" value="${new Date().toISOString().slice(0,10)}" ${ro}>`, true)}
       </div>
+      <div class="form-grid cols-2">
+        ${field('项目用户单位', `<input class="form-control" name="unit" value="${prop.unit || '教务处'}" ${ro}>`, true)}
+        ${field('协作建设单位', textInput('coUnit', prop.coUnit), false, '多单位共建时填写牵头单位，并在此注明参与单位')}
+      </div>
+      ${field('项目类型', `<div style="padding:4px 0">${typeCheckboxes}<div class="form-hint" style="margin-top:4px">可多选</div></div>`, true)}
+      <div class="form-section-title">负责人与联系人</div>
       <div class="form-grid cols-3">
-        ${field('项目类型', selectInput('projectType', ['新建','升级改造','运维服务','其他'], prop.projectType || '新建'))}
-        ${field('项目来源', selectInput('projectSource', ['学校信息化规划','数智西大建设','综合改革','巡视整改','上级要求','其他'], prop.projectSource || '学校信息化规划'))}
-        ${field('建设性质', selectInput('buildNature', ['自建','委托开发','采购成品','混合'], prop.buildNature || '委托开发'))}
+        ${field('单位负责人姓名', textInput('unitLeaderName', prop.unitLeaderName || prop.manager || '李明'), true)}
+        ${field('单位负责人联系电话', textInput('unitLeaderPhone', prop.unitLeaderPhone || prop.contact || '13800138001'), true)}
+        <div></div>
+        ${field('项目联系人姓名', textInput('manager', prop.manager || '李明'), true)}
+        ${field('项目联系人电话', textInput('contact', prop.contact || '13800138001'), true)}
+        ${field('项目联系人 Email', `<input class="form-control" name="email" type="email" value="${prop.email || 'liming@swu.edu.cn'}" ${ro}>`, true)}
+        ${field('项目协助人', assistantField, false, '点击"选择"可多选协助人')}
       </div>
-      <div class="form-grid cols-3">
-        ${field('项目预算总额（万元）',
-          `<div style="display:flex;align-items:center;gap:8px">
-            <input class="form-control" name="budget" type="number" value="${prop.budget || ''}" oninput="onBudgetInput(this.value)" style="width:160px" ${ro}>
-            ${btTag}
-          </div>`,
-          true, '填写后自动判断项目级别')}
-      </div>
-      <div class="form-section-title">经费来源</div>
-      <table class="data-table" style="margin-bottom:16px">
-        <thead><tr><th>经费来源</th><th>金额（万元）</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><select class="form-control form-control-sm" ${dis}>
-              <option>学校统筹经费</option><option>专项经费</option><option>科研经费</option><option>其他</option>
-            </select></td>
-            <td><input class="form-control form-control-sm" type="number" value="${prop.budget ? (prop.budget * 0.7).toFixed(1) : ''}" ${ro}></td>
-          </tr>
-          <tr>
-            <td><select class="form-control form-control-sm" ${dis}>
-              <option>学校统筹经费</option><option selected>专项经费</option><option>科研经费</option><option>其他</option>
-            </select></td>
-            <td><input class="form-control form-control-sm" type="number" value="${prop.budget ? (prop.budget * 0.3).toFixed(1) : ''}" ${ro}></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="form-grid cols-2" style="max-width:500px">
-        ${field('计划建设开始日期', `<input class="form-control" type="date" value="${prop.planStart || '2025-05-01'}" ${ro}>`, true)}
-        ${field('计划建设结束日期', `<input class="form-control" type="date" value="${prop.planEnd || '2025-10-31'}" ${ro}>`, true)}
-      </div>`;
+      <div class="form-section-title">部署方式与服务对象</div>
+      ${field('安装部署方式', deployHtml, true)}
+      ${field('服务对象', serviceHtml, true)}
+      <div class="form-section-title">预算与资金来源</div>
+      ${field('项目预算（万元）',
+        `<div style="display:flex;align-items:center;gap:8px">
+          <input class="form-control" name="budget" type="number" value="${prop.budget || ''}" oninput="onBudgetInput(this.value)" style="width:160px" ${ro}>
+          ${btTag}
+        </div>`,
+        true, '填写后自动判断项目级别')}
+      ${field('资金来源', fundingHtml, true)}
+      <div class="form-section-title">项目简介</div>
+      ${field('项目简介', textArea('summary', prop.summary || ''), true, '简要描述项目背景、建设内容和预期成效')}`;
   }
 
+  // ---- Chapter 1: 二、必要性及建设目标 ----
   function renderChapter1() {
+    const opCol = !isReadOnly ? '<th style="width:52px">操作</th>' : '';
+    const defaultSurveyRows = [0,1,2].map(function() {
+      return '<tr>'
+        + '<td><input class="form-control form-control-sm" placeholder="品牌/型号" ' + ro + '></td>'
+        + '<td><input class="form-control form-control-sm" placeholder="厂商名称" ' + ro + '></td>'
+        + '<td><input class="form-control form-control-sm" placeholder="调研内容" ' + ro + '></td>'
+        + '<td><input class="form-control form-control-sm" placeholder="调研情况" ' + ro + '></td>'
+        + (!isReadOnly ? '<td><button type="button" class="btn btn-sm" style="color:var(--danger);padding:2px 8px" onclick="removeSurveyRow(this)">删</button></td>' : '')
+        + '</tr>';
+    }).join('');
+    const surveyTable = `<table class="data-table" id="survey-table" style="margin-bottom:8px">
+      <thead><tr><th>被调研产品品牌及型号</th><th>厂商</th><th>调研内容</th><th>调研情况</th>${opCol}</tr></thead>
+      <tbody id="survey-tbody">${defaultSurveyRows}</tbody>
+    </table>${!isReadOnly ? '<button type="button" class="btn btn-sm" onclick="addSurveyRow()">+ 添加调研对象</button>' : ''}`;
     return `
       <div class="form-grid cols-1">
-        ${field('项目背景与现状分析', textArea('background', prop.background || '当前教学质量数据分散在多个系统，缺乏统一分析平台，导致教学督导工作效率低下，数据共享困难。', 5), true)}
-        ${field('建设必要性', textArea('necessity', prop.necessity || '建设统一的本科教学质量数据分析平台是提升教学管理水平、落实学校信息化规划的重要举措，有助于实现数据驱动决策。', 5), true)}
-        ${field('与学校信息化规划的关系',
-          textArea('planRelation', prop.planRelation || '本项目是"数智西大"建设专项规划的重点支撑项目，与学校"十四五"信息化规划中"智慧教学"板块直接对应。', 4),
-          false, '若项目来源为"学校信息化规划"，此项必填')}
+        ${field('必要性', textArea('necessity', prop.necessity || '当前教学质量数据分散在多个系统，缺乏统一分析平台，导致教学督导工作效率低下，数据共享困难。建设统一的本科教学质量数据分析平台是提升教学管理水平、落实学校信息化规划的重要举措，有助于实现数据驱动决策。', 6), true, '描述项目建设背景与依据；若非新建项目，须补充前期项目建设情况（完成情况、经费支出、使用成效、验收报告等）')}
+        ${field('建设目标', textArea('goal', prop.goal || '构建统一的教学质量数据分析平台，整合教学评价、课程成绩等数据，支持多维度分析决策。', 4), true, '包括总体目标，分阶段或分期建设目标等')}
+        ${field('与学校信息化规划的关系', textArea('planRelation', prop.planRelation || '本项目是"数智西大"建设专项规划的重点支撑项目，与学校"十四五"信息化规划中"智慧教学"板块直接对应。', 4), false, '若项目来源为"学校信息化规划"，此项必填')}
+        ${field('需求调研', surveyTable, true, '一般不少于3个调研对象，应与本次建设的资金规模、核心产品相近且具代表性，可另附页')}
       </div>`;
   }
 
+  // ---- Chapter 2: 三、项目建设方案 ----
   function renderChapter2() {
+    const intSystems = `
+      ${cb('int_sso','统一身份认证',true)}
+      ${cb('int_portal','网上办事大厅',false)}
+      ${cb('int_ding','钉钉',true)}
+      ${cb('int_none','无对接需求',false)}
+      <div style="margin-top:6px">
+        <span style="font-size:12px;color:var(--text-secondary);margin-right:6px">其他系统：</span>
+        <input class="form-control" style="display:inline-block;width:240px" placeholder="可写多个" ${ro}>
+      </div>`;
+
+    const notifyPlat = `
+      ${cb('notify_sms','短信',false)}
+      ${cb('notify_ding','钉钉',true)}
+      ${cb('notify_portal','一站式数智门户',false)}
+      ${cb('notify_none','无',false)}
+      ${cb('notify_other','其他消息系统',false)}`;
+
+    const baseData = `
+      ${cb('data_hr','人事',false)}
+      ${cb('data_ug','本科生',true)}
+      ${cb('data_grad','研究生',false)}
+      ${cb('data_sci','科研',false)}
+      ${cb('data_teach','教学',true)}
+      ${cb('data_equip','设备',false)}
+      ${cb('data_fin','财务',false)}
+      ${cb('data_other','其他信息',false)}
+      ${cb('data_none','无',false)}`;
+
+    function yesNo(name, defaultYes) {
+      return `<label style="margin-right:16px"><input type="radio" name="${name}" value="是" ${defaultYes?'checked':''} ${dis}> 是</label>`
+           + `<label><input type="radio" name="${name}" value="否" ${!defaultYes?'checked':''} ${dis}> 否</label>`;
+    }
+
     return `
       <div class="form-grid cols-1">
-        ${field('建设目标', textArea('goal', prop.goal || '构建统一的教学质量数据分析平台，整合教学评价、课程成绩等数据，支持多维度分析决策。', 4), true)}
-        ${field('建设内容与功能需求', textArea('buildContent', prop.buildContent || '开发教学质量数据采集、清洗、分析及可视化模块，与教务系统、评教系统对接，支持PC与移动端访问。', 5), true)}
-        ${field('技术方案', textArea('techPlan', prop.techPlan || '采用 B/S 架构，Spring Boot + Vue3，与现有教务系统 API 对接，部署于学校私有云平台。', 5), true)}
-        ${field('系统集成与数据共享方案', textArea('integrationPlan', prop.integrationPlan || '通过学校统一数据共享平台（ESB）与教务系统、评教系统实现数据交换，遵循学校数据标准规范。', 4), true)}
-        ${field('网络安全方案', textArea('securityPlan', prop.securityPlan || '数据传输 HTTPS 加密，基于 RBAC 的角色权限管控，每日自动备份，敏感数据脱敏展示，符合等保2.0三级要求。', 4), true)}
-      </div>`;
-  }
-
-  function renderChapter3() {
-    return `
-      <div class="notice-item warning" style="margin-bottom:16px">
-        <strong>注意（BR-11）：</strong>通用基础硬件（服务器、存储、网络）由信息办统筹，请按需申请，不得自行采购。
+        ${field('建设内容', textArea('buildContent', prop.buildContent || '开发教学质量数据采集、清洗、分析及可视化模块，与教务系统、评教系统对接，支持PC与移动端访问。', 5), true, '主要硬件组成、软件功能模块、系统集成任务、服务内容等，可另附页说明')}
       </div>
-      <div class="form-section-title">服务器资源需求</div>
-      <table class="data-table" style="margin-bottom:16px">
-        <thead><tr><th>类型</th><th>数量</th><th>配置要求</th><th>用途说明</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><input class="form-control form-control-sm" value="应用服务器" ${ro}></td>
-            <td><input class="form-control form-control-sm" type="number" value="2" style="width:60px" ${ro}></td>
-            <td><input class="form-control form-control-sm" value="8核16G/500G SSD" ${ro}></td>
-            <td><input class="form-control form-control-sm" value="前端应用与后端API服务" ${ro}></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="form-section-title">存储资源需求</div>
-      <table class="data-table" style="margin-bottom:16px">
-        <thead><tr><th>类型</th><th>容量</th><th>规格</th><th>用途说明</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><input class="form-control form-control-sm" value="共享存储" ${ro}></td>
-            <td><input class="form-control form-control-sm" value="5TB" ${ro}></td>
-            <td><input class="form-control form-control-sm" value="SAS RAID5" ${ro}></td>
-            <td><input class="form-control form-control-sm" value="数据存储与备份" ${ro}></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="form-grid cols-1">
-        ${field('网络资源需求', textArea('networkReq', '需申请校园网内部带宽10Mbps，教务系统内网访问权限。', 3), true)}
-        ${field('其他基础设施需求', textArea('infraOther', ''), false)}
+      <div class="form-section-title">信息化资源规划（信息系统类项目填写）</div>
+      <div style="background:var(--bg-secondary,#fafafa);border:1px solid #e8e8e8;border-radius:6px;padding:16px;margin-bottom:16px">
+        ${field('需对接的学校信息化基础应用系统', `<div style="padding:6px 0">${intSystems}</div>`, true)}
+        ${field('通知消息发送平台', `<div style="padding:4px 0">${notifyPlat}</div>`, true)}
+        ${field('系统数据共享', textArea('dataShareDesc', prop.dataShareDesc || '系统默认共享所有数据。不能提供的共享数据及说明（可写多个）：', 3), false, '系统默认共享所有数据，如有不能共享的数据请进行说明')}
+        ${field('系统拟申请使用学校基础数据', `<div style="padding:4px 0">${baseData}</div>`, false)}
+        <div class="form-section-title" style="font-size:13px;margin-top:4px">硬件运行环境要求</div>
+        <div style="font-size:12px;color:var(--text-secondary);font-weight:600;margin:6px 0 4px">硬件规格</div>
+        <div class="form-grid cols-4">
+          ${field('高度（U）', `<input class="form-control" name="hw_height" type="number" placeholder="U" ${ro}>`)}
+          ${field('电源功耗（W）', `<input class="form-control" name="hw_power" type="number" placeholder="W" ${ro}>`)}
+          ${field('光口数量（个）', `<input class="form-control" name="hw_fiber_port" type="number" placeholder="个" ${ro}>`)}
+          ${field('电口数量（个）', `<input class="form-control" name="hw_copper_port" type="number" placeholder="个" ${ro}>`)}
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary);font-weight:600;margin:6px 0 4px">服务器性能需求</div>
+        <div class="form-grid cols-3" style="font-size:13px">
+          ${field('服务器数量', `<input class="form-control" type="number" placeholder="台" ${ro}>`)}
+          ${field('CPU（主频/个数/核数）', `<input class="form-control" placeholder="如 2.5GHz×2×16核" ${ro}>`)}
+          ${field('内存（GB）', `<input class="form-control" type="number" placeholder="GB" ${ro}>`)}
+          ${field('算力（如有，TOPS）', `<input class="form-control" placeholder="TOPS" ${ro}>`)}
+          ${field('网络带宽（MB/S）', `<input class="form-control" placeholder="MB/S" ${ro}>`)}
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary);font-weight:600;margin:6px 0 4px">存储需求</div>
+        <div class="form-grid cols-2" style="max-width:420px">
+          ${field('应用数据存储需求（GB）', `<input class="form-control" type="number" placeholder="GB" ${ro}>`)}
+          ${field('数据库数据存储需求（GB）', `<input class="form-control" type="number" placeholder="GB" ${ro}>`)}
+        </div>
+      </div>
+      <div class="form-section-title">系统提供服务情况</div>
+      <div style="background:var(--bg-secondary,#fafafa);border:1px solid #e8e8e8;border-radius:6px;padding:16px;margin-bottom:16px">
+        ${field('系统是否提供互联网访问', yesNo('internet_access', false))}
+        ${field('系统是否采用独立的用户注册认证（非学校统一身份认证）', yesNo('independent_auth', false))}
+        ${field('系统是否存储个人信息（如姓名、电话、出生日期、身份证号、住址等）', yesNo('store_personal', true))}
+        ${field('处理的主要数据内容', `<input class="form-control" name="dataContent" placeholder="如：个人信息、XX类业务数据、资金数据、敏感数据等" ${ro}>`)}
+        ${field('数据的重要程度', `<select class="form-control" name="dataLevel" style="max-width:200px" ${dis}><option>不可公开</option><option>审批后公开</option><option selected>可公开</option></select>`)}
+        ${field('数据涉及的数量级', `<select class="form-control" name="dataScale" style="max-width:160px" ${dis}><option>百</option><option>千</option><option selected>万</option><option>十万</option><option>百万</option><option>千万及以上</option></select>`)}
+        ${field('其他说明', `<input class="form-control" name="serviceOther" placeholder="如需说明其他情况，请在此填写" ${ro}>`)}
+      </div>
+      <div class="form-section-title">信息化建设办公室网络安全检测建议</div>
+      <div style="background:var(--bg-secondary,#fafafa);border:1px solid #e8e8e8;border-radius:6px;padding:16px;margin-bottom:16px">
+        ${field('安全检测类型', `<div style="padding:4px 0">
+          ${cb('sec_pentest','渗透测试',false)}
+          ${cb('sec_codescan','代码审计',false)}
+          ${cb('sec_vulnscan','漏洞扫描',true)}
+          ${cb('sec_compliance','等保合规评估',false)}
+          ${cb('sec_datasec','数据安全评估',false)}
+        </div>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:6px">
+          <span style="font-size:12px;color:var(--text-secondary)">其他：</span>
+          <input class="form-control" style="flex:1;max-width:360px" name="sec_other" placeholder="请填写其他安全检测类型" ${ro}>
+        </div>`, false, '由信息化建设办公室根据系统情况提出建议，申报单位确认填写')}
       </div>`;
   }
 
-  function renderChapter4() {
-    return `
-      <div class="form-section-title">数据来源与分类</div>
-      <table class="data-table" style="margin-bottom:16px">
-        <thead><tr><th>数据项</th><th>来源系统</th><th>数据级别</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><input class="form-control form-control-sm" value="课程成绩数据" ${ro}></td>
-            <td><input class="form-control form-control-sm" value="教务管理系统" ${ro}></td>
-            <td><select class="form-control form-control-sm" ${dis}>
-              <option>公开</option><option selected>内部</option><option>敏感</option><option>机密</option>
-            </select></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="form-grid cols-1">
-        ${field('数据共享需求', textArea('dataShare', '需从教务系统获取课程、成绩、评教数据；共享分析结果至学校数据中台。', 3), true)}
-        ${field('数据安全措施', textArea('dataSecurity', '数据访问采用最小权限原则，敏感数据字段加密存储，定期开展数据安全审计，制定数据泄露应急预案。', 4), true)}
-        ${field('个人信息保护方案', textArea('privacyPlan', ''), false)}
-      </div>`;
-  }
-
-  function renderChapter5() {
-    const budgetRows = [
-      { item:'软件开发费', amount: prop.budgetSoftware || 60, note:'含需求分析、设计、开发、测试' },
-      { item:'硬件设备费', amount: prop.budgetHardware || 15, note:'服务器等申请信息办统筹' },
-      { item:'运维服务费', amount: prop.budgetOps || 10, note:'一年质保期运维服务' },
+  // ---- Chapter 3: 四、配置清单及采购预算 ----
+  function renderChapter3() {
+    const total = (prop.budgetSoftware || 60) + (prop.budgetOps || 10);
+    const initRows = [
+      { name:'教学质量分析平台软件', spec:'定制开发，含需求分析、设计、开发、测试', qty:1, unit: prop.budgetSoftware||60, total: prop.budgetSoftware||60, note:'' },
+      { name:'系统运维服务（一年质保）', spec:'上线后一年内运维保障',              qty:1, unit: prop.budgetOps||10,       total: prop.budgetOps||10,       note:'' },
     ];
-    const total = budgetRows.reduce((s, r) => s + r.amount, 0);
-    const detailRows = budgetRows.map(r => `
+    const rowsHtml = initRows.map(r => `
       <tr>
-        <td><input class="form-control form-control-sm" value="${r.item}" ${ro}></td>
-        <td><input class="form-control form-control-sm" type="number" value="${r.amount}" class="budget-item" oninput="calcBudgetSum()" style="width:90px" ${ro}></td>
+        <td><input class="form-control form-control-sm" value="${r.name}" ${ro}></td>
+        <td><input class="form-control form-control-sm" value="${r.spec}" ${ro}></td>
+        <td><input class="form-control form-control-sm" type="number" value="${r.qty}" style="width:56px" ${ro}></td>
+        <td><input class="form-control form-control-sm" type="number" value="${r.unit}" class="budget-item" oninput="calcBudgetSum()" style="width:86px" ${ro}></td>
+        <td><input class="form-control form-control-sm" type="number" value="${r.total}" style="width:86px" ${ro}></td>
         <td><input class="form-control form-control-sm" value="${r.note}" ${ro}></td>
       </tr>`).join('');
     return `
-      <div class="form-section-title">预算明细</div>
-      <table class="data-table" style="margin-bottom:16px" id="budget-detail-table">
-        <thead><tr><th>费用科目</th><th>金额（万元）</th><th>说明</th></tr></thead>
-        <tbody>${detailRows}
+      <div class="notice-item info" style="margin-bottom:16px">
+        通用基础硬件（服务器、存储、网络）由信息办统筹，请在第三章信息化资源规划中填写申请，无需在此列为采购项。
+      </div>
+      <table class="data-table" id="budget-detail-table" style="margin-bottom:16px">
+        <thead><tr><th>名称</th><th>性能指标/功能说明</th><th>数量</th><th>单价（万元）</th><th>总价（万元）</th><th>备注</th></tr></thead>
+        <tbody>
+          ${rowsHtml}
+          <tr>
+            <td colspan="6" style="padding:6px 8px">
+              ${!isReadOnly ? '<button type="button" class="btn btn-sm" onclick="addBudgetRow()">+ 添加行</button>' : ''}
+            </td>
+          </tr>
           <tr style="background:#fafafa;font-weight:600">
-            <td>合计</td>
+            <td colspan="3">项目建设总预算（万元）</td>
+            <td></td>
             <td id="budget-sum">${total}</td>
             <td></td>
           </tr>
         </tbody>
-      </table>
-      <div class="form-section-title">软件采购清单</div>
-      <table class="data-table" style="margin-bottom:16px">
-        <thead><tr><th>软件名称</th><th>版本/规格</th><th>数量</th><th>单价（万元）</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><input class="form-control form-control-sm" value="教学质量分析平台软件" ${ro}></td>
-            <td><input class="form-control form-control-sm" value="定制开发" ${ro}></td>
-            <td><input class="form-control form-control-sm" type="number" value="1" style="width:60px" ${ro}></td>
-            <td><input class="form-control form-control-sm" type="number" value="${prop.budgetSoftware || 60}" ${ro}></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="form-section-title">硬件采购清单</div>
-      <table class="data-table" style="margin-bottom:16px">
-        <thead><tr><th>设备名称</th><th>规格型号</th><th>数量</th><th>预算（万元）</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><input class="form-control form-control-sm" value="（硬件统筹申请，不单独采购）" ${ro}></td>
-            <td><input class="form-control form-control-sm" value="—" ${ro}></td>
-            <td><input class="form-control form-control-sm" value="—" ${ro}></td>
-            <td><input class="form-control form-control-sm" value="—" ${ro}></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="form-section-title">服务采购清单</div>
-      <table class="data-table" style="margin-bottom:16px">
-        <thead><tr><th>服务名称</th><th>内容描述</th><th>服务期限</th><th>预算（万元）</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><input class="form-control form-control-sm" value="系统运维服务" ${ro}></td>
-            <td><input class="form-control form-control-sm" value="上线后一年内运维保障" ${ro}></td>
-            <td><input class="form-control form-control-sm" value="12个月" ${ro}></td>
-            <td><input class="form-control form-control-sm" value="${prop.budgetOps || 10}" ${ro}></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="form-grid cols-1">
-        ${field('其他费用说明', textArea('budgetOtherNote', ''), false)}
-      </div>`;
+      </table>`;
   }
 
-  function renderChapter6() {
+  // ---- Chapter 4: 五、项目实施计划 ----
+  function renderChapter4() {
     const stages = [
-      { stage:'第一阶段', time:'2025-05 ~ 2025-06', task:'需求调研与系统设计', delivery:'需求规格说明书、概要设计文档' },
-      { stage:'第二阶段', time:'2025-07 ~ 2025-09', task:'系统开发与内部测试', delivery:'功能模块、测试报告' },
-      { stage:'第三阶段', time:'2025-10',            task:'部署上线与试运行', delivery:'上线报告、用户手册' },
+      '需求分析','系统设计','开发','初验','上线试运行','设备到货','安全调试初验','人员培训',
     ];
     const planRows = stages.map(s => `
       <tr>
-        <td><input class="form-control form-control-sm" value="${s.stage}" ${ro}></td>
-        <td><input class="form-control form-control-sm" value="${s.time}" ${ro}></td>
-        <td><input class="form-control form-control-sm" value="${s.task}" ${ro}></td>
-        <td><input class="form-control form-control-sm" value="${s.delivery}" ${ro}></td>
-      </tr>`).join('');
-    const risks = [
-      { risk:'需求变更', impact:'影响开发进度', cope:'强化需求确认流程，设置变更控制委员会' },
-      { risk:'技术对接困难', impact:'接口联调延期', cope:'提前进行技术预研，预留联调缓冲期' },
-    ];
-    const riskRows = risks.map(r => `
-      <tr>
-        <td><input class="form-control form-control-sm" value="${r.risk}" ${ro}></td>
-        <td><input class="form-control form-control-sm" value="${r.impact}" ${ro}></td>
-        <td><input class="form-control form-control-sm" value="${r.cope}" ${ro}></td>
+        <td><input class="form-control form-control-sm" value="${s}" ${ro}></td>
+        <td><input class="form-control form-control-sm" value="" ${ro}></td>
+        <td><input class="form-control form-control-sm" value="" style="width:100px" ${ro}></td>
       </tr>`).join('');
     return `
-      <div class="form-grid cols-1">
-        ${field('项目组织架构', textArea('orgStructure', '项目由教务处牵头，信息办提供技术支撑，成立项目工作组：项目负责人（李明）统筹协调，配备技术骨干2人、业务骨干2人。', 3))}
-      </div>
-      <div class="form-section-title">实施进度计划</div>
+      <div class="form-section-title">实施阶段计划</div>
       <table class="data-table" style="margin-bottom:16px">
-        <thead><tr><th>阶段</th><th>起止时间</th><th>主要任务</th><th>交付物</th></tr></thead>
+        <thead><tr><th>实施阶段</th><th>内容</th><th>时间执行安排</th></tr></thead>
         <tbody>${planRows}</tbody>
       </table>
       <div class="form-grid cols-1">
-        ${field('培训计划', textArea('trainPlan', ''), false)}
+        ${field('经费执行计划', textArea('fundPlan', prop.fundPlan || '第一次付款，计划支出*%：签订合同并支付履约保证金；\n第二次付款，计划支出*%：系统上线试运行，初验通过；\n第三次付款，计划支出*%：试运行结束，终验通过。', 5), true, '说明各阶段付款节点与支出比例')}
+      </div>`;
+  }
+
+  // ---- Chapter 5: 六、建设单位意见 ----
+  function renderChapter5() {
+    return `
+      <div class="notice-item info" style="margin-bottom:16px">
+        <strong>说明：</strong>提交申报书后，系统将通知单位负责人进行在线确认，并由信息化建设办公室安排签章归档。
       </div>
-      <div class="form-section-title">风险分析</div>
-      <table class="data-table" style="margin-bottom:16px">
-        <thead><tr><th>风险项</th><th>潜在影响</th><th>应对措施</th></tr></thead>
-        <tbody>${riskRows}</tbody>
-      </table>
-      <div class="form-grid cols-1">
-        ${field('运维保障方案', textArea('opsPlan', '系统上线后由承建方提供1年免费运维，制定SLA：故障响应时间≤2小时，严重故障≤4小时恢复，每月出具巡检报告。', 4), true)}
+      <div style="background:var(--bg-secondary,#fafafa);border:1px solid #e8e8e8;border-radius:6px;padding:20px;margin-bottom:20px;line-height:1.9;color:var(--text-primary)">
+        同意按《西南大学信息化项目管理办法（试行）》相关管理规定，组织保障本项目实施和运维，保障网络与信息安全。
+        本单位将建立健全项目管理和网络与信息安全管理责任制，严格按照经专家论证和学校审定的项目建设方案组织实施，
+        严格执行信息化项目管理办法、采购管理办法、合同管理等制度，并在项目建成后，加强项目运维和网络与信息安全管理。
+      </div>
+      <div class="form-grid cols-2" style="max-width:480px">
+        ${field('项目用户单位负责人（签字）', `<input class="form-control" placeholder="提交后由单位负责人线上确认" readonly style="color:var(--text-secondary)">`)}
+        ${field('日期', `<input class="form-control" type="date" placeholder="确认时间" readonly style="color:var(--text-secondary)">`)}
+      </div>
+      <div class="notice-item warning" style="margin-top:12px">
+        <strong>注意：</strong>请确认以上各章内容填写完整、准确后再提交审核。提交后内容将锁定，如需修改须联系单位管理员退回。
       </div>`;
   }
 
   const chapterContent = [
     renderChapter0, renderChapter1, renderChapter2,
-    renderChapter3, renderChapter4, renderChapter5, renderChapter6,
+    renderChapter3, renderChapter4, renderChapter5,
   ][ch]();
 
   const isLast  = ch === chapters.length - 1;
@@ -585,9 +622,42 @@ window.confirmAssistants = function() {
 
 window.proposalNav = function(dir) {
   const ch = (window._proposalChapter || 0) + dir;
-  if (ch < 0 || ch > 6) return;
+  if (ch < 0 || ch > 5) return;
   window._proposalChapter = ch;
   renderView('proposal-fill');
+};
+
+window.addBudgetRow = function() {
+  const tbody = document.querySelector('#budget-detail-table tbody');
+  if (!tbody) return;
+  const tr = document.createElement('tr');
+  tr.innerHTML = '<td><input class="form-control form-control-sm" placeholder="名称"></td>'
+    + '<td><input class="form-control form-control-sm" placeholder="性能指标/功能说明"></td>'
+    + '<td><input class="form-control form-control-sm" type="number" value="1" style="width:56px"></td>'
+    + '<td><input class="form-control form-control-sm" type="number" value="0" class="budget-item" oninput="calcBudgetSum()" style="width:86px"></td>'
+    + '<td><input class="form-control form-control-sm" type="number" value="0" style="width:86px"></td>'
+    + '<td><input class="form-control form-control-sm" placeholder="备注"></td>';
+  const rows = tbody.querySelectorAll('tr');
+  tbody.insertBefore(tr, rows[rows.length - 2]);
+};
+
+window.addSurveyRow = function() {
+  const tbody = document.getElementById('survey-tbody');
+  if (!tbody) return;
+  const tr = document.createElement('tr');
+  tr.innerHTML = '<td><input class="form-control form-control-sm" placeholder="品牌/型号"></td>'
+    + '<td><input class="form-control form-control-sm" placeholder="厂商名称"></td>'
+    + '<td><input class="form-control form-control-sm" placeholder="调研内容"></td>'
+    + '<td><input class="form-control form-control-sm" placeholder="调研情况"></td>'
+    + '<td><button type="button" class="btn btn-sm" style="color:var(--danger);padding:2px 8px" onclick="removeSurveyRow(this)">删</button></td>';
+  tbody.appendChild(tr);
+};
+
+window.removeSurveyRow = function(btn) {
+  const tr = btn.closest('tr');
+  const tbody = tr.parentNode;
+  if (tbody.children.length <= 1) { alert('至少保留一条调研记录'); return; }
+  tr.remove();
 };
 
 window.proposalSaveDraft = function() {

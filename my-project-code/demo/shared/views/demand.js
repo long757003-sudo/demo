@@ -1113,6 +1113,11 @@ function _dlOpBtns(role, d) {
   var approve  = '<button class="btn btn-sm btn-primary" onclick="toast(\'Demo：审批通过\',\'info\')">通过</button>';
   var reject   = '<button class="btn btn-sm" onclick="toast(\'Demo：驳回\',\'info\')">驳回</button>';
   var selectBtn = '<button class="btn btn-sm btn-primary" onclick="navigate(\'demand-select\')">遴选</button>';
+  var rev = _getDemandReview(id);
+  var revDone = rev && ['passed','rejected','timeout-rejected'].indexOf(rev.status) >= 0;
+  var viewReviewBtn = revDone
+    ? '<button class="btn btn-sm" onclick="navigate(\'review-launch\',{id:\'' + rev.id + '\'})">查看评审结果</button>'
+    : '';
 
   if (role === 'project-manager') {
     if (s === 'draft')         return edit + ' ' + submit + ' ' + del;
@@ -1129,10 +1134,11 @@ function _dlOpBtns(role, d) {
     return view;
   }
   if (role === 'info-admin') {
-    if (s === 'in-selection') return selectBtn;
+    if (s === 'in-selection') return selectBtn + (viewReviewBtn ? ' ' + viewReviewBtn : '');
     return view;
   }
   if (role === 'info-leader') {
+    if (s === 'in-selection')           return viewReviewBtn || view;
     if (s === 'selection-pending-review') return approve + ' ' + reject;
     return view;
   }

@@ -2,11 +2,71 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Glob|Grep",
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "[ -f graphify-out/graph.json ] && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"graphify: Knowledge graph exists. Read graphify-out/GRAPH_REPORT.md for god nodes and community structure before searching raw files.\"}}' || true"
+            "command": ".claude/hooks/guard-mv.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/guard-commit-msg.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/guard-raw-readonly.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/auto-sync-openspec.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/check-wiki-frontmatter.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/remind-browser-check.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/check-glossary-drift.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/check-delivery-report.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/scan-warnings.sh"
           }
         ]
       }

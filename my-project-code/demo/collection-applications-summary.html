@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>申报详情汇总 — 信息化项目全生命周期管理系统</title>
+<link rel="stylesheet" href="shared/style.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  /* ─── 修复：layout 壳改"位置固定"式，避免 height:100vh 在预览/iframe 里塌陷 ─── */
+  html, body { margin: 0; padding: 0; background: var(--bg-layout); min-height: 100vh; }
+  .layout { display: block !important; height: auto !important; overflow: visible !important; }
+  .layout-header {
+    position: fixed !important; top: 0; left: 0; right: 0;
+    height: 56px; z-index: 100;
+    background: var(--primary);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  }
+  .layout-body { display: block !important; padding-top: 56px; min-height: 100vh; overflow: visible !important; }
+  .layout-sidebar {
+    position: fixed !important; top: 56px; bottom: 0; left: 0;
+    width: 220px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 4px 0 16px;
+  }
+  .layout-content {
+    margin-left: 220px;
+    min-height: calc(100vh - 56px);
+    padding: 20px 28px;
+    background: var(--bg-layout);
+    animation: contentFadeIn .3s ease;
+  }
+
+  /* ─── 表格列内辅助元素 ─── */
+  .unit-cell b { font-size: 13px; color: var(--text-primary); }
+  .unit-cell .sub { display: block; color: var(--text-muted); font-size: 11px; margin-top: 2px; }
+  .count-cell .mini-bar { display: inline-block; width: 64px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--border-light); vertical-align: middle; margin: 0 6px; }
+  .count-cell .mini-bar > span { display: inline-block; height: 100%; vertical-align: top; }
+  .count-cell .breakdown { font-size: 11px; color: var(--text-muted); }
+  .amt-cell {
+    font-family: var(--font-display);
+    color: var(--warning);
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .amt-cell .unit { font-size: 11px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+
+  /* 排序图标 */
+  .sort-asc .sort-icon::after { content: '↑'; }
+  .sort-desc .sort-icon::after { content: '↓'; }
+  .sortable .sort-icon::after { content: '↕'; }
+  .sort-asc .sort-icon, .sort-desc .sort-icon { color: var(--primary) !important; opacity: 1 !important; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- 顶部 Header（与 app.html 一致） -->
+  <header class="layout-header">
+    <div class="logo">信息化项目全生命周期管理系统</div>
+    <div class="header-right">
+      <span style="font-size:12px;color:#94a3b8;font-weight:500;letter-spacing:0.5px">当前角色</span>
+      <select class="role-select" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:5px 12px;border-radius:5px;font-size:13px">
+        <option>林已杰（信息办管理员）</option>
+      </select>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#e2e8f0">退出</button>
+    </div>
+  </header>
+
+  <div class="layout-body">
+    <!-- 左侧 Sidebar -->
+    <nav class="layout-sidebar">
+      <div class="nav-group-label">首页</div>
+      <a class="nav-item"><i data-lucide="layout-dashboard"></i>工作台首页</a>
+
+      <div class="nav-group-label">通知管理</div>
+      <a class="nav-item"><i data-lucide="bell"></i>通知列表</a>
+
+      <div class="nav-group-label">需求管理</div>
+      <a class="nav-item active"><i data-lucide="inbox"></i>需求征集</a>
+      <a class="nav-item"><i data-lucide="list-checks"></i>需求管理</a>
+      <a class="nav-item"><i data-lucide="filter"></i>需求遴选</a>
+
+      <div class="nav-group-label">项目管理</div>
+      <a class="nav-item"><i data-lucide="file-check"></i>立项管理</a>
+      <a class="nav-item"><i data-lucide="folder-open"></i>项目列表</a>
+
+      <div class="nav-group-label">评审管理</div>
+      <a class="nav-item"><i data-lucide="clipboard-list"></i>评审列表</a>
+
+      <div class="nav-group-label">系统管理</div>
+      <a class="nav-item"><i data-lucide="shield"></i>用户与权限</a>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="layout-content">
+      <!-- ① 面包屑 -->
+      <div class="breadcrumb">
+        <a onclick="goBack()">首页</a> /
+        <a onclick="goBack()">需求管理</a> /
+        <a onclick="goBack()">需求征集</a> /
+        <span>申报汇总</span>
+      </div>
+
+      <!-- ② 页头 -->
+      <div class="page-header">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div class="page-title">2026年度信息化项目需求征集 · 申报汇总</div>
+          <span class="tag tag-green">征集中</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-sm" onclick="toast('已导出 collection-applications-summary.xlsx', 'success')">
+            <i data-lucide="download" style="width:14px;height:14px"></i>导出全部
+          </button>
+          <button class="btn btn-sm" onclick="goBack()">
+            <i data-lucide="arrow-left" style="width:14px;height:14px"></i>返回征集列表
+          </button>
+        </div>
+      </div>
+
+      <!-- 副信息条 -->
+      <div style="font-size:12px;color:var(--text-secondary);margin:-10px 0 16px;display:flex;gap:18px;flex-wrap:wrap">
+        <span><i data-lucide="calendar" style="width:12px;height:12px;display:inline;vertical-align:-2px"></i> 征集周期：2026-05-18 ~ 2026-05-31</span>
+        <span><i data-lucide="user" style="width:12px;height:12px;display:inline;vertical-align:-2px"></i> 通知联系人：林已杰（15982218213）</span>
+        <span><i data-lucide="hash" style="width:12px;height:12px;display:inline;vertical-align:-2px"></i> 征集编号：XQZJJH-20260518-0002</span>
+      </div>
+
+      <!-- ③ 筛选条 -->
+      <div class="card" style="padding:14px 18px;margin-bottom:14px">
+        <div class="filter-bar" style="margin-bottom:0">
+          <input class="input" id="f-kw" placeholder="搜索单位名称" style="width:200px" oninput="onFilter()">
+          <span style="font-size:13px;color:var(--text-secondary);margin-left:4px">金额区间：</span>
+          <input class="input" id="f-amt-min" type="number" placeholder="下限" style="width:80px" oninput="onFilter()">
+          <span style="color:var(--text-muted)">~</span>
+          <input class="input" id="f-amt-max" type="number" placeholder="上限" style="width:80px" oninput="onFilter()">
+          <span style="color:var(--text-secondary);font-size:13px">万</span>
+          <button class="btn btn-sm" onclick="resetFilter()">
+            <i data-lucide="rotate-ccw" style="width:13px;height:13px"></i>重置
+          </button>
+          <div style="margin-left:auto;font-size:12px;color:var(--text-secondary)" id="row-count"></div>
+        </div>
+      </div>
+
+      <!-- ④ 聚合表 -->
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:240px">申报单位</th>
+              <th class="sortable" style="width:220px" data-sort="count">申报数量<span class="sort-icon"></span></th>
+              <th class="sortable sort-desc" style="width:180px" data-sort="total">申报金额（万元）<span class="sort-icon"></span></th>
+              <th style="width:120px">操作</th>
+            </tr>
+          </thead>
+          <tbody id="agg-tbody"></tbody>
+        </table>
+        <div class="table-pagination">
+          <span id="page-summary"></span>
+          <span>每页 20 条 · 第 1 / 1 页</span>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============ Mock 数据 ============ -->
+<script>
+const UNITS = [
+  { unit:'教务处', contact:'李明', demands: [
+    { name:'本科教学质量分析平台', amount:85,  status:'submitted', submit:'2026-05-20 14:32' },
+    { name:'智慧教室管理平台',     amount:45,  status:'submitted', submit:'2026-05-21 09:15' },
+    { name:'数据共享交换平台升级', amount:85,  status:'submitted', submit:'2026-05-22 16:40' },
+  ]},
+  { unit:'科研处', contact:'刘洋', demands: [
+    { name:'科研项目全程管理平台', amount:180, status:'submitted', submit:'2026-05-19 10:20' },
+    { name:'校园一卡通系统升级',   amount:140, status:'submitted', submit:'2026-05-21 11:08' },
+    { name:'科研成果管理系统',     amount:120, status:'submitted', submit:'2026-05-21 11:30' },
+    { name:'科研经费分析报表',     amount:30,  status:'draft' },
+  ]},
+  { unit:'学生工作处', contact:'陈静', demands: [
+    { name:'学生资助管理系统',   amount:45, status:'submitted',     submit:'2026-05-20 15:50' },
+    { name:'心理健康预警系统',   amount:35, status:'unit-rejected', submit:'2026-05-19 09:12', reason:'预算估算不合理' },
+    { name:'宿舍生活服务一体化', amount:28, status:'draft' },
+  ]},
+  { unit:'招生处', contact:'王芳', demands: [
+    { name:'招生系统升级改造', amount:60, status:'submitted', submit:'2026-05-18 17:00' },
+    { name:'招生数据分析系统', amount:60, status:'submitted', submit:'2026-05-18 17:05' },
+    { name:'就业信息管理平台', amount:48, status:'submitted', submit:'2026-05-19 14:22' },
+  ]},
+  { unit:'人事处', contact:'周丽', demands: [
+    { name:'人事绩效考核平台',   amount:75, status:'draft' },
+    { name:'教职工培训管理系统', amount:30, status:'draft' },
+  ]},
+  { unit:'图书馆', contact:'钱图', demands: [
+    { name:'图书馆智能检索系统', amount:35, status:'submitted', submit:'2026-05-21 10:00' },
+    { name:'网站无障碍改造',     amount:8,  status:'draft' },
+  ]},
+  { unit:'后勤管理处', contact:'张伟', demands: [
+    { name:'校园能耗监测平台',     amount:90, status:'submitted',     submit:'2026-05-20 11:20' },
+    { name:'宿舍报修管理系统',     amount:18, status:'submitted',     submit:'2026-05-21 16:00' },
+    { name:'教室多媒体远程控制',   amount:12, status:'unit-rejected', submit:'2026-05-19 12:10', reason:'与智慧教室管理平台范围重叠' },
+  ]},
+  { unit:'实验室与设备管理处', contact:'郑强', demands: [
+    { name:'实验室安全巡检系统',   amount:42, status:'submitted', submit:'2026-05-19 09:30' },
+    { name:'大型仪器共享预约平台', amount:38, status:'submitted', submit:'2026-05-19 09:45' },
+    { name:'试剂耗材采购流程',     amount:22, status:'submitted', submit:'2026-05-20 18:00' },
+  ]},
+  { unit:'财务处',       contact:'赵会计', demands: [] },
+  { unit:'党政办公室',   contact:'吴秘书', demands: [
+    { name:'OA协同办公平台升级', amount:150, status:'draft' },
+  ]},
+];
+
+/* ─── 工具 ─── */
+function aggregate(u) {
+  const d = u.demands;
+  const total = d.reduce((s, x) => s + (x.amount||0), 0);
+  const subCnt = d.filter(x => x.status === 'submitted').length;
+  const draftCnt = d.filter(x => x.status === 'draft').length;
+  const rejCnt = d.filter(x => x.status === 'unit-rejected').length;
+  return {
+    unit: u.unit, contact: u.contact, total,
+    count: d.length, subCnt, draftCnt, rejCnt,
+  };
+}
+
+/* ─── 状态 ─── */
+let SORT = { key:'total', dir:'desc' };
+let RETURN_UNIT = '';
+
+/* ─── 表格 ─── */
+function applyFilter(aggs) {
+  const kw = (document.getElementById('f-kw').value || '').trim();
+  const lo = parseFloat(document.getElementById('f-amt-min').value);
+  const hi = parseFloat(document.getElementById('f-amt-max').value);
+  return aggs.filter(a => {
+    if (kw && a.unit.indexOf(kw) < 0) return false;
+    if (!isNaN(lo) && a.total < lo) return false;
+    if (!isNaN(hi) && a.total > hi) return false;
+    return true;
+  });
+}
+
+function applySort(aggs) {
+  const k = SORT.key, dir = SORT.dir === 'asc' ? 1 : -1;
+  return aggs.slice().sort((a,b) => {
+    const va = a[k], vb = b[k];
+    if (va < vb) return -1*dir;
+    if (va > vb) return  1*dir;
+    return 0;
+  });
+}
+
+function renderTable() {
+  const all = UNITS.map(aggregate);
+  const filtered = applyFilter(all);
+  const sorted   = applySort(filtered);
+
+  document.getElementById('row-count').textContent = `匹配 ${sorted.length} / 共 ${all.length} 个单位`;
+  document.getElementById('page-summary').textContent = `共 ${sorted.length} 个单位`;
+
+  if (!sorted.length) {
+    document.getElementById('agg-tbody').innerHTML =
+      '<tr><td colspan="4" style="text-align:center;padding:48px;color:var(--text-muted)">无匹配结果，<a onclick="resetFilter()">点击重置</a>查看全部</td></tr>';
+    return;
+  }
+
+  const rowsHtml = sorted.map(a => {
+    const subPct   = a.count ? a.subCnt   / a.count * 100 : 0;
+    const draftPct = a.count ? a.draftCnt / a.count * 100 : 0;
+    const rejPct   = a.count ? a.rejCnt   / a.count * 100 : 0;
+    const miniBar = a.count
+      ? `<span class="mini-bar" title="已提交 ${a.subCnt} / 草稿 ${a.draftCnt} / 已退回 ${a.rejCnt}">
+           <span style="width:${subPct}%;background:var(--success)"></span><span style="width:${draftPct}%;background:#cbd5e1"></span><span style="width:${rejPct}%;background:var(--danger)"></span>
+         </span>`
+      : '';
+    const breakdown = a.count
+      ? `<span class="breakdown">已提交 ${a.subCnt}/草稿 ${a.draftCnt}${a.rejCnt?`/退回 ${a.rejCnt}`:''}</span>`
+      : '<span class="breakdown">—</span>';
+
+    const returnBtn = a.count > 0
+      ? `<button class="btn btn-sm btn-danger" onclick="openReturnModal('${a.unit}')">退回</button>`
+      : `<button class="btn btn-sm" disabled title="尚未申报">退回</button>`;
+
+    return `
+      <tr>
+        <td class="unit-cell"><b>${a.unit}</b><span class="sub">通知联系人：${a.contact}</span></td>
+        <td class="count-cell"><b style="font-family:var(--font-display);font-size:15px;color:var(--text-primary)">${a.count}</b>${miniBar}${breakdown}</td>
+        <td><span class="amt-cell">${a.total.toLocaleString()}</span><span class="unit"> 万</span></td>
+        <td>${returnBtn}</td>
+      </tr>
+    `;
+  }).join('');
+
+  document.getElementById('agg-tbody').innerHTML = rowsHtml;
+  if (window.lucide) lucide.createIcons();
+}
+
+/* ─── 排序点击 ─── */
+document.addEventListener('click', e => {
+  const th = e.target.closest('.data-table th.sortable');
+  if (!th) return;
+  const k = th.dataset.sort;
+  if (SORT.key === k) SORT.dir = SORT.dir === 'asc' ? 'desc' : 'asc';
+  else { SORT.key = k; SORT.dir = 'desc'; }
+  document.querySelectorAll('.data-table th.sortable').forEach(t => t.classList.remove('sort-asc','sort-desc'));
+  th.classList.add(SORT.dir === 'asc' ? 'sort-asc' : 'sort-desc');
+  renderTable();
+});
+
+/* ─── 筛选 ─── */
+function onFilter() { renderTable(); }
+function resetFilter() {
+  ['f-kw','f-amt-min','f-amt-max'].forEach(id => document.getElementById(id).value = '');
+  renderTable();
+}
+
+/* ─── 操作 ─── */
+function goBack() {
+  toast('Demo：返回需求征集列表', 'info');
+}
+
+/* ─── 退回 Modal ─── */
+function openReturnModal(unit) {
+  RETURN_UNIT = unit;
+  const body = `
+    <div class="form-item">
+      <label class="form-label">退回原因 <span class="req">*</span></label>
+      <textarea class="form-control" id="rt-reason" rows="5" placeholder="请输入退回原因" oninput="checkReasonLen()"></textarea>
+    </div>
+  `;
+  showModal(`退回申报 — ${unit}`, body, `
+    <button class="btn" onclick="closeModal()">取消</button>
+    <button class="btn btn-warning" id="rt-confirm" onclick="confirmReturn()" disabled>确认退回</button>
+  `);
+  if (window.lucide) lucide.createIcons();
+}
+
+function checkReasonLen() {
+  const v = (document.getElementById('rt-reason').value || '').trim();
+  document.getElementById('rt-confirm').disabled = v.length === 0;
+}
+
+function confirmReturn() {
+  const reason = document.getElementById('rt-reason').value.trim();
+  const target = UNITS.find(u => u.unit === RETURN_UNIT);
+  let affected = 0;
+  if (target) {
+    target.demands.forEach(d => {
+      if (d.status === 'submitted' || d.status === 'draft') {
+        d.status = 'unit-rejected';
+        d.reason = reason;
+        affected++;
+      }
+    });
+  }
+  closeModal();
+  toast(`已退回「${RETURN_UNIT}」共 ${affected} 条需求，已通知申报人`, 'success');
+  RETURN_UNIT = '';
+  renderTable();
+}
+
+/* ─── 复用 core.js 的 toast / modal 简化版 ─── */
+function toast(msg, type='info') {
+  let c = document.getElementById('toast-container');
+  if (!c) { c = document.createElement('div'); c.id='toast-container'; c.className='toast-container'; document.body.appendChild(c); }
+  const ic = { success:'&#10003;', error:'&#10007;', info:'i', warning:'!' };
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = `<span class="toast-icon toast-icon--${type}">${ic[type]||'i'}</span><span>${msg}</span>`;
+  c.appendChild(el);
+  setTimeout(() => { el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),300); }, 2500);
+}
+function showModal(title, bodyHtml, buttons) {
+  const o = document.createElement('div');
+  o.className = 'modal-overlay';
+  o.innerHTML = `<div class="modal-dialog" style="width:560px;max-width:95vw">
+    <div class="modal-header"><span class="modal-title">${title}</span><span class="modal-close" onclick="closeModal()">×</span></div>
+    <div class="modal-body">${bodyHtml}</div>
+    <div class="modal-footer">${buttons || '<button class="btn" onclick="closeModal()">关闭</button>'}</div>
+  </div>`;
+  document.body.appendChild(o);
+  o.addEventListener('click', e => { if (e.target === o) closeModal(); });
+}
+function closeModal() {
+  const o = document.querySelector('.modal-overlay');
+  if (o) o.remove();
+}
+
+/* ─── 初始化 ─── */
+renderTable();
+if (window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>

@@ -70,7 +70,7 @@ Phase 1 在技术上是对 demo-0408 现有需求模块视图的**改造与扩�
 
 改造核心约束：所有输出必须内嵌在 app.html 同一文件体系中（通过 `<script>` 引入各 view JS 文件），使用 `registerView` 模式，不新建独立 HTML 文件。Mock 数据中指定人员为：唐明-20053964（信息办领导/单位领导）、林已杰-20054379（信息办管理员/单位管理员）、王一凡-50240014（项目负责人）。
 
-**Primary recommendation:** 以 `my-project-wiki/raw/docs/demo-0408/shared/views/demand.js` 为改造基础，逐视图对照 UI-SPEC 和 CONTEXT.md 决策进行增量修改，保持 `registerView` + `navigate` + `toast` 的既有模式。新建 `tag-library` 视图和 `demand-approve` 视图，改造其余已有视图。
+**Primary recommendation:** 以 `my-project-code/demo/shared/views/demand.js` 为改造基础，逐视图对照 UI-SPEC 和 CONTEXT.md 决策进行增量修改，保持 `registerView` + `navigate` + `toast` 的既有模式。新建 `tag-library` 视图和 `demand-approve` 视图，改造其余已有视图。
 
 ---
 
@@ -113,7 +113,7 @@ my-project-code/
 └── pages/
     └── (本阶段不新建独立 HTML，所有视图内嵌在主应用中)
 
-my-project-wiki/raw/docs/demo-0408/shared/
+my-project-code/demo/shared/
 ├── views/
 │   ├── demand.js          ← 本阶段主要改造目标
 │   │   ├── demand-collect      视图（已有，保留）
@@ -560,9 +560,9 @@ Step 2.6: SKIPPED（本阶段为纯本地 HTML + CDN 方案，无外部服务/CL
 ## Sources
 
 ### Primary (HIGH confidence)
-- `my-project-wiki/raw/docs/demo-0408/shared/views/demand.js` — 8 个已有视图实现，代码验证
-- `my-project-wiki/raw/docs/demo-0408/shared/core.js` — 全部 core API（registerView、navigate、toast、showModal、showDrawer、saveDraft、renderStepWizard 等）
-- `my-project-wiki/raw/docs/demo-0408/shared/data.js` — DATA 结构（demands、collectionPlans、roles 等）
+- `my-project-code/demo/shared/views/demand.js` — 8 个已有视图实现，代码验证
+- `my-project-code/demo/shared/core.js` — 全部 core API（registerView、navigate、toast、showModal、showDrawer、saveDraft、renderStepWizard 等）
+- `my-project-code/demo/shared/data.js` — DATA 结构（demands、collectionPlans、roles 等）
 - `my-project-wiki/raw/decisions/西南大学信息化项目管理办法.md` — BR-04 六类不予支持原文（第十三条）
 - `.planning/phases/01-需求征集模块/01-CONTEXT.md` — 所有锁定决策（D-01 ~ D-17）
 - `.planning/phases/01-需求征集模块/01-UI-SPEC.md` — 视图结构、字段清单、组件目录、文案规范

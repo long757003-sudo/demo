@@ -8,6 +8,12 @@ created: 2026-04-14
 
 # Proposal：优化【需求征集】列表字段与创建向导流程
 
+## 归属
+
+**Phase 1「需求征集模块」的 post-launch patch** — 本 change 于 2026-04-14 启动，此时 Phase 1 的 `demand-collection-launch` (01-02) 已完成 `collection-create` 基础结构。本 change 针对用户实际体验做迭代打磨（列表字段补齐、向导步骤语义重组、通知模板复用），**不占 Phase 1 新 plan 编号**，不改变 Phase 1 的 5-plan 计数。
+
+上游 plan：`.planning/phases/01-需求征集模块/01-02-PLAN.md`
+
 ## 为什么做
 
 当前「需求征集」模块存在以下问题：

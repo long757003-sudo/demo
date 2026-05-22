@@ -24,8 +24,8 @@ tech_stack:
 key_files:
   created: []
   modified:
-    - my-project-wiki/raw/docs/demo-0408/shared/views/demand.js
-    - my-project-wiki/raw/docs/demo-0408/shared/views/notification.js
+    - my-project-code/demo/shared/views/demand.js
+    - my-project-code/demo/shared/views/notification.js
 decisions:
   - "单页表单替代 4 步向导：符合 D-03 要求，流程开关直接内嵌在征集表单中"
   - "loadDraft 在 render 函数内同步读取并填入 value 属性，无需 setTimeout，更可靠"
@@ -150,7 +150,7 @@ notification.js 内联 script 读取方式：`getViewParams('notification-create
 - **Found during:** Task 2
 - **Issue:** 计划要求「跳转至 notification-create 视图且字段已预填征集批次信息」，但 notification.js 的 notification-create 视图中完全没有读取 prefill 参数的代码（grep 确认 0 个匹配）。若不添加，navigate + prefill 传参后表单字段保持空白，DEM-01 的「预填」要求无法满足
 - **Fix:** 在 notification.js 的内联 script IIFE 中，紧随现有 typeKey 处理逻辑后，追加 prefill 读取分支：自动选类型、填标题、切换为按单位模式并勾选 recipients 对应 checkbox、联系人填入 placeholder
-- **Files modified:** my-project-wiki/raw/docs/demo-0408/shared/views/notification.js
+- **Files modified:** my-project-code/demo/shared/views/notification.js
 - **Commit:** 50108d7
 
 ---

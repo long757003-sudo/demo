@@ -1,4 +1,7 @@
-# 代码仓库规范 — [西南大学信息化项目全生命周期管理系统] Demo
+# 代码仓库规范 — 西南大学信息化项目全生命周期管理系统 Demo
+
+> 本文件遵循主目录 `CLAUDE.md` 的全局约定（术语权威源、矛盾处理、Git 规范、交付自检元原则）。
+> 本文件只写代码仓库特有的工程规范。
 
 ## 项目定位
 本仓库用于生成**本地可运行的 HTML 演示文件**，供项目演示使用。
@@ -6,46 +9,196 @@
 
 ---
 
-## OpenSpec 工作流
+## 思考原则
+
+### 动手前先想清楚
+- 明确说出假设；不确定就问，不要猜。
+- 多种理解方式并存时，列出来让我选，不要默默选一个。
+- 有更简单的做法就说出来，必要时推翻需求。
+- 遇到不清楚的地方，停下来指出，不要装懂。
+
+### 最小实现
+只写解决问题所需的最少代码：
+- 不做没要求的功能。
+- 不为一次性代码做抽象。
+- 不加没要求的"灵活性"或"可配置性"。
+- 不处理不可能出现的错误。
+- 200 行能压到 50 行就重写。
+
+自问："资深工程师会觉得这过度设计吗？"会的话就简化。
+
+### 外科式修改
+只改必须改的部分：
+- 不顺手"优化"相邻代码、注释或格式。
+- 不重构没坏的东西。
+- 保持现有风格，即使你觉得该换个写法。
+- 看到无关的死代码，提出来但不要删。
+
+本次修改产生的孤儿（未使用的 import、变量、函数）要清理；已有的死代码除非我要求，否则别动。
+
+检验标准：每一行变更都能追溯到我的需求。
+
+### 目标驱动
+把任务转成可验证的目标：
+- "加校验" → "写非法输入的测试，让它通过"
+- "修 bug" → "写能复现 bug 的测试，让它通过"
+- "重构 X" → "确认重构前后测试都通过"
+
+多步任务先给计划：
+```
+1. [步骤] → 验证：[检查点]
+2. [步骤] → 验证：[检查点]
+```
+
+---
+
+## TDD 开发流程（强制）
+
+> 这是主目录"交付前自检元原则"在 code 侧的具体落地。
 
 ### 核心原则
-- 严禁直接让 AI 写完整页面，必须先走 propose 流程
-- 每个 propose 只对应一个页面或一个功能模块
-- tasks.md 控制在 15 项以内，超出则拆分为多个变更
+**每次调整修改完成后必须自检，自检通过才能交付给用户审核。**
+禁止"改完直接说完成"——这是近期踩过的坑（按钮 disabled 守护没查、页面打不开就交付）。
+
+### 标准节奏
+每个修改任务按以下节奏执行：
+
+**Step 1：写验证清单（动手前）**
+把需求拆成可验证的断言，例如：
+```
+✅ 点击"填写评审意见"按钮 → 流程页出现
+✅ 按钮在任何状态下都不应无响应
+✅ 表单字段双向绑定生效
+✅ 提交后状态正确更新
+```
+
+**Step 2：实现**
+按最小实现原则写代码。
+
+**Step 3：自检（必做，不能跳）**
+自检清单：
+1. **业务路径自检** — 把修改涉及的按钮/入口全部点过一遍，不能只看代码
+   - 按钮 `:disabled` 条件是否意外禁用？
+   - `v-if` / `v-show` 条件是否导致元素不渲染？
+   - 事件是否真的绑定到修改后的函数？
+2. **跨文件一致性自检** — 同一概念的 ID / 变量名是否全仓库统一，是否与 `../my-project-wiki/wiki/glossary.md` 规范名一致
+3. **浏览器自检** — HTML 修改必须在浏览器点一遍，不能只靠读代码
+   - 命令：`open -a "Google Chrome" "file:///绝对路径/xxx.html?role=expert"`
+   - 角色切换、弹窗开合、表单提交，核心路径跑通
+4. **异常路径自检** — mock 数据覆盖的边界状态（如未解决提问、已退回状态）是否符合预期
+
+**Step 4：自检报告（交付前必给）**
+给用户的交付消息必须包含以下三部分：
+```
+【改动】<一句话说清楚改了什么>
+【自检结果】
+  ✅ <断言 1> — 实测：<实际看到的现象>
+  ✅ <断言 2> — 实测：<实际看到的现象>
+  ⚠️ <未通过项 / 未覆盖场景 / 已知风险>
+【需人工验证】
+  - <需要用户点击确认的路径>
+```
+
+**Step 5：交付审核**
+只有自检全部通过（或明确标注未通过项）才能交给用户审核。
+禁止说"应该能用了"——必须是"已实测 X，预期 Y，实际 Z"。
+
+### 反面教材（必须避免）
+- ❌ "修改完成，请验证" — 没做自检
+- ❌ "代码逻辑正确" — 只读了代码，没跑
+- ❌ "应该可以了" — 用了"应该"，说明没验证
+- ❌ 改了 `@click` 却没检查 `:disabled` 守护
+- ❌ 改了标准 HTML 但没在浏览器打开确认
+
+### 例外场景（可跳过浏览器自检）
+- 纯文档修改（.md）
+- 纯注释修改
+- 用户明确说"不用验证，先改"
+
+---
+
+## 工作流：GSD 规划执行 + OpenSpec 归档
+
+> 2026-04-20 工作流重定位：OpenSpec 从独立工作流降为 GSD 的产物归档格式。
+> `/opsx:propose` / `/opsx:apply` / `/opsx:explore` / `/opsx:continue` / `/opsx:ff` / `/opsx:verify` **全部废弃**，不再使用。
+
+### 角色划分
+
+- **GSD（`.planning/`）是唯一执行流程** —— `/gsd-discuss-phase` → `/gsd-plan-phase` → `/gsd-execute-phase` / `/gsd-quick` / `/gsd-fast` → `/gsd-verify-work` / `/gsd-code-review` / `/gsd-audit-uat`
+- **OpenSpec（`openspec/changes/`）只负责最终产物的标准化归档** —— 作为 wiki 同步源与决策痕迹
+- **`openspec/config.yaml` 是 AI 生成时的基础宪法** —— GSD 执行器执行时必须遵守其 `tech_stack` / `workflow` / `rules` 定义的约束（Tailwind CDN、Lucide、mock、相对路径跳转、禁 npm、禁内联 style），这条不因流程重定位而废止
+
+### 核心原则
+
+- 严禁直接让 AI 写完整页面，必须先走 GSD 规划
+- 每个 GSD plan 只对应一个页面或一个小功能模块；tasks 控制在 15 项以内，超出则拆分为多个 plan
+- plan 执行完毕后必须在 `openspec/changes/` 下归档对应 change（见下文）
 
 ### 标准流程
 
-**Step 1：提出变更**
-```
-/opsx:propose [变更描述]
-```
-生成规划文档后，重点 Review design.md 中的页面布局描述是否准确
+**Step 1：规划 + 执行（GSD）**
 
-**Step 2：执行生成**
 ```
-/opsx:apply [变更名称]
+/gsd-plan-phase        # 生成 .planning/phases/NN-*/PLAN.md
+/gsd-execute-phase     # 执行生成 HTML 并 commit
 ```
-AI 生成 HTML 文件，在浏览器双击打开验证效果
 
-**Step 3：归档**
-```
-/opsx:archive [变更名称]
-```
-MR 确认后执行
+**Step 2：归档为 OpenSpec change（每个 plan 完成后）**
 
-**Step 4：同步 wiki**
+在 `openspec/changes/<change-name>/` 下建立 3 个归档文件（从 GSD plan 产物提炼，非独立规划）：
+- `proposal.md` —— "做什么 / 不做什么" 摘要（来自 plan 的 objective / must_haves）
+- `design.md` —— 页面布局、数据字段、交互行为（与 `.planning/phases/*/UI-SPEC.md` 同源）
+- `tasks.md` —— 执行后的任务清单（含勾选状态）
+
+change 名 = ROADMAP 中登记的该 plan 的 change 名（命名一致，见下一节「OpenSpec × GSD 工作流协议」规则 #1）。
+
+**Step 3：同步 wiki**
+
 ```bash
 cp -r openspec/changes/[变更名] ../my-project-wiki/raw/openspec/
 ```
 
-### 扩展指令
+同步后进入 wiki 仓库执行 `/ingest`，让决策背景沉淀进知识库。
 
-| 指令               | 用途                           |
-| ---------------- | ---------------------------- |
-| `/opsx:explore`  | 需求不清晰时先和 AI 讨论，不生成文件         |
-| `/opsx:continue` | 逐步生成，先审查 proposal 再生成 design |
-| `/opsx:ff`       | 需求明确时一次性补全所有规划               |
-| `/opsx:verify`   | 生成完成后让 AI 自查是否符合 design.md   |
+---
+
+## OpenSpec × GSD 工作流协议
+
+项目同时使用 GSD（`.planning/`）和 OpenSpec（`openspec/changes/`）两套工作流，必须严格 1:1 映射。这条协议是 2026-04-20 工作流对齐时踩过坑后定死的（ROADMAP 列的 change 名和 openspec 实际目录全部对不上、plan 的 files_modified 指向根本不存在的 wiki 路径）。
+
+### 硬规则
+
+1. **一 plan ↔ 一 change（归档关系，非并行工作流）**
+   每个 `.planning/phases/NN-*/NN-MM-PLAN.md` 执行完毕后，必须在 `openspec/changes/<name>/` 下归档对应 change（含 proposal/design/tasks 三件套）。ROADMAP 中该 plan 登记的 change 名必须 == openspec 下文件夹名。归档是 GSD 执行后的产物标准化，不是独立工作流。
+
+2. **files_modified 必须指向真实存在的路径**
+   GSD plan 的 `files_modified` 只允许写 `my-project-code/demo/...`（代码产物）或 `my-project-wiki/...`（wiki 真实存在的文件）。禁止写虚构路径——历史踩过的坑：`my-project-wiki/raw/docs/demo-0408/`（那个目录从未存在）。
+
+3. **ROADMAP 完整登记**
+   - 每个 Phase 的 `OpenSpec Changes:` 列表条目数必须 == 该 Phase 实际 plan 数。
+   - 对**已执行且完成归档**的 Phase：ROADMAP 列的 change 名必须在 `openspec/changes/` 下能找到实体。
+   - 对**未开始**的 Phase：ROADMAP 列的 change 名是规划占位，允许 openspec 下暂无对应文件夹。
+   - **Phase 1 legacy**：归档缺失属于历史债务，豁免本条（见规则 7）。
+   - **反方向**：`openspec/changes/` 下所有 active change（非 archived / 非 deprecated）必须在 ROADMAP 能找到归属——要么作为某 Phase 的主 change，要么作为 post-launch patch 挂到某个 Phase（见规则 4）。
+
+4. **post-launch patch 允许但必须标注**
+   Phase 执行完成后如需追加小补丁（UI 打磨、字段补全等），可在 openspec 新建独立 change 且不占新 plan 编号。但该 change 的 `proposal.md` 必须在「为什么做」段明示「Phase X 的 post-launch patch」并引用上游 plan 编号，便于追溯。
+
+5. **废弃 change 不删文件夹**
+   在 `proposal.md` frontmatter 打 `status: deprecated`，正文写明废弃理由。符合主 CLAUDE.md「原始资料永远只增不删」元原则。
+
+6. **`openspec/config.yaml` 的 AI 生成硬约束对 GSD 执行器同样生效**
+   `config.yaml` 的 `rules.propose/apply/archive` 三段定义的约束（Tailwind CDN、Lucide、mock 数据内联、相对路径跳转、禁 npm 包、禁内联 style、色彩主题 neutral 等）不因流程重定位而废止。GSD 执行器（`/gsd-execute-phase` 等）生成 HTML 时必须遵守这些规则。
+
+7. **Phase 1 legacy 豁免**
+   Phase 1 五个 plan（01-01 ~ 01-05）在本协议建立（2026-04-20）之前已完成实现，其 `openspec/changes/` 归档缺失属于历史债务，**不追溯补建**。未来从 Phase 2 起严格执行本协议。
+
+### 交付前自检（触发场景：改动 `.planning/` 或 `openspec/changes/` 之一时）
+
+- [ ] ROADMAP 列的 change 名在 `openspec/changes/` 下都能找到实体
+- [ ] `openspec/changes/` 下的 active change 在 ROADMAP 都有登记（或明确标为 post-launch patch / deprecated）
+- [ ] 新建或修改 plan 的 `files_modified` 全部指向真实存在的文件（`ls` 能看到）
+- [ ] 新建 change 的 `proposal.md` frontmatter 完整（含 `status` 字段）
 
 ---
 
@@ -68,8 +221,29 @@ cp -r openspec/changes/[变更名] ../my-project-wiki/raw/openspec/
 
 ---
 
+## Demo 前端编码规范
+
+### 命名与术语一致性
+**所有业务术语、角色 ID、实体命名以 `../my-project-wiki/wiki/glossary.md` 的规范名为准。**
+
+- 新增术语前：先查 glossary；若无，先更新 glossary 再使用。
+- 发现同一逻辑概念存在多个 ID（如同一角色出现两种写法）：
+  - 若 glossary 已定义规范名 → 全仓统一为规范名
+  - 若 glossary 未定义 → 先去 wiki 补充 glossary 条目，再回来统一
+- 不能只改当前文件，必须全仓搜索所有出现位置一次性改完。
+- 在 SUMMARY.md 中注明本次统一的术语及标准 ID。
+
+### 相同页面必须复用
+展示相同数据的页面（如"通知详情"）必须是同一个 registerView，通过参数区分来源和数据源。禁止用 drawer / modal / 内联 HTML 在不同模块中重复实现已有的独立页面。发现重复就合并，返回按钮根据来源参数动态跳转。
+
+### 角色操作列禁止 else 兜底
+多角色渲染不同操作按钮时，每个"应有特定操作"的角色必须写显式分支；`else` 只允许作为"确实只读/无操作"的兜底。该有按钮却落入 else 视为遗漏，必须修正。
+
+---
+
 ## 归档前检查清单
 - [ ] HTML 文件在浏览器双击可正常打开
 - [ ] 所有页面跳转链接指向正确文件
 - [ ] Mock 数据覆盖了主要演示场景
 - [ ] 页面菜单结构与其他页面保持一致
+- [ ] 本次涉及的业务术语已与 `../my-project-wiki/wiki/glossary.md` 对齐

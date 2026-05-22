@@ -1,0 +1,7 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# 演示打包文件
+demo.zip
+**/demo.zip

@@ -1,0 +1,749 @@
+// shared/data.js
+window.DATA = {
+  roles: [
+    { id: 'leadership-group',  name: '数智化建设领导小组', short: '领导小组',     icon: 'LD' },
+    { id: 'leadership-office', name: '领导小组办公室',     short: '领导小组办公室', icon: 'OL' },
+    { id: 'info-leader',      name: '信息办领导',         short: '信息办领导',    icon: 'IL' },
+    { id: 'info-admin',       name: '信息办管理员',       short: '信息办管理员',  icon: 'IA' },
+    { id: 'unit-leader',      name: '用户单位分管领导',   short: '单位分管领导',  icon: 'UL' },
+    { id: 'unit-admin',       name: '用户单位系统管理员', short: '单位系统管理员', icon: 'US' },
+    { id: 'project-manager',  name: '用户单位项目负责人', short: '项目负责人',    icon: 'PM' },
+    { id: 'project-assistant',name: '用户单位项目协助人', short: '项目协助人',    icon: 'PA' },
+    { id: 'contract-admin',   name: '合同管理员',         short: '合同管理员',    icon: 'CA' },
+    { id: 'finance-admin',    name: '财务管理员',         short: '财务管理员',    icon: 'FA' },
+    { id: 'expert',           name: '专家委员会',         short: '专家',          icon: 'EX' },
+    { id: 'sys-admin',        name: '系统管理员',         short: '系统管理员',    icon: 'SA' },
+  ],
+  projects: [
+    { id: 'P001', name: '本科教学质量分析平台', unit: '教务处', manager: '李明', type: 'small', budget: 85, status: 'reviewing', phase: 2, startDate: '2025-03-10', deadline: '2025-04-30', background: '当前教学质量数据分散在多个系统，缺乏统一分析平台，导致教学督导工作效率低下。', goal: '建设统一的本科教学质量数据分析平台，实现跨系统数据汇聚、多维分析与可视化展示。', progress: 30, demandId: 'D001', proposalId: 'PR001', contractId: null, contact: '13800138001', vendor: '某教育科技有限公司', techReviewPassed: true, procurementStatus: '已签合同' },
+    { id: 'P002', name: '招生系统升级改造', unit: '招生处', manager: '王芳', type: 'small', budget: 60, status: 'implementing', phase: 4, startDate: '2025-01-15', deadline: '2025-09-30', background: '现有招生系统建设于2018年，接口标准落后，无法与新版国家招生平台对接。', goal: '完成系统接口改造，实现与国家招生平台的数据互通。', progress: 55, demandId: 'D002', proposalId: 'PR002', contractId: 'C001', contact: '13900139001', vendor: '成都华信软件有限公司', techReviewPassed: true, procurementStatus: '已签合同' },
+    { id: 'P003', name: 'OA协同办公平台升级', unit: '党政办公室', manager: '赵磊', type: 'mid', budget: 150, status: 'completed', phase: 7, startDate: '2024-06-01', deadline: '2025-01-31', background: '现有OA系统版本过旧，移动端体验差，无法满足日常办公需求。', goal: '升级OA平台至最新版本，完善移动端功能，提升协同办公效率。', progress: 100, demandId: 'D003', proposalId: 'PR003', contractId: 'C002', contact: '13600136001', vendor: '北京泛微网络科技股份有限公司', techReviewPassed: true, procurementStatus: '已签合同' },
+    { id: 'P004', name: '学生资助管理系统', unit: '学生工作处', manager: '陈静', type: 'small', budget: 45, status: 'demand', phase: 1, startDate: '2025-03-01', deadline: '2025-05-31', background: '资助管理工作目前依赖Excel手工操作，数据统计耗时且易出错。', goal: '建设学生资助全流程管理系统，实现申请、审核、发放的线上化管理。', progress: 10, demandId: 'D004', proposalId: null, contractId: null, contact: '13700137001', vendor: '', techReviewPassed: false, procurementStatus: '未开始' },
+    { id: 'P005', name: '科研项目全程管理平台', unit: '科研处', manager: '刘洋', type: 'mid', budget: 180, status: 'frozen', phase: 2, startDate: '2025-02-01', deadline: null, background: '科研项目管理分散，缺乏统一平台。', goal: '建设科研项目全流程管理平台。', progress: 15, demandId: 'D005', proposalId: 'PR004', contractId: null, frozenUntil: '2026-02-01', frozenReason: '二次论证未通过，项目冻结一年（BR-13）', contact: '13700137005', vendor: '', techReviewPassed: false, procurementStatus: '未开始' },
+    { id: 'P006', name: '院系网站群模板升级', unit: '宣传部', manager: '吴小明', type: 'micro', budget: 15, status: 'implementing', phase: 4, startDate: '2025-04-15', deadline: '2025-08-30', background: '院系网站模板陈旧，移动端适配差。', goal: '升级院系网站群模板，支持响应式布局。', progress: 40, demandId: 'D006', proposalId: 'PR005', contractId: null, contact: '13500135001', vendor: '', techReviewPassed: true, procurementStatus: '自行采购' },
+    { id: 'P007', name: '图书馆智能检索系统', unit: '图书馆', manager: '孙明华', type: 'small', budget: 68, status: 'procurement', phase: 3, startDate: '2025-05-01', deadline: '2025-12-31', background: '现有检索系统功能单一，不支持跨库检索。', goal: '建设统一智能检索平台，支持跨库联合检索和AI推荐。', progress: 20, demandId: null, proposalId: 'PR006', contractId: null, contact: '13600136007', vendor: '', techReviewPassed: true, procurementStatus: '招标中' },
+    { id: 'P008', name: '校园一卡通系统升级', unit: '后勤管理处', manager: '张伟', type: 'mid', budget: 120, status: 'acceptance', phase: 6, startDate: '2024-09-01', deadline: '2025-06-30', background: '一卡通系统使用超过8年，硬件老化，需整体升级。', goal: '完成一卡通系统软硬件全面升级，支持虚拟卡和移动支付。', progress: 95, demandId: null, proposalId: 'PR007', contractId: 'C003', contact: '13800138008', vendor: '深圳新开普电子有限公司', techReviewPassed: true, procurementStatus: '已签合同' },
+    { id: 'P009', name: '人事管理信息系统', unit: '人事处', manager: '周丽', type: 'small', budget: 55, status: 'ops', phase: 7, startDate: '2024-03-01', deadline: '2025-02-28', background: '人事信息管理依赖多套独立系统，数据不一致。', goal: '建设统一人事管理平台，打通招聘、考核、薪酬等环节。', progress: 100, demandId: null, proposalId: 'PR008', contractId: 'C004', contact: '13900139009', vendor: '用友网络科技股份有限公司', techReviewPassed: true, procurementStatus: '已签合同' },
+    { id: 'P010', name: '实验室安全管理平台', unit: '实验室与设备管理处', manager: '郑强', type: 'small', budget: 42, status: 'reviewing', phase: 2, startDate: '2025-06-01', deadline: '2025-07-31', background: '实验室安全管理手段落后，缺乏实时监控和预警。', goal: '建设实验室安全管理平台，实现环境监测、门禁管理和应急预警。', progress: 5, demandId: null, proposalId: 'PR009', contractId: null, contact: '13700137010', vendor: '', techReviewPassed: false, procurementStatus: '未开始' },
+  ],
+  demands: [
+    { id: 'D001', projectId: 'P001', projectName: '本科教学质量分析平台', unitId: '教务处', submittedBy: '李明', budgetEstimate: 85, status: 'supported', submitDate: '2025-02-20', deadline: '2025-03-31', sortOrder: 1, background: '需求详细描述...', summary: '整合教务、评教、课程数据，建设统一本科教学质量分析平台，支持多维分析与可视化，辅助教学督导决策。', tags: ['教学管理', '数据分析', '可视化'], attachments: [{name:'本科教学质量分析-需求说明.pdf', size:'1.8MB'},{name:'现有系统接口清单.xlsx', size:'320KB'}], authorized: true, authorizedBy: '王建国', collectionId: 'CP002', contactPhone: '13800138001', contactEmail: 'liming@swu.edu.cn' },
+    { id: 'D002', projectId: 'P002', projectName: '招生系统升级改造', unitId: '招生处', submittedBy: '王芳', budgetEstimate: 60, status: 'supported', submitDate: '2025-01-10', deadline: '2025-02-28', sortOrder: 2, authorized: true, authorizedBy: '张明', collectionId: 'CP002', contactPhone: '13900139001', contactEmail: 'wangfang@swu.edu.cn' },
+    { id: 'D003', projectId: 'P003', projectName: 'OA协同办公平台升级', unitId: '党政办公室', submittedBy: '赵磊', budgetEstimate: 150, status: 'supported', submitDate: '2024-05-15', deadline: '2024-06-30', sortOrder: 1, authorized: true, authorizedBy: '孙主任', collectionId: 'CP002', contactPhone: '13600136001', contactEmail: 'zhaolei@swu.edu.cn' },
+    { id: 'D004', projectId: 'P004', projectName: '学生资助管理系统', unitId: '学生工作处', submittedBy: '陈静', budgetEstimate: 45, status: 'submitted', submitDate: '2025-03-15', deadline: '2025-04-15', sortOrder: 3, summary: '建设学生资助全流程线上平台，替代 Excel 手工台账，实现申请、审核、发放、统计的数字化闭环。', tags: ['学生资助', '流程数字化'], attachments: [{name:'学生资助管理系统-需求申报书.pdf', size:'1.2MB'}], authorized: true, authorizedBy: '李副处长', collectionId: 'CP002', contactPhone: '13700137001', contactEmail: 'chenjing@swu.edu.cn' },
+    { id: 'D005', projectId: 'P005', projectName: '科研项目全程管理平台', unitId: '科研处', submittedBy: '刘洋', budgetEstimate: 180, status: 'supported', submitDate: '2025-01-20', deadline: '2025-02-15', sortOrder: 2, authorized: true, authorizedBy: '周主任', collectionId: 'CP002', contactPhone: '13700137005', contactEmail: 'liuyang@swu.edu.cn' },
+    /* ── 2026年度征集需求（CP001） ── */
+    { id: 'D006', projectId: null, projectName: '智慧教室管理平台', unitId: '教务处', submittedBy: '李明', budgetEstimate: 45, status: 'submitted', submitDate: '2026-03-20', deadline: '2026-04-15', sortOrder: 1, background: '建设智慧教室统一管理平台，实现设备远程管控、教学数据采集与分析。', authorized: true, authorizedBy: '王建国', collectionId: 'CP001', contactPhone: '13800138001', contactEmail: 'liming@swu.edu.cn' },
+    { id: 'D007', projectId: null, projectName: '数据共享交换平台升级', unitId: '教务处', submittedBy: '张伟', budgetEstimate: 85, status: 'submitted', submitDate: '2026-03-20', deadline: '2026-04-15', sortOrder: 2, background: '升级现有数据共享交换平台，支持实时数据同步和API网关管理。', authorized: true, authorizedBy: '王建国', collectionId: 'CP001', contactPhone: '13800138002', contactEmail: 'zhangwei@swu.edu.cn' },
+    { id: 'D008', projectId: null, projectName: '招生数据分析系统', unitId: '招生处', submittedBy: '王芳', budgetEstimate: 60, status: 'sorted', submitDate: '2026-03-15', deadline: '2026-04-15', sortOrder: 1, background: '建设招生数据多维分析系统，辅助招生决策。', authorized: true, authorizedBy: '张明', collectionId: 'CP001', contactPhone: '13900139001', contactEmail: 'wangfang@swu.edu.cn' },
+    { id: 'D009', projectId: null, projectName: '心理健康预警系统', unitId: '学生工作处', submittedBy: '陈静', budgetEstimate: 35, status: 'unit-rejected', submitDate: '2026-03-22', deadline: '2026-04-15', sortOrder: null, background: '建设学生心理健康数据预警平台。', summary: '整合心理普查、日常咨询、辅导员观察等多源数据，对高风险学生进行早期识别和预警干预。', tags: ['学生管理', '心理健康', '预警'], attachments: [{name:'心理健康预警系统-可行性分析.pdf', size:'0.8MB'}], authorized: true, authorizedBy: '李副处长', collectionId: 'CP001', contactPhone: '13700137001', contactEmail: 'chenjing@swu.edu.cn', unitRejectionReason: '预算估算不合理，请补充市场调研数据后重新提交。', unitRejectionAt: '2026-03-23' },
+    { id: 'D010', projectId: null, projectName: '科研成果管理系统', unitId: '科研处', submittedBy: '刘洋', budgetEstimate: 120, status: 'in-selection', submitDate: '2026-03-18', deadline: '2026-04-15', sortOrder: 1, background: '建设科研成果全流程管理系统，支持成果登记、评价和转化跟踪。', authorized: true, authorizedBy: '周主任', collectionId: 'CP001', contactPhone: '13700137005', contactEmail: 'liuyang@swu.edu.cn' },
+    { id: 'D011', projectId: null, projectName: '校园一卡通系统升级', unitId: '科研处', submittedBy: '周华', budgetEstimate: 140, status: 'in-selection', submitDate: '2026-03-18', deadline: '2026-04-15', sortOrder: 2, background: '升级一卡通系统支持移动支付和人脸识别。', authorized: true, authorizedBy: '周主任', collectionId: 'CP001', contactPhone: '13700137006', contactEmail: 'zhouhua@swu.edu.cn' },
+    { id: 'D012', projectId: null, projectName: '图书馆智能检索系统', unitId: '图书馆', submittedBy: '钱图', budgetEstimate: 35, status: 'unit-approved', submitDate: '2026-03-25', deadline: '2026-04-15', sortOrder: 1, background: '建设基于AI的图书馆智能检索和推荐系统。', authorized: true, authorizedBy: '馆长', collectionId: 'CP001', contactPhone: '13500135001', contactEmail: 'qiantu@swu.edu.cn' },
+    { id: 'D013', projectId: null, projectName: '网站无障碍改造', unitId: '图书馆', submittedBy: '钱图', budgetEstimate: 8, status: 'draft', submitDate: null, deadline: '2026-04-15', sortOrder: null, background: '对图书馆网站进行无障碍访问改造。', authorized: true, authorizedBy: '馆长', collectionId: 'CP001', contactPhone: '13500135001', contactEmail: 'qiantu@swu.edu.cn' },
+    { id: 'D014', projectId: null, projectName: '党员信息管理系统升级', unitId: '党政办公室', submittedBy: '吴秘书', budgetEstimate: 25, status: 'not-supported', submitDate: '2026-03-20', deadline: '2026-04-15', sortOrder: null, background: '对党员信息管理系统进行功能升级。', authorized: true, authorizedBy: '王书记', collectionId: 'CP001', contactPhone: '13800138009', contactEmail: 'wushuji@swu.edu.cn', rejectionCategory: '与现有系统功能重叠，不予支持', rejectionAt: '2026-04-05' },
+    /* ── 2026年度更多单位需求（CP001，覆盖全流程状态） ── */
+    /* 阶段二：项目负责人填报中（步骤2.3） */
+    { id: 'D015', projectId: null, projectName: '财务报销智能审核系统', unitId: '财务处', submittedBy: '赵会计', budgetEstimate: 55, status: 'draft', submitDate: null, deadline: '2026-04-15', sortOrder: null, background: '利用 OCR 和规则引擎自动审核报销单据，减少人工复核工作量，降低差错率。', authorized: true, authorizedBy: '吴处长', collectionId: 'CP001', contactPhone: '13600136015', contactEmail: 'zhaokj@swu.edu.cn' },
+    /* 阶段二：单位管理员已排序，待单位领导审批（步骤2.4→2.5） */
+    { id: 'D016', projectId: null, projectName: '人事绩效考核平台', unitId: '人事处', submittedBy: '周丽', budgetEstimate: 75, status: 'unit-pending', submitDate: '2026-03-28', deadline: '2026-04-15', sortOrder: 1, background: '建设教职工年度绩效考核线上平台，实现指标设定、自评互评、审核汇总全流程数字化，替代现有纸质+Excel模式。', authorized: true, authorizedBy: '孙处长', collectionId: 'CP001', contactPhone: '13900139016', contactEmail: 'zhouli@swu.edu.cn' },
+    { id: 'D017', projectId: null, projectName: '教职工培训管理系统', unitId: '人事处', submittedBy: '周丽', budgetEstimate: 30, status: 'unit-pending', submitDate: '2026-03-29', deadline: '2026-04-15', sortOrder: 2, background: '建设教职工继续教育与培训管理系统，支持培训报名、学时记录、证书管理。', authorized: true, authorizedBy: '孙处长', collectionId: 'CP001', contactPhone: '13900139016', contactEmail: 'zhouli@swu.edu.cn' },
+    /* 阶段二：单位领导已审批通过，已推送至信息办（步骤2.5.1） */
+    { id: 'D018', projectId: null, projectName: '校园能耗监测平台', unitId: '后勤管理处', submittedBy: '张伟', budgetEstimate: 90, status: 'unit-approved', submitDate: '2026-03-20', deadline: '2026-04-15', sortOrder: 1, background: '建设校园水电能耗智能监测平台，接入各楼宇智能电表水表数据，实现实时监测、异常告警和节能分析报表。', summary: '打通校区各楼宇智能电表水表，建立能耗实时监测、异常告警与节能分析一体化平台，支撑双碳目标下的校园精细化管理。', tags: ['后勤管理', '物联网', '节能减排'], attachments: [{name:'能耗监测-需求申报书.pdf', size:'2.1MB'},{name:'楼宇仪表接入清单.xlsx', size:'180KB'}], authorized: true, authorizedBy: '何处长', collectionId: 'CP001', contactPhone: '13800138018', contactEmail: 'zhangwei2@swu.edu.cn' },
+    { id: 'D019', projectId: null, projectName: '宿舍报修管理系统', unitId: '后勤管理处', submittedBy: '李工', budgetEstimate: 18, status: 'unit-approved', submitDate: '2026-03-22', deadline: '2026-04-15', sortOrder: 2, background: '学生宿舍报修流程线上化，支持扫码报修、工单流转、维修评价和统计分析。', authorized: true, authorizedBy: '何处长', collectionId: 'CP001', contactPhone: '13700137019', contactEmail: 'ligong@swu.edu.cn' },
+    /* 阶段三：信办筛选中 — 筛选结果待信办领导审核（步骤4.2） */
+    { id: 'D020', projectId: null, projectName: '实验室安全巡检系统', unitId: '实验室与设备管理处', submittedBy: '郑强', budgetEstimate: 42, status: 'in-selection', submitDate: '2026-03-19', deadline: '2026-04-15', sortOrder: 1, background: '建设实验室安全巡检数字化系统，支持巡检任务下发、移动端巡检记录、隐患整改追踪和数据统计分析。', summary: '将实验室安全巡检从纸质表单迁移至移动端，实现任务下发、现场记录、隐患整改闭环和安全态势统计分析。', tags: ['实验室安全', '移动端', '巡检'], attachments: [{name:'实验室安全巡检-需求说明.pdf', size:'1.4MB'}], authorized: true, authorizedBy: '陈主任', collectionId: 'CP001', contactPhone: '13700137020', contactEmail: 'zhengqiang@swu.edu.cn' },
+    { id: 'D021', projectId: null, projectName: '大型仪器共享预约平台', unitId: '实验室与设备管理处', submittedBy: '郑强', budgetEstimate: 38, status: 'in-selection', submitDate: '2026-03-19', deadline: '2026-04-15', sortOrder: 2, background: '建设大型仪器设备共享预约平台，实现设备信息公示、在线预约、使用记录和机时统计。', authorized: true, authorizedBy: '陈主任', collectionId: 'CP001', contactPhone: '13700137020', contactEmail: 'zhengqiang@swu.edu.cn' },
+    /* 阶段三：筛选已通过（步骤4.3.1，可进入立项论证） */
+    { id: 'D022', projectId: null, projectName: '就业信息管理平台', unitId: '招生处', submittedBy: '王芳', budgetEstimate: 48, status: 'supported', submitDate: '2026-03-16', deadline: '2026-04-15', sortOrder: 2, background: '建设毕业生就业信息一站式服务平台，整合招聘信息发布、签约管理、去向登记和就业统计分析。', authorized: true, authorizedBy: '张明', collectionId: 'CP001', contactPhone: '13900139001', contactEmail: 'wangfang@swu.edu.cn' },
+    /* 阶段三：筛选不通过（步骤4.3.2） */
+    { id: 'D023', projectId: null, projectName: '教室多媒体远程控制', unitId: '后勤管理处', submittedBy: '李工', budgetEstimate: 12, status: 'not-supported', submitDate: '2026-03-23', deadline: '2026-04-15', sortOrder: 3, background: '对教室多媒体设备实现远程开关机和状态监控。', authorized: true, authorizedBy: '何处长', collectionId: 'CP001', contactPhone: '13700137019', contactEmail: 'ligong@swu.edu.cn', rejectionCategory: '需求范围与智慧教室管理平台重叠，建议合并', rejectionAt: '2026-04-08' },
+    /* ── 信息化办公室需求（unit-info，供单位系统管理员排序演示） ── */
+    { id: 'D024', projectId: null, projectName: '信息化项目管理平台建设', unitId: 'unit-info', submittedBy: '王一凡 50240014', budgetEstimate: 160, status: 'submitted', submitDate: '2026-04-01', deadline: '2026-04-30', sortOrder: 1, background: '建设覆盖项目全生命周期的信息化管理平台，支持立项、招采、实施、验收各阶段在线流转。', authorized: true, authorizedBy: '唐明', collectionId: 'CP001', contactPhone: '13800138010', contactEmail: 'wangyifan@swu.edu.cn' },
+    { id: 'D025', projectId: null, projectName: '网络安全态势感知系统', unitId: 'unit-info', submittedBy: '王一凡 50240014', budgetEstimate: 95, status: 'submitted', submitDate: '2026-04-02', deadline: '2026-04-30', sortOrder: 2, background: '建设全校网络安全态势感知平台，实现威胁实时监测与预警。', authorized: true, authorizedBy: '唐明', collectionId: 'CP001', contactPhone: '13800138010', contactEmail: 'wangyifan@swu.edu.cn' },
+    { id: 'D026', projectId: null, projectName: '统一身份认证平台升级', unitId: 'unit-info', submittedBy: '王一凡 50240014', budgetEstimate: 55, status: 'submitted', submitDate: '2026-04-03', deadline: '2026-04-30', sortOrder: 3, background: '升级统一身份认证平台，支持多因素认证和第三方系统对接。', authorized: true, authorizedBy: '唐明', collectionId: 'CP001', contactPhone: '13800138010', contactEmail: 'wangyifan@swu.edu.cn' },
+  ],
+  experts: [
+    { id: 'E001', name: '张国强', org: '西南大学计算机学院', title: '教授', type: 'tech', scope: 'internal', field: '软件工程、系统架构', phone: '13900001111', email: 'zhanggq@swu.edu.cn', status: 'active', tags: ['软件工程','计算机科学与技术'] },
+    { id: 'E002', name: '李慧敏', org: '西南大学信息办', title: '高工', type: 'tech', scope: 'internal', field: '网络安全、数据治理', phone: '13900002222', email: 'lihm@swu.edu.cn', status: 'active', tags: ['管理信息系统网络通信与安全','数据管理'] },
+    { id: 'E003', name: '陈志远', org: '重庆大学计算机学院', title: '副教授', type: 'tech', scope: 'external', field: '数据库、大数据平台', phone: '13900003333', email: 'chenzhy@cqu.edu.cn', status: 'active', tags: ['数据科学','计算机科学与技术'] },
+    { id: 'E004', name: '王小燕', org: '西南大学教务处', title: '处长', type: 'business', scope: 'internal', field: '教学管理、质量评估', phone: '13900004444', email: 'wangxy@swu.edu.cn', status: 'active', tags: ['教学','管理'] },
+    { id: 'E005', name: '刘建国', org: '西南大学财务处', title: '副处长', type: 'business', scope: 'internal', field: '预算管理、财务审计', phone: '13900005555', email: 'liujg@swu.edu.cn', status: 'active', tags: ['财务','管理'] },
+    { id: 'E006', name: '赵明华', org: '四川大学信息化办', title: '主任', type: 'tech', scope: 'external', field: '信息化规划、项目管理', phone: '13900006666', email: 'zhaomh@scu.edu.cn', status: 'active', tags: ['管理信息系统网络通信与安全','工程管理'] },
+    { id: 'E007', name: '孙丽娟', org: '西南大学招生处', title: '科长', type: 'user', scope: 'internal', field: '招生业务', phone: '13900007777', email: 'sunlj@swu.edu.cn', status: 'active', tags: ['学生管理','管理'] },
+    { id: 'E008', name: '周大鹏', org: '电子科技大学软件学院', title: '教授', type: 'tech', scope: 'external', field: '软件工程、AI应用', phone: '13900008888', email: 'zhoudp@uestc.edu.cn', status: 'blacklisted', blackReason: '曾在评审中泄露商业信息', blackDate: '2024-11-01', tags: ['软件工程','人工智能'] },
+    { id: 'E009', name: '吴晓峰', org: '西南大学科研处', title: '副处长', type: 'business', scope: 'internal', field: '科研项目管理', phone: '13900009999', email: 'wuxf@swu.edu.cn', status: 'active', tags: ['科研','工程管理'] },
+    { id: 'E010', name: '郑雪梅', org: '重庆邮电大学信息学院', title: '副教授', type: 'tech', scope: 'external', field: '信息安全、云计算', phone: '13900000000', email: 'zhengxm@cqupt.edu.cn', status: 'active', tags: ['管理信息系统网络通信与安全','通信网络'] },
+  ],
+  reviews: [
+    { id: 'RV001', type: 'approval', projectId: 'P001', projectName: '本科教学质量分析平台', date: '2025-03-25', experts: ['E001','E003','E004'], status: 'in-progress', conclusion: null, inviteStatus: { E001: 'accepted', E003: 'accepted', E004: 'accepted' }, round: 1, triggerScene: '立项论证', weightedScore: null, finalConclusion: null, reworkDeadline: null, reworkStatus: null },
+    { id: 'RV002', type: 'approval', projectId: 'P005', projectName: '科研项目全程管理平台', date: '2025-01-28', experts: ['E001','E002','E006'], status: 'rejected', conclusion: '技术方案存在重大缺陷，建议重新设计后提交二次论证', inviteStatus: { E001: 'accepted', E002: 'accepted', E006: 'accepted' }, round: 2, triggerScene: '立项论证', weightedScore: 52, finalConclusion: '不通过', reworkDeadline: null, reworkStatus: null, scoreBreakdown: [ { name: '必要性', desc: '项目建设必要性与紧迫性', weight: 20, value: 55 }, { name: '可行性', desc: '技术、资源、时间可行性', weight: 25, value: 48 }, { name: '合理性', desc: '预算构成与成本控制合理性', weight: 20, value: 52 }, { name: '创新性', desc: '技术方案与业务模式创新', weight: 15, value: 50 }, { name: '合规性', desc: '数据安全与信创合规要求', weight: 20, value: 58 } ] },
+    { id: 'RV003', type: 'acceptance', projectId: 'P003', projectName: 'OA协同办公平台升级', date: '2025-01-25', experts: ['E001','E003','E006','E002','E010'], status: 'passed', conclusion: '验收通过，系统功能达到预期建设目标', inviteStatus: { E001: 'accepted', E003: 'accepted', E006: 'accepted', E002: 'accepted', E010: 'accepted' }, round: 1, triggerScene: '项目验收', weightedScore: 86, finalConclusion: '通过', reworkDeadline: null, reworkStatus: null, scoreBreakdown: [ { name: '必要性', desc: '项目建设必要性与紧迫性', weight: 20, value: 88 }, { name: '可行性', desc: '技术、资源、时间可行性', weight: 25, value: 85 }, { name: '合理性', desc: '预算构成与成本控制合理性', weight: 20, value: 82 }, { name: '创新性', desc: '技术方案与业务模式创新', weight: 15, value: 86 }, { name: '合规性', desc: '数据安全与信创合规要求', weight: 20, value: 90 } ] },
+    { id: 'RV004', type: 'approval', projectId: 'P002', projectName: '招生系统升级改造', date: '2025-01-10', experts: ['E001','E005','E007'], status: 'passed', conclusion: '需求合理，建议立项', inviteStatus: { E001: 'accepted', E005: 'accepted', E007: 'pending' }, round: 1, triggerScene: '立项论证', weightedScore: 78, finalConclusion: '通过', reworkDeadline: null, reworkStatus: null, scoreBreakdown: [ { name: '必要性', desc: '项目建设必要性与紧迫性', weight: 20, value: 80 }, { name: '可行性', desc: '技术、资源、时间可行性', weight: 25, value: 76 }, { name: '合理性', desc: '预算构成与成本控制合理性', weight: 20, value: 78 }, { name: '创新性', desc: '技术方案与业务模式创新', weight: 15, value: 75 }, { name: '合规性', desc: '数据安全与信创合规要求', weight: 20, value: 82 } ] },
+    { id: 'RV005', type: 'approval', projectId: 'P010', projectName: '实验室安全管理平台', date: '2025-06-15', experts: ['E001','E003','E006'], status: 'rework-pending', conclusion: '方案基本可行，但安全架构部分需补充完善', inviteStatus: { E001: 'accepted', E003: 'accepted', E006: 'accepted' }, round: 1, triggerScene: '立项论证', weightedScore: 65, finalConclusion: '退回修改', reworkDeadline: '2025-07-15', reworkStatus: 'pending', reworkRequirement: '1. 补充实验室危化品安全监测方案\n2. 完善应急预警联动机制\n3. 明确与现有门禁系统的对接方案' },
+    { id: 'RV006', type: 'approval', projectId: 'P007', projectName: '智慧图书馆管理系统升级', date: '2026-05-10', experts: ['E001','E005','E008'], status: 'invitation-pending', conclusion: null, inviteStatus: { E001: 'pending', E005: 'pending', E008: 'pending' }, round: 1, triggerScene: '立项论证', weightedScore: null, finalConclusion: null, reworkDeadline: null, reworkStatus: null },
+    { id: 'RV007', type: 'approval', projectId: 'P008', projectName: '校园一卡通系统改造', date: '2026-05-20', experts: ['E001','E003','E009'], status: 'not-started', conclusion: null, inviteStatus: { E001: 'accepted', E003: 'accepted', E009: 'accepted' }, round: 1, triggerScene: '立项论证', weightedScore: null, finalConclusion: null, reworkDeadline: null, reworkStatus: null },
+    /* ── 需求征集阶段的"需求评审"任务（demandId 关联到具体需求） ── */
+    { id: 'RV008', type: 'approval', projectId: null, demandId: 'D018', projectName: '校园能耗监测平台', date: '2026-04-08', experts: ['E001','E002','E004'], status: 'passed', conclusion: '需求论证充分，建设目标明确，建议纳入支持范围。', inviteStatus: { E001: 'accepted', E002: 'accepted', E004: 'accepted' }, round: 1, triggerScene: '需求评审', weightedScore: 82, finalConclusion: '通过', reworkDeadline: null, reworkStatus: null, scoreBreakdown: [ { name: '必要性', desc: '项目建设必要性与紧迫性', weight: 20, value: 85 }, { name: '可行性', desc: '技术、资源、时间可行性', weight: 25, value: 80 }, { name: '合理性', desc: '预算构成与成本控制合理性', weight: 20, value: 82 }, { name: '创新性', desc: '技术方案与业务模式创新', weight: 15, value: 78 }, { name: '合规性', desc: '数据安全与信创合规要求', weight: 20, value: 84 } ] },
+    { id: 'RV009', type: 'approval', projectId: null, demandId: 'D020', projectName: '实验室安全巡检系统', date: '2026-04-10', experts: ['E002','E006','E009'], status: 'rejected', conclusion: '需求边界不清，与现有信息安全平台存在功能重叠，建议合并立项或暂缓。', inviteStatus: { E002: 'accepted', E006: 'accepted', E009: 'accepted' }, round: 1, triggerScene: '需求评审', weightedScore: 48, finalConclusion: '不通过', reworkDeadline: null, reworkStatus: null, scoreBreakdown: [ { name: '必要性', desc: '项目建设必要性与紧迫性', weight: 20, value: 50 }, { name: '可行性', desc: '技术、资源、时间可行性', weight: 25, value: 45 }, { name: '合理性', desc: '预算构成与成本控制合理性', weight: 20, value: 48 }, { name: '创新性', desc: '技术方案与业务模式创新', weight: 15, value: 46 }, { name: '合规性', desc: '数据安全与信创合规要求', weight: 20, value: 52 } ] },
+    { id: 'RV010', type: 'approval', projectId: null, demandId: 'D010', projectName: '科研成果管理系统', date: '2026-04-12', experts: ['E001','E003','E009'], status: 'in-progress', conclusion: null, inviteStatus: { E001: 'accepted', E003: 'accepted', E009: 'accepted' }, round: 1, triggerScene: '需求评审', weightedScore: null, finalConclusion: null, reworkDeadline: null, reworkStatus: null },
+  ],
+  contracts: [
+    { id: 'C001', projectId: 'P002', projectName: '招生系统升级改造', vendor: '成都华信软件有限公司', amount: 58, signDate: '2025-02-10', endDate: '2025-09-30', warrantyYears: 3, status: 'active', payments: [ { node: '合同签订', ratio: 30, amount: 17.4, status: 'paid', date: '2025-02-15' }, { node: '初步设计完成', ratio: 30, amount: 17.4, status: 'paid', date: '2025-04-20' }, { node: '系统上线', ratio: 30, amount: 17.4, status: 'pending', date: null }, { node: '验收通过', ratio: 10, amount: 5.8, status: 'pending', date: null } ] },
+    { id: 'C002', projectId: 'P003', projectName: 'OA协同办公平台升级', vendor: '北京泛微网络科技股份有限公司', amount: 148, signDate: '2024-06-15', endDate: '2025-01-31', warrantyYears: 3, status: 'completed', payments: [ { node: '合同签订', ratio: 30, amount: 44.4, status: 'paid', date: '2024-06-20' }, { node: '初步设计完成', ratio: 30, amount: 44.4, status: 'paid', date: '2024-09-01' }, { node: '系统上线', ratio: 30, amount: 44.4, status: 'paid', date: '2024-12-15' }, { node: '验收通过', ratio: 10, amount: 14.8, status: 'paid', date: '2025-02-01' } ] },
+  ],
+  notifications: [
+    { id: 'N001', type: 'collection-notice', title: '2025年度信息化项目需求征集通知', content: '请各单位于2025年4月1日前完成项目需求填报，逾期不予受理。', sender: '信息办管理员', sendTime: '2025-03-01 09:00', recipients: ['unit-admin'], level: 'info', readStatus: { '教务处管理员': true, '招生处管理员': true, '学生处管理员': false, '科研处管理员': true }, deliveryStatus: { '教务处管理员': 'delivered', '招生处管理员': 'delivered', '学生处管理员': 'delivered', '科研处管理员': 'delivered' }, channel: ['system', 'dingtalk'] },
+    { id: 'N002', type: 'approval-invite', title: '立项申请通知书 — 本科教学质量分析平台', content: '您申报的「本科教学质量分析平台」项目需求已通过遴选，请于2025年3月20日前填报《信息化项目建设申报书》。', sender: '信息办管理员', sendTime: '2025-03-10 10:00', recipients: ['project-manager'], level: 'info', readStatus: { '李明': true }, deliveryStatus: { '李明': 'delivered' }, channel: ['system', 'sms'] },
+    { id: 'N003', type: 'expert-invite', title: '专家评审邀请 — 本科教学质量分析平台立项论证', content: '诚邀您参加「本科教学质量分析平台」立项论证评审，时间：2025年3月25日 14:00，地点：信息楼204会议室。', sender: '系统自动', sendTime: '2025-03-18 09:00', recipients: ['expert'], level: 'info', readStatus: { '张国强': true, '陈志远': true, '王小燕': true }, deliveryStatus: { '张国强': 'delivered', '陈志远': 'delivered', '王小燕': 'delivered' }, channel: ['system', 'email'] },
+    { id: 'N004', type: 'approval-notice', title: '立项通知书 — 本科教学质量分析平台', content: '「本科教学质量分析平台」项目已正式获批立项，项目编号P001，批复金额85万元，请尽快启动采购程序。', sender: '信息办管理员', sendTime: '2025-03-27 14:00', recipients: ['project-manager'], level: 'info', readStatus: { '李明': false }, deliveryStatus: { '李明': 'pending' }, channel: ['system', 'sms'] },
+    { id: 'N005', type: 'collection-returned', title: '征集方案退回通知', content: '您提交的2026年度征集方案需修改通知设置部分，请查看退回意见后重新提交。', sender: '系统', sendTime: '2026-02-22 10:00', recipients: ['info-admin'], level: 'warning', readStatus: {'张华':false}, deliveryStatus: {'张华':'delivered'}, channel: ['system'] },
+    { id: 'N006', type: 'demand-returned', title: '需求申请退回通知', content: '您提交的「学生资助管理系统」需求申请被退回，原因：预算不合理，请补充说明。', sender: '系统', sendTime: '2025-03-18 14:00', recipients: ['project-manager'], level: 'warning', readStatus: {'陈静':false}, deliveryStatus: {'陈静':'delivered'}, channel: ['system'] },
+    { id: 'N007', type: 'proposal-return', title: '申报书退回通知', content: '您提交的「本科教学质量分析平台」申报书被退回修改。', sender: '系统', sendTime: '2025-03-25 10:15', recipients: ['project-manager'], level: 'warning', readStatus: {'李明':true}, deliveryStatus: {'李明':'delivered'}, channel: ['system'] },
+    { id: 'N008', type: 'review-result', title: '评审结果通知 — 本科教学质量分析平台', content: '「本科教学质量分析平台」立项论证评审结论：通过。', sender: '系统', sendTime: '2025-03-26 16:00', recipients: ['project-manager'], level: 'info', readStatus: {'李明':true}, deliveryStatus: {'李明':'delivered'}, channel: ['system'] },
+    { id: 'N009', type: 'frozen-notice', title: '项目冻结通知 — 科研项目全程管理平台', content: '「科研项目全程管理平台」二次论证未通过，项目已冻结，一年后方可重新提交。', sender: '系统', sendTime: '2025-02-01 09:00', recipients: ['project-manager','unit-leader'], level: 'urgent', readStatus: {'刘洋':true}, deliveryStatus: {'刘洋':'delivered'}, channel: ['system','sms'] },
+    { id: 'N010', type: 'approval-result-reject', title: '立项不通过通知', content: '「科研项目全程管理平台」未通过领导审定。', sender: '系统', sendTime: '2025-01-30 16:00', recipients: ['project-manager','unit-leader'], level: 'warning', readStatus: {'刘洋':true}, deliveryStatus: {'刘洋':'delivered'}, channel: ['system'] },
+    { id: 'N011', type: 'change-result', title: '变更审批结果 — 招生系统升级改造', content: '您的变更申请已通过审批，预算调整为60万元。', sender: '系统', sendTime: '2025-03-08 16:00', recipients: ['project-manager'], level: 'info', readStatus: {'王芳':true}, deliveryStatus: {'王芳':'delivered'}, channel: ['system'] },
+    { id: 'N012', type: 'overdue-warning', title: '汇报逾期预警', content: '「本科教学质量分析平台」已超过汇报周期（每半月）未提交进展报告，请尽快提交。', sender: '系统', sendTime: '2025-08-16 06:00', recipients: ['project-manager','info-admin'], level: 'urgent', readStatus: {'李明':false}, deliveryStatus: {'李明':'delivered'}, channel: ['system','sms'] },
+    { id: 'N013', type: 'acceptance-invite', title: '验收评审邀请 — OA协同办公平台升级', content: '尊敬的专家：\n\n诚邀您参加「OA协同办公平台升级」正式验收评审会议。\n\n会议时间：2025年1月25日 09:30\n会议地点：信息楼301会议室\n\n请于收到本通知48小时内在系统中确认是否参会。\n\n信息化管理办公室', sender: '系统自动', sendTime: '2025-01-20 09:00', recipients: ['expert'], level: 'info', readStatus: {'张国强':true,'陈志远':true,'李红梅':true,'郑雪梅':false,'吴晓峰':true}, deliveryStatus: {'张国强':'delivered','陈志远':'delivered','李红梅':'delivered','郑雪梅':'delivered','吴晓峰':'delivered'}, channel: ['system','email'] },
+    { id: 'N019', type: 'expert-invite', title: '专家评审邀请 — 招生系统升级改造需求评审', content: '尊敬的专家：\n\n诚邀您参加「招生系统升级改造」需求评审会议。\n\n会议时间：2025年1月10日 14:00\n会议地点：信息楼204会议室\n\n请于收到本通知48小时内在系统中确认是否参会。如不能参会，请说明原因，以便我们及时调整安排。\n\n信息化管理办公室', sender: '系统自动', sendTime: '2025-01-05 09:00', recipients: ['expert'], level: 'info', readStatus: {'张国强':true,'李红梅':true,'赵明华':false}, deliveryStatus: {'张国强':'delivered','李红梅':'delivered','赵明华':'delivered'}, channel: ['system','email'] },
+    { id: 'N014', type: 'acceptance-result', title: '验收结果通知 — OA协同办公平台升级', content: '「OA协同办公平台升级」验收评审结论：通过。', sender: '系统', sendTime: '2025-01-26 16:00', recipients: ['project-manager','unit-leader'], level: 'info', readStatus: {'赵磊':true}, deliveryStatus: {'赵磊':'delivered'}, channel: ['system'] },
+    { id: 'N015', type: 'major-fault', title: '重大故障上报 — 招生系统升级改造', content: '「招生系统升级改造」出现重大故障：移动端登录偶发失败，影响约5%用户。', sender: '系统', sendTime: '2025-03-18 08:50', recipients: ['info-leader','leadership-office'], level: 'urgent', readStatus: {'王主任':true}, deliveryStatus: {'王主任':'delivered'}, channel: ['system','sms'] },
+    { id: 'N016', type: 'contract-expiry', title: '合同到期提醒 — OA协同办公平台升级', content: 'OA协同办公平台升级」维保合同将于30天内到期，请及时确认续签或终止。', sender: '系统', sendTime: '2025-12-31 06:00', recipients: ['contract-admin','project-manager'], level: 'warning', readStatus: {'周合同':false}, deliveryStatus: {'周合同':'delivered'}, channel: ['system'], status: 'sent' },
+    { id: 'N017', type: 'overdue-warning', title: '汇报逾期预警 — 智慧校园统一身份认证平台', content: '您好：\n\n系统检测到「智慧校园统一身份认证平台」已超过规定汇报周期（每半月）未提交进展报告，请于24小时内登录系统提交。\n\n如持续逾期，将影响项目正常推进并计入考核。\n\n信息化管理办公室', sender: '信息办管理员', sendTime: null, recipients: ['project-manager'], level: 'urgent', readStatus: {}, deliveryStatus: {}, channel: ['system','dingtalk'], status: 'draft', contactName: '张建国', contactInfo: 'zjg@swu.edu.cn / 023-68251234' },
+    { id: 'N018', type: 'collection-notice', title: '2026年度信息化项目需求征集通知', content: '各单位：\n\n根据学校信息化建设工作安排，现启动2026年度信息化项目需求征集工作，请各单位于截止日期前登录系统提交项目需求申请，逾期将不予受理。\n\n信息化管理办公室', sender: '信息办管理员', sendTime: null, recipients: [], level: 'info', readStatus: {}, deliveryStatus: {}, channel: ['system','email'], status: 'draft', contactName: '', contactInfo: '' },
+  ],
+  operationLogs: [
+    { id: 'L001', time: '2025-03-24 09:00', operator: '李明', role: '项目负责人', module: '立项管理', action: '创建申报书', targetId: 'PR001', targetName: '本科教学质量分析平台', detail: '首次提交申报书', changes: null },
+    { id: 'L002', time: '2025-03-25 10:15', operator: '王小燕', role: '信息办领导', module: '立项管理', action: '驳回申报书', targetId: 'PR001', targetName: '本科教学质量分析平台', detail: '驳回意见：预算说明不够详细，请补充采购清单', changes: null },
+    { id: 'L003', time: '2025-03-26 14:32', operator: '李明', role: '项目负责人', module: '立项管理', action: '重新提交申报书', targetId: 'PR001', targetName: '本科教学质量分析平台', detail: '按驳回意见修改后重新提交', changes: [ { field: '预算金额', before: '80万', after: '85万' }, { field: '建设背景', before: '（原文180字）', after: '（修改后240字，补充了采购需求说明）' } ] },
+    { id: 'L004', time: '2025-03-10 09:00', operator: '系统管理员', role: '系统管理员', module: '系统管理', action: '修改用户权限', targetId: 'U007', targetName: '李明', detail: '新增"项目负责人"角色权限', changes: [{ field: '角色', before: '普通用户', after: '项目负责人' }] },
+  ],
+  opsRecords: [
+    { id: 'O001', projectId: 'P002', projectName: '招生系统升级改造', type: 'inspection', date: '2025-03-20', operator: '王芳', content: '完成月度巡检：服务器CPU使用率28%，内存占用62%，磁盘剩余空间充足，无异常', status: 'normal' },
+    { id: 'O002', projectId: 'P003', projectName: 'OA协同办公平台升级', type: 'backup', date: '2025-03-15', operator: '赵磊', content: '完成月度全量备份，备份文件大小42GB，异地存储至容灾备份中心', status: 'normal' },
+  ],
+  faultTickets: [
+    { id: 'F001', projectId: 'P002', projectName: '招生系统升级改造', title: '招生数据导出功能异常', level: 'normal', reporter: '王芳', reportTime: '2025-03-22 10:30', status: 'resolved', resolveTime: '2025-03-22 15:00', description: '用户反馈数据导出为空文件', resolution: '已修复：接口参数格式问题导致，已更新' },
+    { id: 'F002', projectId: 'P003', projectName: 'OA协同办公平台升级', title: '移动端登录偶发失败', level: 'major', reporter: '赵磊', reportTime: '2025-03-18 08:45', status: 'resolved', resolveTime: '2025-03-18 11:20', description: '约5%用户反映移动端无法登录', resolution: '已修复：负载均衡配置错误，已调整' },
+  ],
+  annualBudget: {
+    year: 2025, total: 850, approved: 338, used: 182.8, reserved: 25.2, available: 130,
+    projects: [
+      { name: '招生系统升级改造',     approved: 60,  used: 60,  reserved: 0,    status: 'completed' },
+      { name: 'OA协同办公平台升级',   approved: 148, used: 148, reserved: 0,    status: 'completed' },
+      { name: '本科教学质量分析平台', approved: 85,  used: 25.5,reserved: 25.5, status: 'implementing' },
+      { name: '学生资助管理系统',     approved: 45,  used: 0,   reserved: 0,    status: 'demand' },
+    ]
+  },
+  systemUsage: {
+    totalProjects: 12,
+    activeProjects: 5,
+    completedProjects: 4,
+    monthlyActiveUsers: 87,
+    totalUsers: 156,
+    moduleUsage: [
+      { module: '需求管理',   visits: 342, lastWeek: 56 },
+      { module: '立项管理',   visits: 218, lastWeek: 34 },
+      { module: '项目管理',   visits: 891, lastWeek: 142 },
+      { module: '评审管理',   visits: 156, lastWeek: 18 },
+      { module: '验收与运维', visits: 203, lastWeek: 47 },
+      { module: '经费与合同', visits: 178, lastWeek: 29 },
+      { module: '通知管理',   visits: 124, lastWeek: 21 },
+    ],
+    recentLogins: [
+      { user: '李明',   role: '项目负责人',   loginAt: '2025-11-08 09:12' },
+      { user: '陈管理', role: '信息办管理员', loginAt: '2025-11-08 08:45' },
+      { user: '刘主任', role: '信息办领导',   loginAt: '2025-11-07 17:30' },
+      { user: '张三',   role: '项目负责人',   loginAt: '2025-11-07 16:02' },
+    ],
+  },
+
+  /* ====== 项目进展历史 ====== */
+  progressHistory: [
+    {projectId:'P001', period:'2025-07', pct:30, submittedBy:'李明', submittedAt:'2025-07-31'},
+    {projectId:'P001', period:'2025-06', pct:15, submittedBy:'李明', submittedAt:'2025-06-28'},
+    {projectId:'P002', period:'2025-03', pct:55, submittedBy:'王芳', submittedAt:'2025-03-31'},
+    {projectId:'P002', period:'2025-02', pct:40, submittedBy:'王芳', submittedAt:'2025-02-28'},
+  ],
+
+  /* ====== 验收记录 ====== */
+  acceptances: [
+    {
+      id: 'AC001', projectId: 'P001', projectName: '本科教学质量分析平台',
+      internalPassedAt: '2025-09-30', trialStartAt: '2025-10-01',
+      trialMonths: 1, formalStatus: '待组织', formalPassedAt: '',
+      conclusion: '', reportFile: '',
+    },
+    {
+      id: 'AC002', projectId: 'P002', projectName: '招生系统升级改造',
+      internalPassedAt: '2025-05-20', trialStartAt: '2025-05-21',
+      trialMonths: 1, formalStatus: '已通过', formalPassedAt: '2025-06-28',
+      conclusion: '通过', reportFile: '验收报告-招生系统.pdf',
+    },
+  ],
+
+  /* ====== 系统用户 ====== */
+  users: [
+    { id: 'U001', name: '李明',   dept: '教务处',   role: 'project-manager',   roleLabel: '项目负责人',    status: '正常', lastLogin: '2025-11-08 09:12' },
+    { id: 'U002', name: '张三',   dept: '招生处',   role: 'project-manager',   roleLabel: '项目负责人',    status: '正常', lastLogin: '2025-11-07 16:02' },
+    { id: 'U003', name: '陈管理', dept: '信息办',   role: 'info-admin',        roleLabel: '信息办管理员',  status: '正常', lastLogin: '2025-11-08 08:45' },
+    { id: 'U004', name: '刘主任', dept: '信息办',   role: 'info-leader',       roleLabel: '信息办领导',    status: '正常', lastLogin: '2025-11-07 17:30' },
+    { id: 'U005', name: '王书记', dept: '领导小组', role: 'leadership-office', roleLabel: '领导小组办公室',status: '正常', lastLogin: '2025-10-30 10:00' },
+    { id: 'U006', name: '赵会计', dept: '财务处',   role: 'finance-admin',     roleLabel: '财务管理员',    status: '正常', lastLogin: '2025-11-06 14:00' },
+    { id: 'U007', name: '孙合同', dept: '合同办',   role: 'contract-admin',    roleLabel: '合同管理员',    status: '正常', lastLogin: '2025-11-05 10:30' },
+    { id: 'U008', name: '系统管', dept: '信息办',   role: 'sys-admin',         roleLabel: '系统管理员',    status: '正常', lastLogin: '2025-11-08 07:50' },
+  ],
+
+  /* ====== 当前用户（演示用） ====== */
+  currentUser: {
+    name: '李明',
+    unit: '教务处',
+    role: 'project-manager',
+  },
+
+  /* ====== 申报书列表 ====== */
+  /* ── ApprovalStatus 枚举（11 个状态，Issue B） ──
+     草稿 | 待单位审核 | 初审中 | 专家论证中 | 审定中 | 已立项
+     单位退回 | 初审退回 | 论证不通过 | 审定不通过 | 已冻结
+  */
+  proposals: [
+    {
+      id: 'PR001',
+      projectName: '本科教学质量分析平台',
+      unit: '教务处',
+      budget: 85,
+      type: 'small',
+      status: '专家论证中',
+      submittedAt: '2025-03-10',
+      deadline: '2025-04-30',
+      manager: '李明',
+      contact: '13800138001',
+      goal: '构建统一的教学质量数据分析平台，整合教学评价、课程成绩等数据，支持多维度分析决策。',
+      buildContent: '开发教学质量数据采集、清洗、分析及可视化模块，与教务系统、评教系统对接。',
+      techPlan: '采用 B/S 架构，Spring Boot + Vue3，与现有教务系统 API 对接，部署于学校私有云。',
+      securityPlan: '数据传输 HTTPS 加密，角色权限管控，每日自动备份，敏感数据脱敏展示。',
+      purchaseList: [
+        {name:'软件开发服务', qty:1, price:60},
+        {name:'服务器硬件',   qty:2, price:7.5},
+      ],
+      budgetSoftware: 60, budgetHardware: 15, budgetService: 10, budgetOps: 0,
+      planStart: '2025-05-01', planEnd: '2025-10-31',
+      implementPlan: '第一阶段（5-6月）：需求调研与系统设计\n第二阶段（7-9月）：系统开发与内部测试\n第三阶段（10月）：部署上线与试运行验收',
+      // Issue C: 流转关键字段
+      reviewPath: 'standard-review',  // 'standard-review' | 'self-organized' | 'exempt'
+      reviewRound: 1,
+      reviewTaskId: 'RV001',
+      lastRejection: null,
+      approvalDecision: null,
+      fundingAllocation: null,
+    },
+    {
+      id: 'PR002',
+      projectName: '招生系统升级改造',
+      unit: '招生处',
+      budget: 60,
+      type: 'small',
+      status: '已立项',
+      submittedAt: '2025-01-15',
+      deadline: '2025-06-30',
+      manager: '王芳',
+      contact: '13900139001',
+      goal: '完成系统接口改造，实现与国家招生平台的数据互通。',
+      reviewPath: 'standard-review',
+      reviewRound: 1,
+      reviewTaskId: 'RV_PR002',
+      lastRejection: null,
+      approvalDecision: { result: 'approved', approvedBy: '领导小组办公室', approvedAt: '2025-02-05', comment: '同意立项' },
+      fundingAllocation: { confirmedAmount: 60, confirmedBy: '信息办管理员', confirmedAt: '2025-02-06' },
+    },
+    {
+      id: 'PR003',
+      projectName: 'OA协同办公平台升级',
+      unit: '党政办公室',
+      budget: 148,
+      type: 'mid',
+      status: '已立项',
+      submittedAt: '2024-06-01',
+      deadline: '2025-01-31',
+      manager: '赵磊',
+      contact: '13700137001',
+      goal: '升级OA平台至最新版本，完善移动端功能，提升协同办公效率。',
+      reviewPath: 'standard-review',
+      reviewRound: 1,
+      reviewTaskId: 'RV_PR003',
+      lastRejection: null,
+      approvalDecision: { result: 'approved', approvedBy: '领导小组办公室', approvedAt: '2024-07-10', comment: '同意立项' },
+      fundingAllocation: { confirmedAmount: 148, confirmedBy: '信息办管理员', confirmedAt: '2024-07-12' },
+    },
+    {
+      id: 'PR004',
+      projectName: '科研项目全程管理平台',
+      unit: '科研处',
+      budget: 180,
+      type: 'mid',
+      status: '已冻结',
+      submittedAt: '2025-01-20',
+      deadline: null,
+      manager: '刘洋',
+      contact: '13600136001',
+      goal: '建设科研项目全流程管理平台。',
+      reviewPath: 'standard-review',
+      reviewRound: 2,
+      reviewTaskId: 'RV002',
+      lastRejection: { step: '2.5', reason: '技术方案存在重大缺陷', category: '技术方案', rejectedBy: '专家组', rejectedAt: '2025-01-28' },
+      approvalDecision: null,
+      fundingAllocation: null,
+    },
+    // 新增：演示更多状态
+    {
+      id: 'PR005',
+      projectName: '学生资助管理系统',
+      unit: '学生工作处',
+      budget: 45,
+      type: 'small',
+      status: '待单位审核',
+      submittedAt: '2025-03-20',
+      deadline: '2025-05-31',
+      manager: '陈静',
+      contact: '13700137001',
+      goal: '建设学生资助全流程管理系统。',
+      reviewPath: null,
+      reviewRound: 1,
+      reviewTaskId: null,
+      lastRejection: null,
+      approvalDecision: null,
+      fundingAllocation: null,
+    },
+    {
+      id: 'PR006',
+      projectName: '智慧教室管理平台',
+      unit: '教务处',
+      budget: 45,
+      type: 'small',
+      status: '初审中',
+      submittedAt: '2026-03-22',
+      deadline: '2026-06-30',
+      manager: '李明',
+      contact: '13800138001',
+      goal: '建设智慧教室统一管理平台，实现设备远程管控。',
+      reviewPath: null,
+      reviewRound: 1,
+      reviewTaskId: null,
+      lastRejection: null,
+      approvalDecision: null,
+      fundingAllocation: null,
+    },
+    {
+      id: 'PR007',
+      projectName: '数据共享交换平台升级',
+      unit: '教务处',
+      budget: 85,
+      type: 'small',
+      status: '审定中',
+      submittedAt: '2026-03-20',
+      deadline: '2026-06-30',
+      manager: '张伟',
+      contact: '13800138002',
+      goal: '升级现有数据共享交换平台。',
+      reviewPath: 'standard-review',
+      reviewRound: 1,
+      reviewTaskId: 'RV_PR007',
+      lastRejection: null,
+      approvalDecision: null,
+      fundingAllocation: null,
+    },
+    {
+      id: 'PR008',
+      projectName: '心理健康预警系统',
+      unit: '学生工作处',
+      budget: 35,
+      type: 'small',
+      status: '初审退回',
+      submittedAt: '2026-03-22',
+      deadline: '2026-06-30',
+      manager: '陈静',
+      contact: '13700137001',
+      goal: '建设学生心理健康数据预警平台。',
+      reviewPath: null,
+      reviewRound: 1,
+      reviewTaskId: null,
+      lastRejection: { step: '2.4', reason: '预算估算不合理，请补充市场调研数据', category: '预算问题', rejectedBy: '信息办管理员', rejectedAt: '2026-03-25' },
+      approvalDecision: null,
+      fundingAllocation: null,
+    },
+  ],
+
+  /* ====== 专家邀请记录 ====== */
+  expertInvites: [
+    {
+      id: 'INV001',
+      reviewName: '本科教学质量分析平台 — 立项论证',
+      reviewType: '论证',
+      requiredCount: 3,
+      projectName: '本科教学质量分析平台',
+      projectUnit: '教务处',
+      projectType: '业务系统建设',
+      budget: 85,
+      projectDesc: '面向本科教学过程的数据采集与质量分析平台，支持多维度教学评估与预警。',
+      launchedAt: '2025-03-20',
+      scheduledAt: '2025-03-28',
+      scheduledTime: '14:00 — 17:00',
+      location: '信息楼204会议室',
+      reviewFormat: '现场会议（需到场）',
+      organizer: '信息化办公室 · 联系人：王老师 62001234',
+      deadlineAt: '2026-12-31 18:00',
+      invites: [
+        { expertId: 'E001', name: '张国强', isExternal: false, status: '已确认', respondAt: '2025-03-21' },
+        { expertId: 'E003', name: '陈志远', isExternal: true,  status: '已确认', respondAt: '2025-03-22' },
+        { expertId: 'E004', name: '王小燕', isExternal: false, status: '待回复' },
+        { expertId: 'E006', name: '赵明华', isExternal: true,  status: '已确认', respondAt: '2025-03-21' },
+        { expertId: 'E009', name: '吴晓峰', isExternal: false, status: '已拒绝', respondAt: '2025-03-23' },
+      ]
+    },
+    {
+      id: 'INV002',
+      reviewName: '招生系统升级改造 — 需求评审',
+      reviewType: '需求评审',
+      requiredCount: 3,
+      projectName: '招生系统升级改造',
+      projectUnit: '招生处',
+      projectType: '系统升级改造',
+      budget: 60,
+      projectDesc: '现有招生系统建设于2018年，接口标准落后，无法与新版国家招生平台对接，需完成系统接口改造。',
+      launchedAt: '2025-01-02',
+      scheduledAt: '2025-01-10',
+      scheduledTime: '14:00 — 16:30',
+      location: '信息楼204会议室',
+      reviewFormat: '现场会议（需到场）',
+      organizer: '信息化办公室 · 联系人：张老师 62005678',
+      deadlineAt: '2025-01-08 18:00',
+      invites: [
+        { expertId: 'E001', name: '张国强', isExternal: false, status: '已确认', respondAt: '2025-01-03' },
+        { expertId: 'E005', name: '李红梅', isExternal: false, status: '已确认', respondAt: '2025-01-04' },
+        { expertId: 'E007', name: '赵明华', isExternal: true,  status: '待回复' },
+      ]
+    },
+    {
+      id: 'INV003',
+      reviewName: 'OA协同办公平台升级 — 验收评审',
+      reviewType: '验收',
+      requiredCount: 5,
+      projectName: 'OA协同办公平台升级',
+      projectUnit: '党政办公室',
+      projectType: '系统升级改造',
+      budget: 150,
+      projectDesc: '升级OA平台至最新版本，完善移动端功能，提升协同办公效率。',
+      launchedAt: '2025-01-15',
+      scheduledAt: '2025-01-25',
+      scheduledTime: '09:30 — 12:00',
+      location: '信息楼301会议室',
+      reviewFormat: '现场会议（需到场）',
+      organizer: '信息化办公室 · 联系人：王老师 62001234',
+      deadlineAt: '2025-01-22 18:00',
+      invites: [
+        { expertId: 'E001', name: '张国强', isExternal: false, status: '已确认', respondAt: '2025-01-16' },
+        { expertId: 'E003', name: '陈志远', isExternal: true,  status: '已确认', respondAt: '2025-01-17' },
+        { expertId: 'E005', name: '李红梅', isExternal: false, status: '已确认', respondAt: '2025-01-16' },
+        { expertId: 'E010', name: '郑雪梅', isExternal: true,  status: '待回复' },
+        { expertId: 'E009', name: '吴晓峰', isExternal: false, status: '已确认', respondAt: '2025-01-18' },
+      ]
+    },
+  ],
+
+  /* ====== 需求征集计划 ====== */
+  collectionPlans: [
+    {
+      id: 'CP001', title: '2026年度信息化项目需求征集', year: 2026,
+      summary: '面向全校各单位征集2026年度信息化建设项目需求',
+      description: '根据学校信息化建设规划，开展2026年度信息化项目需求征集工作。各单位请结合实际需求，认真填报项目需求申请。',
+      startDate: '2026-03-01', endDate: '2026-04-15',
+      attachments: [{name:'征集说明附件.pdf', size:'2.3MB'}],
+      status: 'active', createdBy: '张华', createdAt: '2026-02-20',
+      contactName: '张华', contactInfo: '023-68253188 / zhanghua@swu.edu.cn',
+      scopeDesc: '全部单位（8个）',
+      notification: {
+        title: '关于开展2026年度信息化项目需求征集的通知',
+        body: '各二级单位：根据学校信息化建设规划安排，现启动2026年度信息化项目需求征集工作，请于2026年4月15日前完成需求填报。',
+        contactName: '张华', contactPhone: '023-68253188', contactEmail: 'zhanghua@swu.edu.cn',
+        recipients: ['全部单位'], recipientCount: 42,
+        sendTime: 'immediate'
+      },
+      workflowConfig: {
+        templateId: 'TPL001',
+        nodes: [
+          { id: 'WN01', name: '立项论证', type: 'main', order: 1, role: 'info-admin', materials: [{name:'可行性报告',required:true},{name:'技术方案书',required:true}], lockStatus: 'in-progress' },
+          { id: 'WN02', name: '技术评审', type: 'review', order: 2, role: 'expert', materials: [{name:'评审意见表',required:true}], lockStatus: 'unreached' },
+          { id: 'WN03', name: '招投标', type: 'main', order: 3, role: 'project-manager', materials: [{name:'招标文件',required:true},{name:'投标报告',required:false}], lockStatus: 'unreached' },
+          { id: 'WN04', name: '合同签订', type: 'main', order: 4, role: 'contract-admin', materials: [{name:'合同文本',required:true}], lockStatus: 'unreached' },
+          { id: 'WN05', name: '项目实施', type: 'main', order: 5, role: 'project-manager', materials: [{name:'进展报告',required:true}], lockStatus: 'unreached' },
+          { id: 'WN06', name: '验收', type: 'main', order: 6, role: 'info-admin', materials: [{name:'验收报告',required:true},{name:'用户手册',required:true}], lockStatus: 'unreached' },
+          { id: 'WN07', name: '运维', type: 'main', order: 7, role: 'project-manager', materials: [{name:'运维方案',required:true}], lockStatus: 'unreached' },
+        ]
+      },
+      submitStats: {
+        totalUnits: 28, submittedUnits: 22, notSubmittedUnits: 6, totalDemands: 18, totalBudget: 1048,
+        assignedCount: 18,
+        unitDetails: [
+          { unit: '教务处', submitted: true, count: 2, lastSubmit: '2026-03-20', budget: 130, assignedCount: 3 },
+          { unit: '招生处', submitted: true, count: 2, lastSubmit: '2026-03-16', budget: 108, assignedCount: 3 },
+          { unit: '学生工作处', submitted: true, count: 1, lastSubmit: '2026-03-22', budget: 35, assignedCount: 2 },
+          { unit: '科研处', submitted: true, count: 2, lastSubmit: '2026-03-18', budget: 260, assignedCount: 3 },
+          { unit: '党政办公室', submitted: true, count: 1, lastSubmit: '2026-03-20', budget: 25, assignedCount: 1 },
+          { unit: '图书馆', submitted: true, count: 2, lastSubmit: '2026-03-25', budget: 43, assignedCount: 2 },
+          { unit: '财务处', submitted: false, count: 1, lastSubmit: null, budget: 55, assignedCount: 1 },
+          { unit: '人事处', submitted: true, count: 2, lastSubmit: '2026-03-29', budget: 105, assignedCount: 2 },
+          { unit: '后勤管理处', submitted: true, count: 3, lastSubmit: '2026-03-23', budget: 120, assignedCount: 3 },
+          { unit: '实验室与设备管理处', submitted: true, count: 2, lastSubmit: '2026-03-19', budget: 80, assignedCount: 2 },
+        ]
+      }
+    },
+    {
+      id: 'CP002', title: '2025年度信息化项目需求征集', year: 2025,
+      summary: '2025年度信息化项目需求征集（已关闭）',
+      description: '2025年度信息化项目需求征集已完成。',
+      startDate: '2025-02-15', endDate: '2025-03-31',
+      attachments: [], status: 'closed', createdBy: '张华', createdAt: '2025-02-01',
+      contactName: '张华', contactInfo: '023-68253188 / zhanghua@swu.edu.cn',
+      scopeDesc: '全部单位（8个）',
+      notification: { title: '2025年度需求征集通知', body: '已关闭', contactName: '张华', contactPhone: '023-68253188', contactEmail: 'zhanghua@swu.edu.cn', recipients: ['全部单位'], recipientCount: 38, sendTime: '2025-02-15 09:00' },
+      workflowConfig: { templateId: 'TPL001', nodes: [] },
+      submitStats: { totalUnits: 28, submittedUnits: 25, notSubmittedUnits: 3, totalDemands: 32, totalBudget: 2100, unitDetails: [] }
+    },
+    {
+      id: 'CP003', title: '2026年度科研专项信息化需求征集', year: 2026,
+      summary: '围绕科研数据治理、重点实验室信息化开展专项需求征集',
+      description: '为提升学校科研数字化能力，面向各科研单位开展 2026 年度科研专项信息化建设需求征集，已完成需求汇总与遴选。',
+      startDate: '2026-01-10', endDate: '2026-02-28',
+      attachments: [{name:'科研专项征集说明.pdf', size:'1.6MB'}],
+      status: 'selection-done', createdBy: '张华', createdAt: '2026-01-05',
+      contactName: '李敏', contactInfo: '023-68253162 / limin@swu.edu.cn',
+      scopeDesc: '科研处、各学院、重点实验室（共 16 家）',
+      notification: {
+        title: '关于开展 2026 年度科研专项信息化需求征集的通知',
+        body: '各科研单位：为推动科研数字化转型，现启动 2026 年度科研专项信息化需求征集，请于 2026 年 2 月 28 日前完成填报。',
+        contactName: '李敏', contactPhone: '023-68253162', contactEmail: 'limin@swu.edu.cn',
+        recipients: ['科研处','各学院','重点实验室'], recipientCount: 16,
+        sendTime: '2026-01-10 09:00'
+      },
+      workflowConfig: { templateId: 'TPL001', nodes: [] },
+      submitStats: {
+        totalUnits: 16, submittedUnits: 15, notSubmittedUnits: 1,
+        totalDemands: 12, totalBudget: 860, assignedCount: 12,
+        unitDetails: [
+          { unit: '科研处',             submitted: true,  count: 2, lastSubmit: '2026-02-18', budget: 180, assignedCount: 2 },
+          { unit: '计算机与信息科学学院', submitted: true,  count: 2, lastSubmit: '2026-02-20', budget: 150, assignedCount: 2 },
+          { unit: '生命科学学院',        submitted: true,  count: 2, lastSubmit: '2026-02-22', budget: 140, assignedCount: 2 },
+          { unit: '材料与能源学院',      submitted: true,  count: 1, lastSubmit: '2026-02-15', budget:  90, assignedCount: 1 },
+          { unit: '重点实验室办公室',    submitted: true,  count: 2, lastSubmit: '2026-02-24', budget: 160, assignedCount: 2 },
+          { unit: '农学与生物科技学院',  submitted: false, count: 0, lastSubmit: null,         budget:   0, assignedCount: 0 },
+        ]
+      }
+    },
+    {
+      id: 'CP004', title: '2027年度信息化项目需求征集（试编制）', year: 2027,
+      summary: '面向 2027 年度编制中的征集方案草稿',
+      description: '根据学校"十四五"信息化建设规划延伸安排，先行编制 2027 年度需求征集方案草稿，待审核后启动正式征集。',
+      startDate: '2026-11-01', endDate: '2026-12-15',
+      attachments: [], status: 'draft', createdBy: '张华', createdAt: '2026-04-10',
+      contactName: '张华', contactInfo: '023-68253188 / zhanghua@swu.edu.cn',
+      scopeDesc: '全部单位（待确认）',
+      notification: {
+        title: '2027年度信息化项目需求征集通知（草稿）',
+        body: '方案尚在编制中，通知正文待补充。',
+        contactName: '张华', contactPhone: '023-68253188', contactEmail: 'zhanghua@swu.edu.cn',
+        recipients: [], recipientCount: 0, sendTime: 'immediate'
+      },
+      workflowConfig: { templateId: 'TPL001', nodes: [] },
+      submitStats: { totalUnits: 0, submittedUnits: 0, notSubmittedUnits: 0, totalDemands: 0, totalBudget: 0, unitDetails: [] }
+    },
+    {
+      id: 'CP005', title: '2026年度民生服务信息化补充征集', year: 2026,
+      summary: '面向后勤、学工等民生服务单位开展补充征集',
+      description: '为弥补首轮征集中民生服务类需求不足的情况，开展补充征集，方案已提交信息办主任审核。',
+      startDate: '2026-05-10', endDate: '2026-06-20',
+      attachments: [{name:'民生服务补充征集说明.pdf', size:'0.9MB'}],
+      status: 'pending-review', createdBy: '张华', createdAt: '2026-04-12',
+      contactName: '张华', contactInfo: '023-68253188 / zhanghua@swu.edu.cn',
+      scopeDesc: '后勤管理处、学生工作处、图书馆、校医院（共 4 家）',
+      notification: {
+        title: '关于开展 2026 年度民生服务信息化补充征集的通知',
+        body: '各相关单位：为强化民生服务数字化能力，现拟开展补充征集，请于 2026 年 6 月 20 日前完成填报。',
+        contactName: '张华', contactPhone: '023-68253188', contactEmail: 'zhanghua@swu.edu.cn',
+        recipients: ['后勤管理处','学生工作处','图书馆','校医院'], recipientCount: 4,
+        sendTime: 'immediate'
+      },
+      workflowConfig: { templateId: 'TPL001', nodes: [] },
+      submitStats: { totalUnits: 4, submittedUnits: 0, notSubmittedUnits: 4, totalDemands: 0, totalBudget: 0, unitDetails: [] }
+    },
+    {
+      id: 'CP006', title: '2026年度教学专项需求征集', year: 2026,
+      summary: '教学信息化专项征集方案（被退回）',
+      description: '该征集方案在征集范围界定上存在问题，信息办主任已退回，待修订后重新提交。',
+      startDate: '2026-04-05', endDate: '2026-05-20',
+      attachments: [{name:'教学专项征集说明_v1.pdf', size:'1.2MB'}],
+      status: 'returned', createdBy: '张华', createdAt: '2026-03-28',
+      contactName: '王芳', contactInfo: '023-68253175 / wangfang@swu.edu.cn',
+      scopeDesc: '教务处、各学院教学副院长办公室',
+      returnReason: '征集范围未覆盖继续教育学院，请补充后重新提交。',
+      notification: {
+        title: '关于开展 2026 年度教学专项信息化需求征集的通知（草稿）',
+        body: '各教学单位：为推进教学信息化，现拟开展教学专项需求征集，具体通知正文正在修订。',
+        contactName: '王芳', contactPhone: '023-68253175', contactEmail: 'wangfang@swu.edu.cn',
+        recipients: ['教务处','各学院'], recipientCount: 22,
+        sendTime: 'immediate'
+      },
+      workflowConfig: { templateId: 'TPL001', nodes: [] },
+      submitStats: { totalUnits: 0, submittedUnits: 0, notSubmittedUnits: 0, totalDemands: 0, totalBudget: 0, unitDetails: [] }
+    }
+  ],
+
+  /* ====== 流程模板 ====== */
+  workflowTemplates: [
+    { id: 'TPL001', name: '标准项目流程', description: '适用于小型及以上项目的标准流程', isDefault: true, steps: [
+      { id: 'S1', name: '需求征集', sub: ['需求填报','单位审核','需求遴选'] },
+      { id: 'S2', name: '立项论证', sub: ['填写申报书','单位审核','信息办初审','专家评审','领导审定'] },
+      { id: 'S3', name: '采购实施', sub: ['编制采购方案','招标/比选','合同签订'] },
+      { id: 'S4', name: '项目实施', sub: ['项目启动','开发/部署','阶段验收'] },
+      { id: 'S5', name: '项目验收', sub: ['内部验收','正式验收','资料归档'] },
+      { id: 'S6', name: '运维保障', sub: ['运维移交','日常巡检','年度评估'] },
+    ]},
+    { id: 'TPL002', name: '微型项目简化流程', description: '适用于微型项目（<20万）的简化流程', isDefault: false, steps: [
+      { id: 'S1', name: '需求征集', sub: ['需求填报','审核'] },
+      { id: 'S2', name: '立项审批', sub: ['填写申报书','信息办审批'] },
+      { id: 'S3', name: '采购实施', sub: ['自行采购','合同签订'] },
+      { id: 'S4', name: '项目验收', sub: ['验收评审','资料归档'] },
+      { id: 'S5', name: '运维保障', sub: ['运维移交','日常巡检'] },
+    ]},
+    { id: 'TPL003', name: '紧急项目通道', description: '适用于上级要求或突发项目的快速通道', isDefault: false, steps: [
+      { id: 'S1', name: '紧急立项', sub: ['提交申请','领导审批'] },
+      { id: 'S2', name: '采购实施', sub: ['紧急采购','合同签订'] },
+      { id: 'S3', name: '项目实施', sub: ['快速部署','联调测试'] },
+      { id: 'S4', name: '项目验收', sub: ['验收评审','资料归档'] },
+    ]},
+  ],
+
+  /* ====== 变更记录 ====== */
+  changeRecords: [
+    { id: 'CHG001', projectId: 'P002', projectName: '招生系统升级改造', changeTypes: ['预算调整','进度调整'], level: 'general', originalBudget: 55, newBudget: 60, changeRatio: 9.1, reason: '因国家招生平台接口标准更新，需额外开发适配模块', impact: '增加开发工时约2周，预算增加5万元', status: 'approved', appliedBy: '王芳', appliedAt: '2025-03-05', approvedBy: '王主任', approvedAt: '2025-03-08' },
+    { id: 'CHG002', projectId: 'P001', projectName: '本科教学质量分析平台', changeTypes: ['联系方式'], level: 'info', reason: '项目负责人更换手机号', status: 'completed', appliedBy: '李明', appliedAt: '2025-07-10', approvedBy: null, approvedAt: null },
+  ],
+
+  /* ====== 微型项目记录 ====== */
+  microProjects: [
+    { id: 'MP001', projectId: 'P006', projectName: '院系网站群模板升级', unit: '宣传部', manager: '吴小明', budget: 15, selfReview: { method: 'meeting', date: '2025-04-10', participants: [{name:'张工',title:'高工',unit:'信息办'},{name:'李科',title:'科长',unit:'宣传部'},{name:'王教授',title:'副教授',unit:'计算机学院'}], conclusion: 'approved', summary: '论证一致通过，建议在原有模板基础上进行升级改造', attachments: ['论证会纪要.pdf','签到表.pdf'] }, infoConfirmStatus: 'confirmed', infoConfirmBy: '张华', infoConfirmAt: '2025-04-12' },
+  ],
+
+  /* ====== 标签库（D-09） ====== */
+  tagLibrary: [
+    // 业务领域 (8)
+    {id:'tag-biz-01', category:'业务领域', name:'教学管理', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-biz-02', category:'业务领域', name:'科研管理', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-biz-03', category:'业务领域', name:'学生事务', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-biz-04', category:'业务领域', name:'行政办公', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-biz-05', category:'业务领域', name:'财务管理', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-biz-06', category:'业务领域', name:'人事管理', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-biz-07', category:'业务领域', name:'招生就业', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-biz-08', category:'业务领域', name:'图书档案', builtin:true, createdAt:'2026-01-01'},
+    // 技术类型 (8)
+    {id:'tag-tech-01', category:'技术类型', name:'数据分析', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-tech-02', category:'技术类型', name:'移动端', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-tech-03', category:'技术类型', name:'集成接口', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-tech-04', category:'技术类型', name:'报表统计', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-tech-05', category:'技术类型', name:'AI/智能化', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-tech-06', category:'技术类型', name:'云部署', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-tech-07', category:'技术类型', name:'安全合规', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-tech-08', category:'技术类型', name:'数据治理', builtin:true, createdAt:'2026-01-01'},
+    // 建设类型 (5)
+    {id:'tag-build-01', category:'建设类型', name:'全新建设', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-build-02', category:'建设类型', name:'功能扩展', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-build-03', category:'建设类型', name:'系统替换', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-build-04', category:'建设类型', name:'接口改造', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-build-05', category:'建设类型', name:'升级改造', builtin:true, createdAt:'2026-01-01'},
+    // 项目规模 (4)
+    {id:'tag-scale-01', category:'项目规模', name:'微型（<20万）', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-scale-02', category:'项目规模', name:'小型（20-100万）', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-scale-03', category:'项目规模', name:'中型（100-200万）', builtin:true, createdAt:'2026-01-01'},
+    {id:'tag-scale-04', category:'项目规模', name:'重大（≥200万）', builtin:true, createdAt:'2026-01-01'},
+  ],
+
+  /* ====== 演示账号用户库（D-10） ====== */
+  demandUsers: [
+    // 三个核心演示账号（260409 会议确认）
+    {id:'u-tangming',  name:'唐明',   empNo:'20053964', unitId:'unit-info', roles:['info-leader','unit-leader']},
+    {id:'u-linyijie',  name:'林已杰', empNo:'20054379', unitId:'unit-info', roles:['info-admin','unit-admin']},
+    {id:'u-wangyifan', name:'王一凡', empNo:'50240014', unitId:'unit-edu',  roles:['project-manager']},
+    // 其他 Mock 用户（供指派/选人列表筛选）
+    {id:'u-m01', name:'李小雨', empNo:'50240021', unitId:'unit-edu', roles:['project-manager']},
+    {id:'u-m02', name:'陈建国', empNo:'50240035', unitId:'unit-sci', roles:['project-manager']},
+    {id:'u-m03', name:'赵慧敏', empNo:'50240048', unitId:'unit-stu', roles:['project-manager']},
+    {id:'u-m04', name:'周涛',   empNo:'50240056', unitId:'unit-hr',  roles:['project-manager']},
+    {id:'u-m05', name:'孙丽',   empNo:'50240063', unitId:'unit-lib', roles:['project-manager']},
+    {id:'u-m06', name:'黄志强', empNo:'20054421', unitId:'unit-edu', roles:['unit-admin']},
+    {id:'u-m07', name:'吴芳',   empNo:'20054438', unitId:'unit-sci', roles:['unit-admin','unit-leader']},
+  ],
+
+  /* ====== 通知类型定义 ====== */
+  notificationTypes: [
+    { id: 1, key: 'collection-notice', name: '需求征集通知', level: 'info' },
+    { id: 2, key: 'collection-returned', name: '征集方案退回通知', level: 'warning' },
+    { id: '3a', key: 'demand-returned', name: '需求退回通知', level: 'warning', recipient: '项目负责人' },
+    { id: '3b', key: 'demand-not-supported', name: '需求不予支持通知', level: 'warning', recipient: '项目负责人 + 单位管理员' },
+    { id: 4, key: 'approval-invite', name: '立项申报通知', level: 'info' },
+    { id: 5, key: 'proposal-return', name: '申报书退回通知', level: 'warning' },
+    { id: 6, key: 'expert-invite', name: '专家评审邀请', level: 'info' },
+    { id: 7, key: 'review-result', name: '评审结果通知', level: 'info' },
+    { id: 8, key: 'frozen-notice', name: '项目冻结通知', level: 'urgent' },
+    { id: 9, key: 'approval-notice', name: '立项通知书', level: 'info' },
+    { id: 10, key: 'approval-result-reject', name: '立项不通过通知', level: 'warning' },
+    { id: 11, key: 'change-result', name: '延期/变更/终止审批结果通知', level: 'info' },
+    { id: 12, key: 'overdue-warning', name: '汇报逾期预警', level: 'urgent' },
+    { id: 13, key: 'acceptance-invite', name: '验收评审邀请', level: 'info' },
+    { id: 14, key: 'acceptance-result', name: '验收结果通知', level: 'info' },
+    { id: 15, key: 'major-fault', name: '重大故障上报通知', level: 'urgent' },
+    { id: 16, key: 'contract-expiry', name: '合同到期提醒', level: 'warning' },
+  ],
+
+  /* ====== 评审维度（论证4维度 + 验收9维度） ====== */
+  reviewDimensions: {
+    approval: [
+      { key: 'techPlan',  label: '技术方案',   weight: 30, desc: '技术方案的可行性、成熟度与先进性' },
+      { key: 'necessity', label: '建设必要性', weight: 30, desc: '项目建设的必要性、紧迫性及与规划的关系' },
+      { key: 'budget',    label: '预算合理性', weight: 20, desc: '建设预算的合理性、性价比与资金来源' },
+      { key: 'security',  label: '安全合规',   weight: 20, desc: '信息安全方案完整性、等保合规与数据保护' },
+    ],
+    acceptance: [
+      { key: 'goalAchieve',  label: '建设目标达成度', weight: 15, desc: '项目实际建设成果与立项目标的符合程度' },
+      { key: 'techIndex',    label: '技术指标',       weight: 15, desc: '系统技术指标是否达到设计要求' },
+      { key: 'runEffect',    label: '运行效果',       weight: 12, desc: '系统运行稳定性、性能表现及可靠性' },
+      { key: 'userExp',      label: '用户体验',       weight: 10, desc: '用户界面友好度、操作便捷性及满意度' },
+      { key: 'dataShare',    label: '数据对接共享',   weight: 10, desc: '与校内其他系统的数据互通与共享能力' },
+      { key: 'training',     label: '使用培训',       weight: 8,  desc: '用户培训覆盖度、培训材料完整性' },
+      { key: 'maintenance',  label: '维保任务',       weight: 10, desc: '运维方案完整性、维保服务响应机制' },
+      { key: 'netSecurity',  label: '网络安全',       weight: 10, desc: '安全防护措施、等保测评及漏洞修复情况' },
+      { key: 'budgetUse',    label: '经费使用',       weight: 10, desc: '经费使用合规性、预算执行率及审计情况' },
+    ],
+  },
+
+  /* ====== 专家人数规则（按项目级别） ====== */
+  expertRules: {
+    major: { minExperts: 5, mustExternal: true, externalRatio: 1/3, needLabAttend: true, needFinanceAttend: true, label: '重大项目（≥200万）' },
+    mid:   { minExperts: 5, mustExternal: true, externalRatio: 1/3, needLabAttend: false, needFinanceAttend: false, label: '中型项目（100-200万）' },
+    small: { minExperts: 3, mustExternal: false, externalRatio: 1/3, needLabAttend: false, needFinanceAttend: false, label: '小型项目（20-100万）' },
+    micro: { minExperts: 3, mustExternal: false, externalRatio: 1/3, needLabAttend: false, needFinanceAttend: false, label: '微型项目（<20万）' },
+  },
+
+  /* ====== 专家标签体系（30个标准标签：6职能+24专业领域） ====== */
+  expertTagLibrary: {
+    functional: ['教学','学生管理','服务管理','科研','财务','其他'],
+    professional: [
+      '计算机科学与技术','教育技术学','通信网络','数据科学','软件工程','人工智能',
+      '管理信息系统网络通信与安全','合成生物学','机电一体化','物理','迁移学习',
+      '计算机视觉','管理科学与工程','创新创业','思想政治教育','管理','规划',
+      '学科','学术管理','学科建设','数据管理','工程管理','招标采购','机器学习','智能制造',
+    ],
+  },
+
+  /* ====== 评审须知（专家确认后方可填写意见） ====== */
+  reviewGuidelines: '一、评审纪律\n1. 评审专家应客观公正地对项目进行评审，不得受任何单位或个人的干预。\n2. 评审专家与被评审项目存在利益关系的，应当主动回避。\n3. 评审过程中获悉的信息（含项目方案、预算等）属于保密信息，不得向外泄露。\n\n二、评审要求\n1. 请认真阅读项目材料，从专业角度给出评审意见。\n2. 评分应基于评审维度逐项打分，综合意见应具体明确。\n3. 如选择"退回修改"，须详细说明修改要求和修改要点。\n4. 评审意见将经信息办审核后作为参考依据，最终决策权在主流程审批角色手中（BR-E01）。\n\n三、行为规范\n1. 系统将记录评审页面操作时间，用于识别评审行为是否规范。\n2. 同一项目可发起多次评审，每次独立记录（BR-E02）。',
+};

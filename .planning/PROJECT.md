@@ -37,7 +37,7 @@
 - **现有原型**：demo-0408 (index.html + app.html + 11个视图 JS 文件)，约 50 个视图的基础实现
 - **系统规格**：40 个视图完整清单，4 种页面模板（T1仪表盘/T2列表/T3表单/T4详情）
 - **知识库**：wiki 中有完整的通知矩阵（130条）、系统规则表（43条 BR 规则）、角色体系（12类）
-- **OpenSpec 工作流**：每个页面/模块通过 propose→apply→archive 三步生成，禁止直接写页面
+- **工作流**：GSD（`.planning/`）负责规划与执行（`/gsd-plan-phase` → `/gsd-execute-phase`），OpenSpec（`openspec/changes/`）作为产物归档格式用于 wiki 同步（2026-04-20 重定位）；禁止直接写页面
 - **UI 规范**：shadcn 风格，Tailwind CDN + Lucide，详见 my-project-code/doce/ui-spec.md
 - **近期会议**：260409 确认会更新了需求征集流程（系统管理员先指派再填报）和专家评审规则
 
@@ -45,15 +45,15 @@
 
 - **Tech**: 纯 HTML 文件，浏览器双击直接运行，无构建工具
 - **UI**: 必须遵循 my-project-code/doce/ui-spec.md 规范
-- **流程**: 所有页面必须通过 OpenSpec 工作流生成，禁止直接写页面
-- **规模**: 每个 OpenSpec 变更的 tasks.md ≤15 项，超出则拆分
+- **流程**: 所有页面必须通过 GSD 工作流（`/gsd-plan-phase` → `/gsd-execute-phase`）生成，执行产物归档为 OpenSpec change 格式以便 wiki 同步；禁止直接写页面
+- **规模**: 每个 GSD plan 的任务项 ≤15 项，超出则拆分为多个 plan
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | 本地 HTML 单文件输出 | 无需服务器，方便演示和分发 | ✓ Good |
-| OpenSpec 变更管理工作流 | 确保每个功能有完整的提案→设计→生成记录 | — Pending |
+| GSD 规划执行 + OpenSpec 产物归档 | GSD 做规划与执行，OpenSpec 做归档与 wiki 同步（2026-04-20 重定位） | ✓ Decided |
 | Tailwind CDN + shadcn 风格 | 快速生成美观 UI，无需构建工具 | ✓ Good |
 | 按模块划分规划阶段 | 6-8 个模块，每个模块对应一个 GSD 阶段 | — Pending |
 

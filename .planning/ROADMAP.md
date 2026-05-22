@@ -15,6 +15,7 @@
 - [ ] **Phase 4: 项目招采&实施模块** - 采购管理、合同台账、实施进展及变更终止的完整流程
 - [ ] **Phase 5: 项目验收&运维模块** - 内部初验、正式验收、运维记录和故障工单的完整流程
 - [ ] **Phase 6: 通知&日志&系统管理模块** - 通知全链路、操作日志、用户权限及流程配置
+- [ ] **Phase 7: 项目全景模块** - 跨模块纵向追溯视图（生命周期看板 + 项目全景详情，纯只读）
 
 ## Phase Details
 
@@ -22,11 +23,12 @@
 **Goal**: 演示从信息办发起需求征集、单位填报需求、排序审批，到信息办遴选的完整闭环
 **Depends on**: Phase 0 (已完成)
 **Requirements**: DEM-01, DEM-02, DEM-03, DEM-04, DEM-05, DEM-06, DEM-07
-**OpenSpec Changes**:
-  - `demand-collection-launch` — 信息办管理员发起征集配置页 + 跳转通知页预填联动
-  - `demand-form-fill` — 单位系统管理员授权指派页 + 项目负责人需求申请表（T3，暂存/提交）
-  - `demand-sort-review` — 单位拖拽排序页 + 单位领导审批详情页（T4，含审批意见）
-  - `demand-selection` — 信息办遴选页（支持/不支持标记，BR-04 六类不予支持提示）+ 需求列表（T2）
+**OpenSpec Changes** (1 plan ↔ 1 change，命名以 GSD plan 为权威):
+  - `demand-data-foundation` (01-01) — DATA.tagLibrary / DATA.demandUsers / roleDisplayName 建立 + tag-library 视图（标签库管理）
+  - `demand-collection-launch` (01-02) — 信息办管理员发起征集配置页 + 跳 notification-create 预填联动（DEM-01）
+  - `demand-form-fill` (01-03) — 单位系统管理员授权指派页 + 项目负责人需求申请表（DEM-02, DEM-03；T3 含暂存/提交）
+  - `demand-sort-review` (01-04) — 单位上下移排序 + 单位领导 T4 审批详情页（DEM-04, DEM-05，不用拖拽库）
+  - `demand-selection` (01-05) — 信息办遴选（Drawer 展示 BR-04 六类不予支持原因）+ 需求列表 T2（DEM-06, DEM-07）
 **Success Criteria** (what must be TRUE):
   1. 切换到「信息办管理员」角色，可进入发起需求征集页面，配置时间范围和通知范围后提交，页面自动跳转到通知预填页
   2. 切换到「单位系统管理员」角色，可看到征集通知并为本单位指派填报人
@@ -35,7 +37,7 @@
   5. 切换到「单位领导」角色，可在 T4 详情页查看需求排序并填写审批意见通过或退回
   6. 切换到「信息办管理员」角色，可在遴选页对每条需求标记支持/不支持，选择不支持时显示 BR-04 六类原因提示
   7. 需求列表（T2）可按状态和单位筛选，反映各需求的当前处理状态
-**Plans**: TBD
+**Plans**: 01-01, 01-02, 01-03, 01-04, 01-05（执行结果见 .planning/phases/01-需求征集模块/01-0x-SUMMARY.md）
 **UI hint**: yes
 
 ### Phase 2: 立项论证模块
@@ -124,10 +126,25 @@
 **Plans**: TBD
 **UI hint**: yes
 
+### Phase 7: 项目全景模块
+**Goal**: 演示信息办/领导可按项目纵览 demand→proposal→review→contract→acceptance→ops 全生命周期的跨模块只读视图
+**Depends on**: Phase 6（跨表聚合需各子表 DATA 就位）
+**Requirements**: 待从 project-overview/spec.md 提取为 OVW-xx 号（/gsd-plan-phase 时补齐）
+**OpenSpec Changes** (1 plan ↔ 1 change):
+  - `project-overview` — 新增顶级菜单「项目全景」，含 project-overview-board（生命周期看板表格列表，10 列 + CSV 导出）+ project-overview-detail（单项目纵向时间线），跨表聚合 demands/proposals/reviews/contracts/acceptances/opsRecords，仅 info-*/leadership-*/project-manager/unit-admin 可见，纯只读
+**Success Criteria** (what must be TRUE):
+  1. 侧边栏新分组「项目全景」下可见两个菜单项（生命周期看板 + 项目全景详情），expert 角色完全不可见
+  2. info-admin/info-leader/leadership-* 看全量项目；project-manager 只看自己负责的；unit-admin 只看本单位的
+  3. 看板表格支持单位/类型/阶段/关键字过滤 + 列排序 + 导出 CSV
+  4. 项目全景详情以单项目为主语按阶段纵向铺开时间线，聚合各子表数据，所有入口均为跳原页面的只读链接
+  5. 不修改 project-detail 管理操作面板；仅在 DATA.demands 扩 `tags`/`attachments` 字段并为 5 条代表性 demand 填 mock，不引入新的 DATA 顶层数组
+**Plans**: TBD（change 的 proposal/spec/design/tasks 已备齐于 my-project-code/openspec/changes/project-overview/，未走 /gsd-plan-phase）
+**UI hint**: yes
+
 ## Dependencies
 
 ```
-Phase 0 (完成) → Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6
+Phase 0 (完成) → Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7
 ```
 
 - Phase 1 依赖 Phase 0：需要基础框架（12 角色切换、页面模板、工作台）和通知模板结构
@@ -136,6 +153,7 @@ Phase 0 (完成) → Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 →
 - Phase 4 依赖 Phase 3：招采流程在项目论证通过后启动；变更申请（IMPL-03）触发的专家论证复用 Phase 3 的评审流程
 - Phase 5 依赖 Phase 4：验收以实施完成为前提，运维以验收通过为前提
 - Phase 6 可并行开发部分内容（通知模板已完成），但完整通知链路需等各模块业务操作确定后联调
+- Phase 7 依赖 Phase 1-6：跨表聚合需各阶段 DATA 结构就位；菜单与视图骨架可先行但展示数据依赖前序阶段产物
 
 ## Progress
 
@@ -147,6 +165,7 @@ Phase 0 (完成) → Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 →
 | 4. 项目招采&实施模块 | 0/TBD | Not started | - |
 | 5. 项目验收&运维模块 | 0/TBD | Not started | - |
 | 6. 通知&日志&系统管理模块 | 0/TBD | Not started | - |
+| 7. 项目全景模块 | 0/TBD | Not started | - |
 
 ## Out of Scope for v1
 

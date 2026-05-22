@@ -114,8 +114,8 @@
 ## 工具风险 (Tooling Risks)
 
 **graphify-out/ 内嵌了一份重复的 graphify 缓存：**
-- 问题：`my-project-wiki/raw/docs/demo-0408/shared/graphify-out/cache/` 下存在13个 JSON 缓存文件，这是 graphify 在 raw/docs/demo-0408/ 子目录中意外生成的第二份缓存。与根目录 `graphify-out/cache/`（42个文件）并存，可能导致图谱重建时混入 demo 源文件的局部子图。
-- 文件：`my-project-wiki/raw/docs/demo-0408/shared/graphify-out/`（整个目录）
+- 问题：`my-project-code/demo/shared/graphify-out/cache/` 下存在13个 JSON 缓存文件，这是 graphify 在 raw/docs/demo-0408/ 子目录中意外生成的第二份缓存。与根目录 `graphify-out/cache/`（42个文件）并存，可能导致图谱重建时混入 demo 源文件的局部子图。
+- 文件：`my-project-code/demo/shared/graphify-out/`（整个目录）
 - 建议：确认这是误生成的副产物后删除，并在 graphify 配置中排除 `raw/docs/demo-0408/` 或将其加入 `.graphifyignore`。
 
 **my-project-wiki/.gitignore 未排除 graphify 缓存和 .DS_Store：**
@@ -164,7 +164,7 @@
 
 **P2 — 近期处理（知识库完整性）：**
 6. 手动读取 `raw/decisions/本科生院-2026年信息化项目需求入库评审结果通知.pdf`，填写空的 .md 文件后执行 ingest
-7. 删除 `my-project-wiki/raw/docs/demo-0408/shared/graphify-out/` 误生成的副缓存
+7. 删除 `my-project-code/demo/shared/graphify-out/` 误生成的副缓存
 8. 更新 `my-project-wiki/.gitignore`，添加 `raw/docs/demo-0408/shared/graphify-out/`
 9. 更新 `wiki/overview.md` 的最后更新日期并补充 2026-04-08 至今的重要变更
 
